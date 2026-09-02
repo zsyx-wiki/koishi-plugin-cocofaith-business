@@ -31,6 +31,7 @@ export function assertBusinessResult(result: unknown): asserts result is Busines
   if (!result || typeof result !== "object") throw invalidResult();
   const value = result as Record<string, unknown>;
   if (value.delivery !== undefined && value.delivery !== "passive" && value.delivery !== "proactive-required") throw invalidResult("消息发送策略无效。");
+  if (value.type === "silent") return;
   if (value.type === "text") { assertText(value.content, BUSINESS_PROTOCOL_LIMITS.textLength); return; }
   if (value.type === "image") { assertImage(value); return; }
   if (value.type === "mixed" && Array.isArray(value.content) && value.content.length <= BUSINESS_PROTOCOL_LIMITS.mixedNodes) {

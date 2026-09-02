@@ -6,12 +6,13 @@ export type BusinessScene = "group" | "private";
 export interface BusinessEvent { uid: number | null; identity?: Readonly<IdentityInput>; scene: BusinessScene; content: string; channelId?: string; }
 export interface MessageTextNode { type: "text"; content: string; }
 export interface MessageImageNode { type: "image"; url: string; fallback?: string; }
+export interface MessageSilentNode { type: "silent"; }
 export type MessageNode = MessageTextNode | MessageImageNode;
 export interface BusinessDeliveryOptions {
   /** 默认 passive；proactive-required 表示业务结果过期后仍有主动发送价值。最终是否发送由 Adapter 决定。 */
   delivery?: "passive" | "proactive-required";
 }
-export type BusinessResult = (MessageTextNode | MessageImageNode | { type: "mixed"; content: MessageNode[] }) & BusinessDeliveryOptions;
+export type BusinessResult = (MessageTextNode | MessageImageNode | MessageSilentNode | { type: "mixed"; content: MessageNode[] }) & BusinessDeliveryOptions;
 export type BusinessDispatchResult =
   | { matched: true; business: string; command: string; result: BusinessResult }
   | { matched: false; reason: "empty" | "not-found" }

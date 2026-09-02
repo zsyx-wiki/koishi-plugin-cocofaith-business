@@ -1,6 +1,7 @@
 import type { FaithBusinessCoreScope, UserValueDelta } from "@mueo/koishi-plugin-faith-core";
 import { BusinessError } from "../../errors";
 import { FaithAdminFieldRegistry } from "./fields";
+import { FaithAdminCommandRegistry } from "./commands";
 
 const CORE_FIELDS: Readonly<Record<string, keyof UserValueDelta>> = Object.freeze({
   金币: "gold", 登神分数: "ascension_score", 觐见分数: "audience_score", 觐神分数: "audience_score", 弃誓次数: "abandon_count",
@@ -8,9 +9,11 @@ const CORE_FIELDS: Readonly<Record<string, keyof UserValueDelta>> = Object.freez
 
 export class FaithAdminService {
   readonly fields = new FaithAdminFieldRegistry();
+  readonly commands = new FaithAdminCommandRegistry();
   constructor(private core: FaithBusinessCoreScope) {}
-  async change(actorUid: number, fieldName: string, targetType: string, target: string, deltaValue: string) {
-    if (!(await this.core.permissions.check(actorUid, "faith.creator"))) throw new BusinessError("NOT_ALLOWED", "此操作仅限创造者使用。");
+  async isCreator(uid: number) { return this.core.permissions.check(uid, "faith.creator"); }
+  async change(actorUid: number, fieldName: string, targetType: string, target: string, deltaValue: string, authorized = false) {
+    if (!authorized && !(await this.isCreator(actorUid))) throw new BusinessError("NOT_ALLOWED", "此操作仅限创造者使用。");
     const targetUid = await this.resolveTarget(targetType, target), delta = Number(deltaValue);
     if (!Number.isFinite(delta) || delta === 0) throw new BusinessError("INVALID_INPUT", "数值变化必须是非零有限数字。");
     const coreField = CORE_FIELDS[fieldName], custom = this.fields.get(fieldName);

@@ -8,11 +8,13 @@ interface Row { uid: number; titles: string[]; active: string; updated_at: Date;
 export class TitleService extends TitleRegistry implements TitleServiceApi {
   private cache = new Map<number, UserTitleState>();
   private queues = new Map<number, Promise<void>>();
+  private persisted = new Set<number>();
   constructor(private core: FaithBusinessCoreScope) { super(); }
 
   async state(uid: number): Promise<UserTitleState> {
     const cached = this.cache.get(uid); if (cached) return cached;
     const [row] = await this.core.table.get({ uid });
+    if (row) this.persisted.add(uid); else this.persisted.delete(uid);
     return this.remember(normalizeRow(uid, row));
   }
   async listOwned(uid: number) { const state = await this.state(uid); return Object.freeze(state.titles.flatMap((id) => { const title = this.get(id); return title ? [title] : []; })); }
@@ -38,15 +40,15 @@ export class TitleService extends TitleRegistry implements TitleServiceApi {
     return this.remove(title.id);
   }
   require(value: string) { const title = this.resolve(value); if (!title) throw new BusinessError("NOT_FOUND", `不存在称号【${value}】。`); return title; }
-  clearCache() { this.cache.clear(); }
+  clearCache() { this.cache.clear(); this.persisted.clear(); }
 
   private async write(previous: UserTitleState, titles: readonly string[], active: string | null) {
     const unique = [...new Set(titles)]; if (unique.length > 512) throw new BusinessError("LIMIT_REACHED", "单个用户最多持有 512 个称号。");
     const now = new Date(), current = { uid: previous.uid, titles: unique, active: active ?? "", updated_at: now };
-    const existing = await this.core.table.get({ uid: previous.uid }, { limit: 1 });
-    if (!existing.length) {
+    if (!this.persisted.has(previous.uid)) {
       try { await this.core.table.create(current); }
-      catch { this.cache.delete(previous.uid); throw new BusinessError("CONFLICT", "称号数据刚刚发生变化，请重试。"); }
+      catch { this.cache.delete(previous.uid); this.persisted.add(previous.uid); throw new BusinessError("CONFLICT", "称号数据刚刚发生变化，请重试。"); }
+      this.persisted.add(previous.uid);
     } else {
       const result = await this.core.table.set({ uid: previous.uid, updated_at: previous.updatedAt }, current) as { matched?: number };
       if (result.matched !== 1) { this.cache.delete(previous.uid); throw new BusinessError("CONFLICT", "称号数据刚刚发生变化，请重试。"); }

@@ -83,9 +83,12 @@ export class FaithGameplayService {
 export function formatFaithInfo(user: FaithCoreUserData, profession?: Readonly<FaithProfessionDefinition>) {
   return [
     `UID：${user.uid}`,
-    `信仰：${user.faiths[0] ?? "无"}（弃誓 ${user.abandon_count} 次）`,
+    `信仰：${user.faiths[0] ?? "无"}`,
+    `弃誓次数：${user.abandon_count}`,
     `职业：${profession ? `${profession.type}-${profession.name}` : "无"}`,
-    `登神分：${user.ascension_score}｜觐见分：${user.audience_score}`,
-    `觐见排名：${user.audience_rank > 0 ? user.audience_rank : "未上榜"}｜金币：${user.gold}`,
+    `登神分：${user.ascension_score}`,
+    `觐见分：${user.audience_score}`,
+    `觐见排名：${user.audience_rank > 0 ? user.audience_rank : "未上榜"}`,
+    `金币：${user.gold}`,
   ].join("\n");
 }

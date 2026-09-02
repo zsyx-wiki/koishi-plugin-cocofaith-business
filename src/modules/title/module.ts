@@ -3,11 +3,12 @@ import { defineBusinessModule } from "../../types";
 import { BUILTIN_TITLES } from "./data";
 import { TitleService } from "./service";
 import type { TitleServiceApi } from "./types";
+import type { FaithAdminCommandsApi } from "../faith-admin";
 
 export function createTitleModule() {
   let service: TitleService;
   return defineBusinessModule({
-    name: "title",
+    name: "title", dependencies: ["faith_admin"],
     init(context) {
       context.core.registerTable({
         uid: "unsigned", titles: "json", active: "string", updated_at: "timestamp",
@@ -28,6 +29,22 @@ export function createTitleModule() {
         const active = await service.getActive(uid); return `称号：${active ? `【${active.name}】` : "无"}`;
       }, { id: "active-title", priority: 10 });
       context.provide<TitleServiceApi>("default", createPublicApi(service), { version: "1.0.0" });
+      const admin = context.use<FaithAdminCommandsApi>("faith_admin", "commands");
+      context.core.lifecycle.track(admin.register({ business: "title", command: "称号", description: "给予或收回用户称号", async execute({ args, core }) {
+        if (args.length < 3) throw new BusinessError("INVALID_INPUT", "格式：信仰管理 称号 [uid] [给予|收回] [称号名]");
+        const uid = Number(args[0]), action = args[1], name = args.slice(2).join(" ").trim();
+        if (!Number.isSafeInteger(uid) || !name) throw new BusinessError("INVALID_INPUT", "UID 或称号名无效。");
+        await core.users.require(uid);
+        if (action === "给予") {
+          const changed = await service.grant(uid, name);
+          return { type: "text", content: changed ? `已向 UID ${uid} 给予称号【${service.require(name).name}】。` : `UID ${uid} 已拥有该称号。` };
+        }
+        if (action === "收回") {
+          const title = service.require(name), changed = await service.revoke(uid, title.id);
+          return { type: "text", content: changed ? `已从 UID ${uid} 收回称号【${title.name}】。` : `UID ${uid} 未持有该称号。` };
+        }
+        throw new BusinessError("INVALID_INPUT", "操作只能是“给予”或“收回”。");
+      } }));
     },
     dispose() { service.clearCache(); },
     commands: [{

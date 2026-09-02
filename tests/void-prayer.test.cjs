@@ -16,7 +16,21 @@ test('empty Koishi config satisfies the plugin schema', () => {
 
 test('Business result protocol accepts only declared delivery policies', () => {
   assert.doesNotThrow(() => business.assertBusinessResult({ type: 'text', content: 'x', delivery: 'proactive-required' }))
+  assert.doesNotThrow(() => business.assertBusinessResult({ type: 'silent' }))
   assert.throws(() => business.assertBusinessResult({ type: 'text', content: 'x', delivery: 'always' }))
+})
+
+test('faith information uses one colon-delimited field per line', () => {
+  const text = business.formatFaithInfo({ uid: 10000000, faiths: ['真理'], abandon_count: 2, profession_id: '', ascension_score: 10, audience_score: 20, audience_rank: 0, gold: 30 })
+  assert.equal(text.includes('｜'), false)
+  assert.match(text, /信仰：真理\n弃誓次数：2/)
+})
+
+test('faith admin routes extensions by a unique business command', () => {
+  const registry = new business.FaithAdminCommandRegistry()
+  registry.register({ business: 'title', command: '称号', execute: async () => ({ type: 'silent' }) })
+  assert.equal(registry.get('称号').business, 'title')
+  assert.throws(() => registry.register({ business: 'other', command: '称号', execute: async () => ({ type: 'silent' }) }))
 })
 
 test('void prayer defaults preserve v2 probability distribution', () => {
