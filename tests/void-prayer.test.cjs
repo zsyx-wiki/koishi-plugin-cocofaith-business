@@ -171,11 +171,12 @@ test('title service stores owned and active titles in one UID-indexed row', asyn
     get: async ({ uid } = {}) => row && (uid === undefined || uid === row.uid) ? [structuredClone(row)] : [],
     create: async (value) => { row = structuredClone(value); return row },
     set: async (query, value) => {
+      assert.equal(Object.hasOwn(value, 'uid'), false)
       if (!row || query.uid !== row.uid || +new Date(query.updated_at) !== +new Date(row.updated_at)) return { matched: 0 }
-      row = structuredClone(value); return { matched: 1 }
+      row = { ...row, ...structuredClone(value) }; return { matched: 1 }
     },
   }
-  const service = new business.TitleService({ table })
+  const service = new business.TitleService({ table, users: { require: async () => ({ uid: 10000000 }) } })
   service.registerMany(business.BUILTIN_TITLES)
   assert.equal(await service.grant(10000000, '虚空收藏家'), true)
   assert.equal(await service.grant(10000000, '虚空收藏家'), false)

@@ -13,7 +13,7 @@ export class TitleService extends TitleRegistry implements TitleServiceApi {
 
   async state(uid: number): Promise<UserTitleState> {
     const cached = this.cache.get(uid); if (cached) return cached;
-    const [row] = await this.core.table.get({ uid });
+    const [, rows] = await Promise.all([this.core.users.require(uid), this.core.table.get({ uid })]), row = rows[0];
     if (row) this.persisted.add(uid); else this.persisted.delete(uid);
     return this.remember(normalizeRow(uid, row));
   }
@@ -35,7 +35,7 @@ export class TitleService extends TitleRegistry implements TitleServiceApi {
     const rows = (all as Row[]).filter((row) => Array.isArray(row.titles) && row.titles.includes(title.id));
     if (rows.length && !options.force) throw new BusinessError("CONFLICT", "仍有用户持有该称号，不能注销。");
     if (options.force) {
-      for (const row of all as Row[]) if (row.titles.includes(title.id)) await this.write(normalizeRow(row.uid, row), row.titles.filter((id) => id !== title.id), row.active === title.id ? null : row.active);
+      for (const row of all as Row[]) if (row.titles.includes(title.id)) await this.serial(row.uid, () => this.write(normalizeRow(row.uid, row), row.titles.filter((id) => id !== title.id), row.active === title.id ? null : row.active));
     }
     return this.remove(title.id);
   }
@@ -44,13 +44,13 @@ export class TitleService extends TitleRegistry implements TitleServiceApi {
 
   private async write(previous: UserTitleState, titles: readonly string[], active: string | null) {
     const unique = [...new Set(titles)]; if (unique.length > 512) throw new BusinessError("LIMIT_REACHED", "单个用户最多持有 512 个称号。");
-    const now = new Date(), current = { uid: previous.uid, titles: unique, active: active ?? "", updated_at: now };
+    const now = new Date(), patch = { titles: unique, active: active ?? "", updated_at: now };
     if (!this.persisted.has(previous.uid)) {
-      try { await this.core.table.create(current); }
+      try { await this.core.table.create({ uid: previous.uid, ...patch }); }
       catch { this.cache.delete(previous.uid); this.persisted.add(previous.uid); throw new BusinessError("CONFLICT", "称号数据刚刚发生变化，请重试。"); }
       this.persisted.add(previous.uid);
     } else {
-      const result = await this.core.table.set({ uid: previous.uid, updated_at: previous.updatedAt }, current) as { matched?: number };
+      const result = await this.core.table.set({ uid: previous.uid, updated_at: previous.updatedAt }, patch) as { matched?: number };
       if (result.matched !== 1) { this.cache.delete(previous.uid); throw new BusinessError("CONFLICT", "称号数据刚刚发生变化，请重试。"); }
     }
     return this.remember({ uid: previous.uid, titles: Object.freeze(unique), active, updatedAt: now });
