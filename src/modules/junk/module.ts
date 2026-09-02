@@ -3,6 +3,7 @@ import { defineBusinessModule } from "../../types";
 import { DEFAULT_JUNK_CONFIG, validateJunkConfig } from "./config";
 import { JunkService } from "./service";
 import type { JunkConfig } from "./types";
+import { formatItem } from "../item-format";
 
 export function createJunkModule() {
   let service: JunkService;
@@ -14,7 +15,7 @@ export function createJunkModule() {
       if (ctx.uid === null) throw new BusinessError("UNREGISTERED");
       const result = await service.pick(ctx.uid), counts = new Map<string, number>();
       for (const name of result.items) counts.set(name, (counts.get(name) ?? 0) + 1);
-      return { type: "text", content: `捡垃圾完成｜消耗：${result.cost}\n${[...counts].map(([name, count]) => `【${name}】×${count}`).join(" · ")}` };
+      return { type: "text", content: `捡垃圾完成｜消耗：${result.cost}\n${[...counts].map(([name, count]) => `${formatItem(ctx.core.items.require(name))}×${count}`).join(" · ")}` };
     } }],
   });
 }

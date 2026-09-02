@@ -1,5 +1,6 @@
 import type { FaithBusinessCoreScope, FaithOpenResult } from "@mueo/koishi-plugin-faith-core";
 import { BusinessError } from "../../errors";
+import { formatItem } from "../item-format";
 
 export class FaithOpenItemService {
   constructor(private core: FaithBusinessCoreScope, private random: () => number = Math.random) {}
@@ -7,10 +8,10 @@ export class FaithOpenItemService {
   async open(uid: number, input: readonly string[]) {
     const parsed = parseOpenArgs(input), item = this.core.items.resolve(parsed.item);
     if (!item) throw new BusinessError("NOT_FOUND", `没有找到物品【${parsed.item}】。`);
-    if (!item.openable) throw new BusinessError("NOT_ALLOWED", `物品【${item.name}】不能打开。`);
+    if (!item.openable) throw new BusinessError("NOT_ALLOWED", `物品${formatItem(item)}不能打开。`);
     return this.core.transaction.run(uid, async (tx) => {
       const held = await tx.items.getQuantity(item.item_id), quantity = parsed.all ? held : parsed.quantity;
-      if (quantity < 1 || held < quantity) throw new BusinessError("NOT_FOUND", `背包中的【${item.name}】数量不足。`);
+      if (quantity < 1 || held < quantity) throw new BusinessError("NOT_FOUND", `背包中的${formatItem(item)}数量不足。`);
       if (quantity > 100) throw new BusinessError("INVALID_INPUT", "单次最多打开 100 个物品。");
       const total = emptyResult();
       for (let count = 0; count < quantity; count++) merge(total, this.core.items.rollOpenable(item.item_id, this.random));

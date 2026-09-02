@@ -1,4 +1,5 @@
 import type { FaithAdminNumericFieldsApi } from "../faith-admin";
+import { formatItem } from "../item-format";
 import { BusinessError } from "../../errors";
 import { defineBusinessModule, type BusinessResult } from "../../types";
 import { DEFAULT_VOID_PRAYER_CONFIG, validateVoidPrayerConfig } from "./config";
@@ -54,7 +55,7 @@ function formatResult(result: VoidPrayerResult, compare: (a: string, b: string) 
   return [
     `虚空祈求 ×${result.actual}｜消耗 ${result.cost} 金币`,
     levels,
-    `最高：${top.map((draw) => `【${draw.item.name}】`).join("、")}`,
+    `最高：${top.map((draw) => formatItem(draw.item)).join("、")}`,
     `今日 ${result.used}/${result.dailyLimit}｜剩余 ${result.remaining} 次`,
     result.actual < result.requested ? `可用次数不足，已自动调整为 ${result.actual} 次。` : "",
   ].filter(Boolean).join("\n");

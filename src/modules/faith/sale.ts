@@ -1,5 +1,6 @@
 import type { FaithBusinessCoreScope, FaithItemDefinition } from "@mueo/koishi-plugin-faith-core";
 import { BusinessError } from "../../errors";
+import { formatItem } from "../item-format";
 
 export interface FaithSaleResult {
   quantity: number;
@@ -18,10 +19,10 @@ export class FaithSaleService {
     const item = this.requireMarketable(itemKey);
     return this.core.transaction.run(uid, async (tx) => {
       const owned = await tx.items.getQuantity(item.item_id);
-      if (!owned) throw new BusinessError("NOT_FOUND", `你的背包中没有【${item.name}】。`);
+      if (!owned) throw new BusinessError("NOT_FOUND", `你的背包中没有${formatItem(item)}。`);
       const quantity = requested === "all" ? owned : requested;
       assertQuantity(quantity);
-      if (quantity > owned) throw new BusinessError("INSUFFICIENT_RESOURCE", `你只有 ${owned} 个【${item.name}】。`);
+      if (quantity > owned) throw new BusinessError("INSUFFICIENT_RESOURCE", `你只有 ${owned} 个${formatItem(item)}。`);
       const gold = safeTotal(item.price, quantity);
       await tx.items.take(item.item_id, quantity);
       await tx.economy.creditFixed({ gold });
@@ -57,8 +58,8 @@ export class FaithSaleService {
     if (!value) throw new BusinessError("INVALID_INPUT", "请输入要出售的物品名称和数量。");
     const item = this.core.items.resolve(value);
     if (!item) throw new BusinessError("NOT_FOUND", `没有找到物品【${value}】。`);
-    if (!item.marketable) throw new BusinessError("NOT_ALLOWED", `【${item.name}】不可出售。`);
-    if (item.price <= 0) throw new BusinessError("NOT_ALLOWED", `【${item.name}】没有出售价值。`);
+    if (!item.marketable) throw new BusinessError("NOT_ALLOWED", `${formatItem(item)}不可出售。`);
+    if (item.price <= 0) throw new BusinessError("NOT_ALLOWED", `${formatItem(item)}没有出售价值。`);
     return item;
   }
 }

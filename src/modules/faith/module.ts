@@ -3,6 +3,7 @@ import { defineBusinessModule, type BusinessCommandContext, type BusinessResult 
 import { FaithGameplayService, formatFaithInfo, type FaithGameplayConfig } from "./service";
 import { FaithSaleService, parseSaleArgs } from "./sale";
 import { FaithOpenItemService } from "./open";
+import { formatItem } from "../item-format";
 
 const DEFAULT_CONFIG: FaithGameplayConfig = Object.freeze({
   abandonBaseAscensionCost: 1_200,
@@ -80,7 +81,7 @@ export function createFaithModule() {
       } },
       { id: "sell", commands: ["卖出", "出售"], scenes: ["group"], async execute(ctx) {
         const input = parseSaleArgs(ctx.args), result = await sale.sell(requireUid(ctx.uid), input.item, input.quantity);
-        return { type: "text", content: `已出售【${result.item!.name}】×${result.quantity}｜金币 +${result.gold}` };
+        return { type: "text", content: `已出售${formatItem(result.item!)}×${result.quantity}｜金币 +${result.gold}` };
       } },
       { id: "sell_level", commands: ["卖出等级", "出售等级"], scenes: ["group"], async execute(ctx) {
         if (ctx.args.length !== 1) throw new BusinessError("INVALID_INPUT", "格式：信仰 卖出等级 [等级]");
@@ -99,8 +100,8 @@ export function createFaithModule() {
           result.currencies.ascension_score ? `登神分 +${result.currencies.ascension_score}` : "",
           result.currencies.audience_score ? `觐见分 +${result.currencies.audience_score}` : "",
         ].filter(Boolean);
-        const items = Object.entries(result.items).map(([id, count]) => `【${ctx.core.items.require(id).name}】×${count}`);
-        return { type: "text", content: `已打开【${result.item.name}】×${result.quantity}\n${[...currencies, ...items].join(" · ") || "里面什么也没有。"}` };
+        const items = Object.entries(result.items).map(([id, count]) => `${formatItem(ctx.core.items.require(id))}×${count}`);
+        return { type: "text", content: `已打开${formatItem(result.item)}×${result.quantity}\n${[...currencies, ...items].join(" · ") || "里面什么也没有。"}` };
       } },
     ],
   }],
