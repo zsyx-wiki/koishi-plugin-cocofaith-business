@@ -24,7 +24,8 @@ export function createFaithModule() {
   const information = async (ctx: BusinessCommandContext): Promise<BusinessResult> => {
     const uid = requireUid(ctx.uid), user = await gameplay.info(uid);
     const profession = user.profession_id ? ctx.core.professions.get(user.profession_id) : undefined;
-    return { type: "text", content: formatFaithInfo(user, profession) };
+    const extensions = await ctx.collect<{ uid: number }, string>("faith.info", Object.freeze({ uid }));
+    return { type: "text", content: [formatFaithInfo(user, profession), ...extensions.results].filter(Boolean).join("\n") };
   };
   return defineBusinessModule<never, never, FaithGameplayConfig>({
   name: "faith",

@@ -5,8 +5,9 @@ import { faithAdminModule } from "./faith-admin";
 import { voidPrayerModule } from "./void-prayer";
 import { dailyPrayerModule } from "./daily-prayer";
 import { junkModule } from "./junk";
+import { titleModule } from "./title";
 
-export const BUILT_IN_BUSINESS_MODULES: readonly FaithBusinessModule<any, any, any>[] = [faithModule, faithAdminModule, voidPrayerModule, dailyPrayerModule, junkModule];
+export const BUILT_IN_BUSINESS_MODULES: readonly FaithBusinessModule<any, any, any>[] = [faithModule, faithAdminModule, voidPrayerModule, dailyPrayerModule, junkModule, titleModule];
 
 export function registerBuiltInBusinessModules(service: FaithBusinessService) {
   return BUILT_IN_BUSINESS_MODULES.map((module) => service.register(module));
@@ -17,3 +18,4 @@ export * from "./faith-admin";
 export * from "./void-prayer";
 export * from "./daily-prayer";
 export * from "./junk";
+export * from "./title";

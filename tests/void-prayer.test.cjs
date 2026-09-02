@@ -61,6 +61,7 @@ test('void prayer commits cost, daily state, items and one non-duplicate egg tog
   }
   const coreScope = {
     items: { obtainable: () => [sp, egg] },
+    bonuses: { calculate: async ({ uid, type, baseValue, source }) => ({ uid, type, baseValue, source, multiplier: 1, fixedBonus: 0, finalValue: baseValue, contributions: [], failures: [] }) },
     gameDay: { currentDate: () => '2026-09-02' },
     transaction: { run: async (_uid, task) => task(scope) },
   }
@@ -140,4 +141,31 @@ test('faith level sale command aliases resolve to their exact handlers', () => {
   assert.equal(router.resolve({ uid: 10000000, scene: 'group', content: '信仰 卖出等级 C' }).commandId, 'faith.sell_level')
   assert.equal(router.resolve({ uid: 10000000, scene: 'group', content: '信仰 强制卖出等级 C' }).commandId, 'faith.force_sell_level')
   assert.equal(router.resolve({ uid: 10000000, scene: 'group', content: '信仰 打开 破烂的钱包' }).commandId, 'faith.open')
+})
+
+test('title registry excludes the private v2 creator title and validates bonuses', () => {
+  const registry = new business.TitleRegistry()
+  registry.registerMany(business.BUILTIN_TITLES)
+  assert.equal(registry.getByName('墨墨'), undefined)
+  assert.equal(registry.getByName('虚空收藏家').bonuses.length, 2)
+  assert.throws(() => registry.register({ id: 'bad', name: '坏称号', description: 'x', source: 'x', bonuses: [{ type: 'INVALID TYPE', modifier: 1 }] }))
+})
+
+test('title service stores owned and active titles in one UID-indexed row', async () => {
+  let row
+  const table = {
+    get: async ({ uid } = {}) => row && (uid === undefined || uid === row.uid) ? [structuredClone(row)] : [],
+    create: async (value) => { row = structuredClone(value); return row },
+    set: async (query, value) => {
+      if (!row || query.uid !== row.uid || +new Date(query.updated_at) !== +new Date(row.updated_at)) return { matched: 0 }
+      row = structuredClone(value); return { matched: 1 }
+    },
+  }
+  const service = new business.TitleService({ table })
+  service.registerMany(business.BUILTIN_TITLES)
+  assert.equal(await service.grant(10000000, '虚空收藏家'), true)
+  assert.equal(await service.grant(10000000, '虚空收藏家'), false)
+  assert.equal((await service.use(10000000, '虚空收藏家')).name, '虚空收藏家')
+  assert.equal((await service.getActive(10000000)).name, '虚空收藏家')
+  assert.deepEqual(row.titles, ['void-collector'])
 })

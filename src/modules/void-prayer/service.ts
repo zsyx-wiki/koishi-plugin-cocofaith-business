@@ -17,14 +17,19 @@ export class VoidPrayerService {
       throw new BusinessError("INVALID_INPUT", `单次祈求次数必须为 1-${this.config.maxDrawsPerCommand}。`);
     }
     const date = this.core.gameDay.currentDate();
+    const [limitBonus, costBonus] = await Promise.all([
+      this.core.bonuses.calculate({ uid, type: "void_prayer.daily_limit", baseValue: this.config.dailyLimit, source: "void_prayer.limit" }),
+      this.core.bonuses.calculate({ uid, type: "void_prayer.cost", baseValue: 100, source: "void_prayer.cost" }),
+    ]);
     return this.core.transaction.run(uid, async (tx) => {
       const row = await tx.data.get(), state = normalizeState(row.private, date);
-      const dailyLimit = this.config.dailyLimit + state.permanentExtra + state.temporaryExtra;
+      const dailyLimit = Math.max(0, limitBonus.finalValue) + state.permanentExtra + state.temporaryExtra;
       const remaining = Math.max(0, dailyLimit - state.dailyUsed) + state.consumableExtra;
       if (!remaining) throw new BusinessError("LIMIT_REACHED", "你今天的虚空祈求次数已经用完了。");
       const actual = Math.min(requested, remaining), dailyAvailable = Math.max(0, dailyLimit - state.dailyUsed);
       const dailyDraws = Math.min(actual, dailyAvailable), consumableUsed = actual - dailyDraws;
-      const cost = calculateCost(state.dailyUsed, actual, this.config, state.costReduction);
+      const baseCost = calculateCost(state.dailyUsed, actual, this.config, state.costReduction);
+      const cost = Math.max(0, Math.round(baseCost * costBonus.multiplier + costBonus.fixedBonus));
       if (cost && !(await tx.economy.canAfford({ gold: cost }))) {
         const wallet = await tx.economy.getWallet();
         throw new BusinessError("INSUFFICIENT_RESOURCE", `本次祈求需要 ${cost} 金币，你当前拥有 ${wallet.gold} 金币。`, { cost, balance: wallet.gold });
@@ -52,7 +57,8 @@ export class VoidPrayerService {
 
   async status(uid: number) {
     const date = this.core.gameDay.currentDate(), row = await this.core.data.get(uid), state = normalizeState(row.private, date);
-    const dailyLimit = this.config.dailyLimit + state.permanentExtra + state.temporaryExtra;
+    const bonus = await this.core.bonuses.calculate({ uid, type: "void_prayer.daily_limit", baseValue: this.config.dailyLimit, source: "void_prayer.status" });
+    const dailyLimit = Math.max(0, bonus.finalValue) + state.permanentExtra + state.temporaryExtra;
     return Object.freeze({ ...state, dailyLimit, remaining: Math.max(0, dailyLimit - state.dailyUsed) + state.consumableExtra });
   }
 
