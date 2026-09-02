@@ -151,6 +151,15 @@ test('faith sale atomically removes items and credits their fixed v3 price', asy
 
 test('faith level sale command aliases resolve to their exact handlers', () => {
   const router = new business.BusinessCommandRouter()
+  assert.equal(router.acceptsCommand('信仰 信息'), false)
+  router.register('faith', business.faithModule.commands)
+  for (const content of ['信仰 信息', '/信仰 信息', '  / 信仰 信息', '"信仰" 信息']) {
+    assert.equal(router.acceptsCommand(content), true)
+  }
+  assert.equal(router.acceptsCommand('信仰者 信息'), false)
+  assert.equal(router.acceptsCommand(''), false)
+  router.unregister('faith')
+  assert.equal(router.acceptsCommand('信仰 信息'), false)
   router.register('faith', business.faithModule.commands)
   assert.equal(router.resolve({ uid: 10000000, scene: 'group', content: '信仰 卖出等级 C' }).commandId, 'faith.sell_level')
   assert.equal(router.resolve({ uid: 10000000, scene: 'group', content: '信仰 强制卖出等级 C' }).commandId, 'faith.force_sell_level')

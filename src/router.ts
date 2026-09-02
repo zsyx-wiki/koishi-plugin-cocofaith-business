@@ -34,6 +34,11 @@ export class BusinessCommandRouter {
     this.byBusiness.delete(business);
   }
 
+  acceptsCommand(content: string): boolean {
+    const first = tokenPattern().exec(content.trimStart().replace(/^\/+/, ""));
+    return !!first && this.roots.has(normalizeToken(decodeToken(first)));
+  }
+
   resolve(event: BusinessEvent): BusinessCommandMatch | null {
     const tokens = tokenize(event.content);
     if (!tokens.length) return null;
@@ -99,7 +104,9 @@ function normalizeToken(value: string) { return value.trim().replace(/^\/+/, "")
 export function tokenize(content: string) {
   const value = content.trim().replace(/^\/+/, "");
   if (!value) return [];
-  const result: string[] = [], pattern = /"((?:\\.|[^"\\])*)"|'((?:\\.|[^'\\])*)'|(\S+)/g;
-  for (const match of value.matchAll(pattern)) result.push((match[1] ?? match[2] ?? match[3]).replace(/\\([\\"'])/g, "$1"));
+  const result: string[] = [];
+  for (const match of value.matchAll(tokenPattern())) result.push(decodeToken(match));
   return result;
 }
+function tokenPattern() { return /"((?:\\.|[^"\\])*)"|'((?:\\.|[^'\\])*)'|(\S+)/g; }
+function decodeToken(match: RegExpMatchArray) { return (match[1] ?? match[2] ?? match[3]).replace(/\\([\\"'])/g, "$1"); }

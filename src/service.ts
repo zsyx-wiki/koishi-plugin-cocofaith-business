@@ -106,6 +106,8 @@ export class FaithBusinessService extends Service {
   }
 
   commands() { return this.manager.commands.list(); }
+  /** 仅检查命令根节点，不解析身份或执行业务。 */
+  acceptsCommand(content: string) { return this.manager.commands.acceptsCommand(content); }
 
   status(name?: string) {
     const registry = this.manager.registry;
