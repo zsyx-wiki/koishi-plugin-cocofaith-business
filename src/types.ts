@@ -70,6 +70,8 @@ export interface Config {
   voidPrayer?: BusinessModuleConfig;
   /** 内置每日祈祷的便捷配置。 */
   dailyPrayer?: BusinessModuleConfig;
+  /** 内置捡垃圾业务的便捷配置。 */
+  junk?: BusinessModuleConfig;
 }
 export interface BusinessModuleStatus { name: string; state: BusinessModuleState; enabled: boolean; dependencies: readonly string[]; error?: string; }
 export function defineBusinessModule<I = never, O = never, C = Record<string, unknown>>(module: FaithBusinessModule<I, O, C>) { return module; }

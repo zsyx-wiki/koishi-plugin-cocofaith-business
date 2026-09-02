@@ -2,6 +2,7 @@ import { BusinessError } from "../../errors";
 import { defineBusinessModule, type BusinessCommandContext, type BusinessResult } from "../../types";
 import { FaithGameplayService, formatFaithInfo, type FaithGameplayConfig } from "./service";
 import { FaithSaleService, parseSaleArgs } from "./sale";
+import { FaithOpenItemService } from "./open";
 
 const DEFAULT_CONFIG: FaithGameplayConfig = Object.freeze({
   abandonBaseAscensionCost: 1_200,
@@ -18,6 +19,7 @@ const CONFIG_KEYS = [
 export function createFaithModule() {
   let gameplay: FaithGameplayService;
   let sale: FaithSaleService;
+  let opener: FaithOpenItemService;
   const information = async (ctx: BusinessCommandContext): Promise<BusinessResult> => {
     const uid = requireUid(ctx.uid), user = await gameplay.info(uid);
     const profession = user.profession_id ? ctx.core.professions.get(user.profession_id) : undefined;
@@ -41,6 +43,7 @@ export function createFaithModule() {
   init(context) {
     gameplay = new FaithGameplayService(context.core, context.config);
     sale = new FaithSaleService(context.core);
+    opener = new FaithOpenItemService(context.core);
     context.provide("registry", Object.freeze({
       get: context.core.faiths.get, has: context.core.faiths.has, all: context.core.faiths.all, byPath: context.core.faiths.byPath,
     }), { version: "1.0.0" });
@@ -89,6 +92,16 @@ export function createFaithModule() {
         const result = await sale.sellLevel(requireUid(ctx.uid), ctx.args[0], true);
         return { type: "text", content: `${result.level} 级全部出售｜${result.kinds} 种，共 ${result.quantity} 件｜金币 +${result.gold}` };
       } },
+      { id: "open", commands: ["打开", "开启"], scenes: ["group"], async execute(ctx) {
+        const result = await opener.open(requireUid(ctx.uid), ctx.args);
+        const currencies = [
+          result.currencies.gold ? `金币 +${result.currencies.gold}` : "",
+          result.currencies.ascension_score ? `登神分 +${result.currencies.ascension_score}` : "",
+          result.currencies.audience_score ? `觐见分 +${result.currencies.audience_score}` : "",
+        ].filter(Boolean);
+        const items = Object.entries(result.items).map(([id, count]) => `【${ctx.core.items.require(id).name}】×${count}`);
+        return { type: "text", content: `已打开【${result.item.name}】×${result.quantity}\n${[...currencies, ...items].join(" · ") || "里面什么也没有。"}` };
+      } },
     ],
   }],
   });
@@ -96,6 +109,7 @@ export function createFaithModule() {
 
 export const faithModule = createFaithModule();
 export * from "./sale";
+export * from "./open";
 
 function requireUid(uid: number | null) {
   if (uid === null) throw new BusinessError("UNREGISTERED", "你尚未注册，只能使用“信仰 注册 [信仰名]”。");

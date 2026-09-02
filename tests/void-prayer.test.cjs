@@ -133,3 +133,11 @@ test('faith sale atomically removes items and credits their fixed v3 price', asy
   const byLevel = await service.sellLevel(10000000, 'c', false)
   assert.deepEqual({ quantity: byLevel.quantity, remaining: quantity, wallet: gold }, { quantity: 2, remaining: 1, wallet: 150 })
 })
+
+test('faith level sale command aliases resolve to their exact handlers', () => {
+  const router = new business.BusinessCommandRouter()
+  router.register('faith', business.faithModule.commands)
+  assert.equal(router.resolve({ uid: 10000000, scene: 'group', content: '信仰 卖出等级 C' }).commandId, 'faith.sell_level')
+  assert.equal(router.resolve({ uid: 10000000, scene: 'group', content: '信仰 强制卖出等级 C' }).commandId, 'faith.force_sell_level')
+  assert.equal(router.resolve({ uid: 10000000, scene: 'group', content: '信仰 打开 破烂的钱包' }).commandId, 'faith.open')
+})

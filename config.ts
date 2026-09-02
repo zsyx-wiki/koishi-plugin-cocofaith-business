@@ -6,6 +6,7 @@ const probabilityDefaults = { SP: 0.0005, SSS: 0.0043, SS: 0.0152, S: 0.0374, A:
 const upDefaults = ["真理仪轨", "忆妄之镜", "骨仆赎罪者子嗣之戒", "骨仆乐乐尔之戒"];
 const voidDefaults = { baseCost: 45, extraCost: 80, baseCostDraws: 3, dailyLimit: 10, maxDrawsPerCommand: 100, easterEggChance: 0.05, probabilities: probabilityDefaults, upSpItems: upDefaults };
 const dailyDefaults = { baseLimit: 1, ascensionMin: -10, ascensionMax: 75, goldMin: -25, goldMax: 400 };
+const junkDefaults = { itemCount: 3, paidGoldCost: 200, paidAscensionCost: 5 };
 
 export const Config: Schema<BusinessConfig> = Schema.object({
   faith: Schema.object({
@@ -45,6 +46,14 @@ export const Config: Schema<BusinessConfig> = Schema.object({
       goldMax: integerInput(400, "金币基础奖励上限。默认 400。"),
     }).default(dailyDefaults),
   }).default({ enabled: true, config: dailyDefaults }).description("每日祈祷。"),
+  junk: Schema.object({
+    enabled: Schema.boolean().default(true),
+    config: Schema.object({
+      itemCount: integerInput(3, "每次捡到的物品数量。默认 3。"),
+      paidGoldCost: integerInput(200, "每日第二次捡垃圾消耗的金币。默认 200。"),
+      paidAscensionCost: integerInput(5, "每日第二次捡垃圾消耗的登神分。默认 5。"),
+    }).default(junkDefaults),
+  }).default({ enabled: true, config: junkDefaults }).description("捡垃圾。每日首次免费，第二次付费。"),
   modules: Schema.dict(Schema.object({
     enabled: Schema.boolean().default(true),
     config: Schema.dict(Schema.any()).default({}),
