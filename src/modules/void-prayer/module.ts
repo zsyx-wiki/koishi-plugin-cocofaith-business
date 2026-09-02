@@ -55,7 +55,7 @@ function formatResult(result: VoidPrayerResult, compare: (a: string, b: string) 
   return [
     `虚空祈求 ×${result.actual}｜消耗 ${result.cost} 金币`,
     levels,
-    `最高：${top.map((draw) => formatItem(draw.item)).join("、")}`,
+    `最高稀有物品：\n${top.map((draw) => formatItem(draw.item)).join("\n")}`,
     `今日 ${result.used}/${result.dailyLimit}｜剩余 ${result.remaining} 次`,
     result.actual < result.requested ? `可用次数不足，已自动调整为 ${result.actual} 次。` : "",
   ].filter(Boolean).join("\n");
