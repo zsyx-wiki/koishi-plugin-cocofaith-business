@@ -44,6 +44,8 @@ Faith v3 的玩法层，强依赖 `faithCore`
 
 ## 配置
 
+Business 可以在 Core 已就绪后加载。独立业务表只能在该业务自身的 `init/ready` 初始化阶段注册；运行期间和配置 reload 不允许新建表，重新启用时只能复用相同表定义。
+
 Koishi 配置定义集中在根目录 [`config.ts`](./config.ts)。`faith`、`voidPrayer` 和 `dailyPrayer` 可单独启停；其他模块使用 `modules.<name>` 配置。
 
 ## TODO

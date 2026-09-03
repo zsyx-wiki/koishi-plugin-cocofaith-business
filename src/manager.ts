@@ -25,12 +25,14 @@ export class BusinessModuleManager {
 
   register(module: FaithBusinessModule) {
     if (this.started) throw new BusinessError("CONFLICT", "Core ready 后不能再注册新的业务模块。");
-    const runtime = new BusinessModuleRuntime(
+    const runtime: BusinessModuleRuntime = new BusinessModuleRuntime(
       module,
       this.configs,
       this.interfaces,
       this.contributions,
-      () => this.core.createBusinessScope(module.name),
+      () => this.core.createBusinessScope(module.name, {
+        canRegisterTable: () => runtime.state === "initializing" || runtime.state === "readying",
+      }),
     );
     this.commands.register(module.name, module.commands ?? []);
     try { this.registry.add(module, runtime, this.configs.isEnabled(module.name)); }

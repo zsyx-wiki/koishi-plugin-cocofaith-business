@@ -10,6 +10,35 @@ const { App } = require('koishi')
 const core = require('../../koishi-plugin-faith-core/lib/index.js')
 const business = require('../lib/index.js')
 
+test('Business may first load after Core ready; table registration remains limited to module initialization', async () => {
+  const app = new App()
+  app.plugin(require('@minatojs/driver-sqlite').default, { path: ':memory:' })
+  app.plugin(core, { gameDay: { enabled: false } })
+  await app.start()
+  try {
+    assert.equal(app.faithCore.lifecycle.state, 'ready')
+    let saved
+    const facade = new business.FaithBusinessService(app, {})
+    business.registerBuiltInBusinessModules(facade)
+    facade.register({ name: 'late_probe', init(ctx) { saved = ctx.core }, reload(ctx) {
+      ctx.core.registerTable({ id: 'unsigned' }, { primary: 'id' })
+    } })
+    await facade.start()
+    assert.equal(facade.status('title').state, 'ready')
+    assert.equal(facade.status('rooms').state, 'ready')
+    assert.throws(() => saved.registerTable({ id: 'unsigned' }, { primary: 'id' }), /自身 init\/ready/)
+    await assert.rejects(() => facade.reload('late_probe'))
+    await facade.disable('faith_admin', { cascade: true })
+    await facade.enable('roulette')
+    assert.equal(facade.status('title').state, 'ready')
+    const changed = app.faithCore.createBusinessScope('title', { canRegisterTable: () => true })
+    assert.throws(() => changed.registerTable({ id: 'unsigned' }, { primary: 'id' }), /不能在运行中改变表结构/)
+    await changed.lifecycle.dispose()
+    await facade.disable('late_probe')
+    assert.throws(() => saved.registerTable({ id: 'unsigned' }, { primary: 'id' }), /已卸载/)
+  } finally { await app.stop() }
+})
+
 test('reloading the Business plugin releases its old lifecycle and restores admin registration', async () => {
   const app = new App()
   app.plugin(require('@minatojs/driver-sqlite').default, { path: ':memory:' })
