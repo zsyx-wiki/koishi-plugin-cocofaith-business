@@ -33,6 +33,10 @@ export class FaithBusinessService extends Service {
       name: "faith-business.stop", priority: 9_000,
     });
     this.lifecycle.defer(() => this.manager.clear());
+    ctx.on("dispose", async () => {
+      try { await this.shutdown(); }
+      finally { await this.lifecycle.dispose(); }
+    });
   }
 
   register<I, O, C>(module: FaithBusinessModule<I, O, C>) {

@@ -1,18 +1,24 @@
 import type { FaithBusinessService } from "../service";
 import type { FaithBusinessModule } from "../types";
-import { faithModule } from "./faith";
-import { faithAdminModule } from "./faith-admin";
-import { voidPrayerModule } from "./void-prayer";
-import { dailyPrayerModule } from "./daily-prayer";
-import { junkModule } from "./junk";
-import { titleModule } from "./title";
-import { roomsModule } from "./rooms";
-import { rouletteModule } from "./roulette";
+import { createFaithModule } from "./faith";
+import { createFaithAdminModule } from "./faith-admin";
+import { createVoidPrayerModule } from "./void-prayer";
+import { createDailyPrayerModule } from "./daily-prayer";
+import { createJunkModule } from "./junk";
+import { createTitleModule } from "./title";
+import { createRoomsModule } from "./rooms";
+import { createRouletteModule } from "./roulette";
 
-export const BUILT_IN_BUSINESS_MODULES: readonly FaithBusinessModule<any, any, any>[] = [faithModule, faithAdminModule, voidPrayerModule, dailyPrayerModule, junkModule, titleModule, roomsModule, rouletteModule];
+export function createBuiltInBusinessModules(): readonly FaithBusinessModule<any, any, any>[] {
+  return [createFaithModule(), createFaithAdminModule(), createVoidPrayerModule(), createDailyPrayerModule(),
+    createJunkModule(), createTitleModule(), createRoomsModule(), createRouletteModule()];
+}
+
+/** 兼容旧的模块清单导出；注册新实例请使用工厂函数。 */
+export const BUILT_IN_BUSINESS_MODULES = createBuiltInBusinessModules();
 
 export function registerBuiltInBusinessModules(service: FaithBusinessService) {
-  return BUILT_IN_BUSINESS_MODULES.map((module) => service.register(module));
+  return createBuiltInBusinessModules().map((module) => service.register(module));
 }
 
 export * from "./faith";

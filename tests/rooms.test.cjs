@@ -10,6 +10,61 @@ const { App } = require('koishi')
 const core = require('../../koishi-plugin-faith-core/lib/index.js')
 const business = require('../lib/index.js')
 
+test('reloading the Business plugin releases its old lifecycle and restores admin registration', async () => {
+  const app = new App()
+  app.plugin(require('@minatojs/driver-sqlite').default, { path: ':memory:' })
+  app.plugin(core, { gameDay: { enabled: false } })
+  const fork = app.plugin(business, {})
+  await app.start()
+  try {
+    const old = app.faithBusiness
+    fork.dispose()
+    await app.lifecycle.flush()
+    for (let i = 0; i < 50 && old.list().length; i++) await new Promise(setImmediate)
+    assert.equal(old.lifecycle.disposed, true)
+    assert.equal(old.list().length, 0)
+    app.plugin(business, {})
+    await app.lifecycle.flush()
+    const next = app.faithBusiness
+    assert.notEqual(next, old)
+    await next.start()
+    const commands = next.interfaces.use('test', 'faith_admin', 'commands', new Set(['faith_admin']))
+    assert.deepEqual(commands.list().map((command) => command.command).sort(), ['数值', '称号'].sort())
+    const user = await app.faithCore.faiths.registerUser({ adapter: 'onebot', type: 'qq_account', value: '30002', scope: 'global' }, app.faithCore.faiths.all()[0].name, 0)
+    app.faithCore.permissions.register('faith.creator', () => true)
+    const reply = await next.dispatch({ uid: user.uid, scene: 'group', eventId: 'after-reload', content: '信仰管理 数值 全体 金币 1000' })
+    assert.ok(reply.result, JSON.stringify(reply))
+    assert.equal((await app.faithCore.users.require(user.uid)).gold, 1000)
+  } finally { await app.stop() }
+})
+
+test('unloading one Business instance must not clear another instance admin commands', async () => {
+  const apps = [new App(), new App()]
+  try {
+    for (const app of apps) {
+      app.plugin(require('@minatojs/driver-sqlite').default, { path: ':memory:' })
+      app.plugin(core, { gameDay: { enabled: false } })
+      app.plugin(business, {})
+      await app.start()
+    }
+    await apps[0].stop()
+    const app = apps[1]
+    const user = await app.faithCore.faiths.registerUser({ adapter: 'onebot', type: 'qq_account', value: '30001', scope: 'global' }, app.faithCore.faiths.all()[0].name, 0)
+    app.faithCore.permissions.register('faith.creator', () => true)
+    const reply = await app.faithBusiness.dispatch({ uid: user.uid, scene: 'group', channelId: 'test', roomKey: 'onebot:test', eventId: 'isolated-admin', content: '信仰管理 数值 全体 金币 1000' })
+    assert.ok(reply.result, JSON.stringify(reply))
+    assert.match(reply.result.content, /成功：1 人/)
+    assert.equal((await app.faithCore.users.require(user.uid)).gold, 1000)
+    await app.faithBusiness.disable('faith_admin', { cascade: true })
+    await app.faithBusiness.enable('title')
+    const next = await app.faithBusiness.dispatch({ uid: user.uid, scene: 'group', content: '信仰管理 数值 全体 金币 1000', eventId: 're-enabled-admin' })
+    assert.ok(next.result, JSON.stringify(next))
+    assert.equal((await app.faithCore.users.require(user.uid)).gold, 2000)
+    const commands = app.faithBusiness.interfaces.use('test', 'faith_admin', 'commands', new Set(['faith_admin']))
+    assert.deepEqual(commands.list().map((command) => command.command).sort(), ['数值', '称号'].sort())
+  } finally { for (const app of apps) await app.stop() }
+})
+
 test('all-user numeric command requires creator, validates input and deduplicates the same message', async () => {
   const app = new App()
   app.plugin(require('@minatojs/driver-sqlite').default, { path: ':memory:' })
