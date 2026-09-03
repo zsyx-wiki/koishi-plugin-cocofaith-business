@@ -15,13 +15,14 @@ export interface RoomPlayerTransaction {
   saveProgress(value: Record<string, unknown>): Promise<void>;
 }
 export interface RoomTransaction { player(uid: number): RoomPlayerTransaction; }
+export interface RoomRenderContext { action: string; uid?: number; }
 export interface RoomGame<S = any> {
   id: string;
   start(room: GameRoom<S>, tx: RoomTransaction): Promise<void>;
   action(room: GameRoom<S>, uid: number, action: string, args: readonly string[], tx: RoomTransaction): Promise<void>;
   timeout(room: GameRoom<S>, tx: RoomTransaction): Promise<void>;
   finish(room: GameRoom<S>, tx: RoomTransaction, aborted: boolean): Promise<void>;
-  render(room: Readonly<GameRoom<S>>): BusinessResult;
+  render(room: Readonly<GameRoom<S>>, context?: RoomRenderContext): BusinessResult;
   afterCommit?(room: Readonly<GameRoom<S>>): Promise<void>;
   announcement?(room: Readonly<GameRoom<S>>): BusinessResult["broadcast"];
 }

@@ -83,7 +83,7 @@ export class GameRoomService {
       if (previous.status !== "ended") { this.rooms.set(key, previous); this.schedule(previous); }
       return { type: "silent" };
     }
-    if (event && this.hasEvent(previous, event)) return game.render(previous);
+    if (event && this.hasEvent(previous, event)) return game.render(previous, { action, uid: event.uid ?? undefined });
     if (action === "view" || previous.status === "ended") {
       if (event && previous.members.some((p) => p.uid === event.uid)) this.bind(previous, event);
       return game.render(previous);
@@ -148,7 +148,7 @@ export class GameRoomService {
     this.logger.debug(`房间推进 id=${room.id} version=${room.version} action=${action} status=${room.status}`);
     if (room.status === "ended") { this.rooms.delete(key); this.replies.delete(key); this.logger.info(`房间结束 id=${room.id}`); }
     try { await game.afterCommit?.(room); } catch (error) { this.logger.error(`房间结算附加奖励失败 id=${room.id}`, error); }
-    const result = game.render(room);
+    const result = game.render(room, { action, uid: uid ?? undefined });
     if (room.status === "ended") {
       const broadcast = game.announcement?.(room);
       if (broadcast) return { ...result, broadcast };

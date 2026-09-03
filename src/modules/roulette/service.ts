@@ -1,6 +1,6 @@
 import type { FaithBusinessCoreScope } from "@mueo/koishi-plugin-faith-core";
 import { BusinessError } from "../../errors";
-import type { GameRoom, GameRoomsApi, RoomEvent, RoomGame, RoomTransaction } from "../rooms";
+import type { GameRoom, GameRoomsApi, RoomEvent, RoomGame, RoomTransaction, RoomRenderContext } from "../rooms";
 import type { RouletteConfig, RouletteState, RouletteMode } from "./types";
 import { initialState, initialStats } from "./types";
 import { RouletteRegistry } from "./registry";
@@ -60,7 +60,7 @@ export class RouletteService implements RoomGame<RouletteState> {
   }
   async timeout(room: GameRoom<RouletteState>, tx: RoomTransaction) { await this.turn(room, room.state.current, "开枪", true, tx); }
   finish(room: GameRoom<RouletteState>, tx: RoomTransaction, aborted: boolean) { return settleRoulette(room, tx, this.core, aborted); }
-  render(room: Readonly<GameRoom<RouletteState>>) { return renderRoulette(room, this.rules); }
+  render(room: Readonly<GameRoom<RouletteState>>, context?: RoomRenderContext) { return renderRoulette(room, this.rules, context); }
   announcement(room: Readonly<GameRoom<RouletteState>>) {
     if (room.state.aborted || !room.state.maxLevelUids.length) return;
     const names = room.state.players.filter((p) => room.state.maxLevelUids.includes(p.uid)).map((p) => `${p.name}（UID ${p.uid}）`);

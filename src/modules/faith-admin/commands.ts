@@ -2,7 +2,7 @@ import { CallbackDisposable, type FaithBusinessCoreScope } from "@mueo/koishi-pl
 import { BusinessError } from "../../errors";
 import type { BusinessResult } from "../../types";
 
-export interface FaithAdminCommandContext { actorUid: number; args: readonly string[]; core: FaithBusinessCoreScope; }
+export interface FaithAdminCommandContext { actorUid: number; args: readonly string[]; core: FaithBusinessCoreScope; requestId?: string; }
 export interface FaithAdminCommand { business: string; command: string; description?: string; execute(context: FaithAdminCommandContext): BusinessResult | Promise<BusinessResult>; }
 export interface FaithAdminCommandsApi { register(command: FaithAdminCommand): import("@mueo/koishi-plugin-faith-core").FaithDisposable; list(): readonly Omit<Readonly<FaithAdminCommand>, "execute">[]; }
 

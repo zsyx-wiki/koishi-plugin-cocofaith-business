@@ -1,10 +1,17 @@
 import type { BusinessResult } from "../../types";
-import type { GameRoom } from "../rooms";
+import type { GameRoom, RoomRenderContext } from "../rooms";
 import type { RouletteState } from "./types";
 import type { RouletteRegistry } from "./registry";
 const modes = { normal: "普通", gambler: "赌徒", crazy: "疯狂" };
-export function renderRoulette(room: Readonly<GameRoom<RouletteState>>, registry: RouletteRegistry): BusinessResult {
+export function renderRoulette(room: Readonly<GameRoom<RouletteState>>, registry: RouletteRegistry, context?: RoomRenderContext): BusinessResult {
   const s = room.state;
+  if (room.status === "waiting" && context?.action === "join") {
+    const joined = room.members.find((member) => member.uid === context.uid);
+    if (joined) {
+      const creator = room.members.find((member) => member.uid === room.creator);
+      return { type: "text", content: `加入成功：${joined.name}\n人数：${room.members.length}/${room.max}（至少${room.min}人）\n房主：${creator?.name ?? `UID ${room.creator}`}` };
+    }
+  }
   if (room.status === "waiting") return { type: "text", content: `恶魔轮盘：${modes[s.mode]}模式\n人数：${room.members.length}/${room.max}（至少${room.min}人）\n${room.members.map((p, i) => `${i + 1}号：${p.name}`).join("\n")}\n发送「恶魔轮盘 加入」，房主发送「恶魔轮盘 开始」。\n等待房间15分钟后自动解散。` };
   const current = s.players.find((p) => p.uid === s.current), alive = s.players.filter((p) => p.alive);
   const header = `恶魔轮盘：${modes[s.mode]} · 第${s.round}轮${room.status === "ended" ? " · 已结束" : ""}`;

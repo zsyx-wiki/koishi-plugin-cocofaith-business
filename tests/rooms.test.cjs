@@ -10,6 +10,36 @@ const { App } = require('koishi')
 const core = require('../../koishi-plugin-faith-core/lib/index.js')
 const business = require('../lib/index.js')
 
+test('all-user numeric command requires creator, validates input and deduplicates the same message', async () => {
+  const app = new App()
+  app.plugin(require('@minatojs/driver-sqlite').default, { path: ':memory:' })
+  app.plugin(core, { gameDay: { enabled: false } })
+  app.plugin(business, {})
+  await app.start()
+  try {
+    const faith = app.faithCore.faiths.all()[0].name
+    const users = []
+    for (const qq of ['20001', '20002']) users.push(await app.faithCore.faiths.registerUser({ adapter: 'onebot', type: 'qq_account', value: qq, scope: 'global' }, faith, 0))
+    const permission = app.faithCore.permissions.register('faith.creator', ({ uid }) => uid === users[0].uid)
+    const event = { uid: users[0].uid, scene: 'group', roomKey: 'onebot:admin', channelId: 'admin', eventId: 'bulk-message', content: '信仰管理 数值 全体 金币 1000' }
+    const denied = await app.faithBusiness.dispatch({ ...event, uid: users[1].uid })
+    assert.equal(denied.result.type, 'silent')
+    const first = await app.faithBusiness.dispatch(event)
+    assert.ok(first.result, JSON.stringify(first))
+    assert.match(first.result.content, /成功：2 人/)
+    const repeated = await app.faithBusiness.dispatch(event)
+    assert.match(repeated.result.content, /已处理跳过：2 人/)
+    for (const user of users) assert.equal((await app.faithCore.users.require(user.uid)).gold, 1000)
+    for (const content of ['信仰管理 数值 全体 金币 -1', '信仰管理 数值 全体 金币 0.5', '信仰管理 数值 全体 金币 Infinity', '信仰管理 数值 全体 未知 1', '信仰管理 数值 全体 金币 1 多余']) {
+      assert.ok((await app.faithBusiness.dispatch({ ...event, eventId: content, content })).error)
+    }
+    const single = await app.faithBusiness.dispatch({ ...event, eventId: 'single', content: `信仰管理 数值 金币 uid ${users[1].uid} -5` })
+    assert.ok(single.result)
+    assert.equal((await app.faithCore.users.require(users[1].uid)).gold, 995)
+    permission.dispose()
+  } finally { await app.stop() }
+})
+
 test('SQLite room integration: unique group, atomic tickets, duplicate actions, settlement and refund', async () => {
   const app = new App()
   app.plugin(require('@minatojs/driver-sqlite').default, { path: ':memory:' })
@@ -31,7 +61,9 @@ test('SQLite room integration: unique group, atomic tickets, duplicate actions, 
     // 两个并发创建谁先进入无关紧要；下面重新建立明确的收费房间。
     await dispatch(creator, '恶魔轮盘 结束')
     await dispatch(0, '恶魔轮盘 发起疯狂')
-    await dispatch(1, '恶魔轮盘 加入')
+    const joined = await dispatch(1, '恶魔轮盘 加入', 'join-player')
+    assert.match(joined.result.content, /加入成功：1\n人数：2\/16（至少2人）\n房主：0/)
+    assert.equal((await dispatch(1, '恶魔轮盘 加入', 'join-player')).result.content, joined.result.content)
     const failed = await dispatch(0, '恶魔轮盘 开始')
     assert.ok(failed.error)
     assert.equal((await app.faithCore.users.require(users[0].uid)).gold, 1000)
@@ -114,6 +146,18 @@ test('round engine terminates with repeated timeouts and preserves every partici
   assert.ok(state.players.filter((p) => p.alive).length <= 1)
   assert.equal(state.players.length, 4)
   assert.equal(new Set(state.deaths).size, state.deaths.length)
+})
+
+test('join response stays three lines while explicit room view keeps the full roster', () => {
+  const service = new business.RouletteService({}, {}, business.DEFAULT_ROULETTE_CONFIG)
+  const room = { state: business.initialState('normal'), status: 'waiting', creator: 1, min: 4, max: 12,
+    members: Array.from({ length: 12 }, (_, i) => ({ uid: i + 1, name: `玩家${i + 1}`, ticket: {} })) }
+  const joined = service.render(room, { action: 'join', uid: 12 }).content
+  assert.equal(joined, '加入成功：玩家12\n人数：12/12（至少4人）\n房主：玩家1')
+  assert.equal(joined.split('\n').length, 3)
+  assert.doesNotMatch(joined, /玩家2/)
+  assert.match(service.render(room).content, /玩家2/)
+  assert.match(service.render(room, { action: 'view', uid: 12 }).content, /玩家2/)
 })
 
 test('rules reject duplicate IDs and expose synchronous extension hooks', () => {
