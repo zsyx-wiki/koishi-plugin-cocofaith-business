@@ -1,4 +1,5 @@
 export const BUSINESS_ERROR_CATALOG = {
+  ROOM_OCCUPIED: "本群已有游戏房间，请先完成或解散当前房间。",
   NOT_FOUND: "请求的业务或资源不存在。", NOT_ALLOWED: "当前操作不被允许。",
   INVALID_INPUT: "输入参数不正确。", INSUFFICIENT_RESOURCE: "资源不足。",
   CONFLICT: "操作与当前状态冲突。", INTERNAL_ERROR: "业务执行失败，请稍后重试。",

@@ -50,6 +50,7 @@ export class BusinessConfigStore {
     if (config.voidPrayer) this.overrides.void_prayer = clone({ ...(this.overrides.void_prayer ?? {}), ...config.voidPrayer });
     if (config.dailyPrayer) this.overrides.daily_prayer = clone({ ...(this.overrides.daily_prayer ?? {}), ...config.dailyPrayer });
     if (config.junk) this.overrides.junk = clone({ ...(this.overrides.junk ?? {}), ...config.junk });
+    if (config.roulette) this.overrides.roulette = clone({ ...(this.overrides.roulette ?? {}), ...config.roulette });
   }
   isEnabled(name: string) { return this.overrides[name]?.enabled !== false; }
   resolve<C>(module: FaithBusinessModule<unknown, unknown, C>): Readonly<C> {

@@ -54,6 +54,16 @@ export const Config: Schema<BusinessConfig> = Schema.object({
       paidAscensionCost: integerInput(5, "每日第二次捡垃圾消耗的登神分。默认 5。"),
     }).default(junkDefaults),
   }).default({ enabled: true, config: junkDefaults }).description("捡垃圾。每日首次免费，第二次付费。"),
+  roulette: Schema.object({
+    enabled: Schema.boolean().default(true),
+    config: Schema.object({
+      turnSeconds: integerInput(45, "每人操作时限，默认45秒，范围5-300。发送失败不暂停。"),
+      normalMin: integerInput(4, "普通模式最低人数，默认4，范围2-12。"),
+      gamblerMin: integerInput(5, "赌徒模式最低人数，默认5，范围2-15。"),
+      crazyMin: integerInput(8, "疯狂模式最低人数，默认8，范围2-16。"),
+      entryFee: integerInput(100, "疯狂模式基础门票，默认100金币；开局时按等级折扣统一扣费。"),
+    }).default({ turnSeconds: 45, normalMin: 4, gamblerMin: 5, crazyMin: 8, entryFee: 100 }),
+  }).default({ enabled: true, config: { turnSeconds: 45, normalMin: 4, gamblerMin: 5, crazyMin: 8, entryFee: 100 } }).description("恶魔轮盘。门票需足额支付，淘汰罚款可使余额为负。"),
   modules: Schema.dict(Schema.object({
     enabled: Schema.boolean().default(true),
     config: Schema.dict(Schema.any()).default({}),

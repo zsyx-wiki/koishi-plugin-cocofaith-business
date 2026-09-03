@@ -24,12 +24,22 @@ export function normalizeBusinessEvent(core: FaithCoreService, event: BusinessEv
   let identity: Readonly<IdentityInput> | undefined;
   if (event.identity !== undefined) identity = Object.freeze(core.adapter.normalize(event.identity));
   if (event.uid === null && !identity) throw new BusinessError("INVALID_INPUT", "未注册事件必须包含标准身份。");
-  return Object.freeze({ uid: event.uid, identity, scene: event.scene, content: event.content, channelId: event.channelId });
+  for (const key of ["roomKey", "eventId", "displayName"] as const) {
+    if (event[key] !== undefined && (typeof event[key] !== "string" || event[key]!.length > 512)) throw new BusinessError("INVALID_INPUT", `BusinessEvent.${key} 无效。`);
+  }
+  if (event.reply !== undefined && typeof event.reply !== "function") throw new BusinessError("INVALID_INPUT", "回复通道无效");
+  const reply = event.reply ? async (result: BusinessResult) => { assertBusinessResult(result); return event.reply!(result); } : undefined;
+  return Object.freeze({ uid: event.uid, identity, scene: event.scene, content: event.content, channelId: event.channelId, roomKey: event.roomKey, eventId: event.eventId, displayName: event.displayName, reply });
 }
 
 export function assertBusinessResult(result: unknown): asserts result is BusinessResult {
   if (!result || typeof result !== "object") throw invalidResult();
   const value = result as Record<string, unknown>;
+  if (value.broadcast !== undefined) {
+    const notice = value.broadcast as Record<string, unknown>;
+    if (!notice || typeof notice !== "object" || typeof notice.id !== "string" || !notice.id || notice.id.length > 255) throw invalidResult("广播标识无效。");
+    assertText(notice.content, BUSINESS_PROTOCOL_LIMITS.fallbackLength);
+  }
   if (value.delivery !== undefined && value.delivery !== "passive" && value.delivery !== "proactive-required") throw invalidResult("消息发送策略无效。");
   if (value.type === "silent") return;
   if (value.type === "text") { assertText(value.content, BUSINESS_PROTOCOL_LIMITS.textLength); return; }

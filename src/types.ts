@@ -3,7 +3,15 @@ import type { BusinessContributionHandler, BusinessContributionOptions, Business
 
 export type BusinessModuleState = "registered" | "disabled" | "initializing" | "initialized" | "readying" | "ready" | "reloading" | "disposing" | "failed" | "disposed";
 export type BusinessScene = "group" | "private";
-export interface BusinessEvent { uid: number | null; identity?: Readonly<IdentityInput>; scene: BusinessScene; content: string; channelId?: string; }
+export interface BusinessEvent {
+  uid: number | null; identity?: Readonly<IdentityInput>; scene: BusinessScene; content: string; channelId?: string;
+  /** Adapter 生成的群作用域，不由用户命令传入。 */
+  roomKey?: string;
+  eventId?: string;
+  displayName?: string;
+  /** 绑定当前会话的后续发送通道；平台额度由 Adapter 控制。 */
+  reply?: (result: BusinessResult) => Promise<unknown>;
+}
 export interface MessageTextNode { type: "text"; content: string; }
 export interface MessageImageNode { type: "image"; url: string; fallback?: string; }
 export interface MessageSilentNode { type: "silent"; }
@@ -11,6 +19,8 @@ export type MessageNode = MessageTextNode | MessageImageNode;
 export interface BusinessDeliveryOptions {
   /** 默认 passive；proactive-required 表示业务结果过期后仍有主动发送价值。最终是否发送由 Adapter 决定。 */
   delivery?: "passive" | "proactive-required";
+  /** 可选全服公告；正文必须包含本群需要的信息，不支持广播的平台可忽略此字段。 */
+  broadcast?: { id: string; content: string };
 }
 export type BusinessResult = (MessageTextNode | MessageImageNode | MessageSilentNode | { type: "mixed"; content: MessageNode[] }) & BusinessDeliveryOptions;
 export type BusinessDispatchResult =
@@ -73,6 +83,7 @@ export interface Config {
   dailyPrayer?: BusinessModuleConfig;
   /** 内置捡垃圾业务的便捷配置。 */
   junk?: BusinessModuleConfig;
+  roulette?: BusinessModuleConfig;
 }
 export interface BusinessModuleStatus { name: string; state: BusinessModuleState; enabled: boolean; dependencies: readonly string[]; error?: string; }
 export function defineBusinessModule<I = never, O = never, C = Record<string, unknown>>(module: FaithBusinessModule<I, O, C>) { return module; }

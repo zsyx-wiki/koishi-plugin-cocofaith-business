@@ -18,6 +18,10 @@ test('Business result protocol accepts only declared delivery policies', () => {
   assert.doesNotThrow(() => business.assertBusinessResult({ type: 'text', content: 'x', delivery: 'proactive-required' }))
   assert.doesNotThrow(() => business.assertBusinessResult({ type: 'silent' }))
   assert.throws(() => business.assertBusinessResult({ type: 'text', content: 'x', delivery: 'always' }))
+  assert.doesNotThrow(() => business.assertBusinessResult({ type: 'text', content: 'x', broadcast: { id: 'room:max', content: '满级' } }))
+  for (const broadcast of [null, {}, { id: '', content: 'x' }, { id: 'x', content: 1 }]) {
+    assert.throws(() => business.assertBusinessResult({ type: 'text', content: 'x', broadcast }))
+  }
 })
 
 test('faith information uses one colon-delimited field per line', () => {
