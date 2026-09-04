@@ -3,6 +3,7 @@ import type { GameRoom, RoomTransaction } from "../rooms";
 import type { RouletteState } from "./types";
 import { initialStats } from "./types";
 import { advanceStats, benefits } from "./progress";
+import { rouletteText } from "./messages";
 
 export async function settleRoulette(room: GameRoom<RouletteState>, tx: RoomTransaction, core: FaithBusinessCoreScope, aborted: boolean) {
   const s = room.state;
@@ -42,7 +43,9 @@ export async function settleRoulette(room: GameRoom<RouletteState>, tx: RoomTran
       if (!fixed && Object.values(amount).some(Boolean)) applied = (await core.economy.previewReward(p.uid, amount, "settlement")).applied;
       if (Object.values(applied).some(Boolean)) await account.economy.creditFixed(applied);
       s.rewards.push({ uid: p.uid, place, base, applied: { ...applied } });
-      s.logs.push(`${place === 1 ? "胜者" : "亚军"}：${p.name}，金币+${applied.gold ?? 0}，登神分+${applied.ascension_score ?? 0}。`);
+      s.logs.push(place === 1
+        ? rouletteText.winner(p.name, applied.gold ?? 0, applied.ascension_score ?? 0)
+        : rouletteText.second(p.name, applied.gold ?? 0, applied.ascension_score ?? 0));
     }
     const stats = await account.progress(initialStats());
     const previousLevel = stats.level;
@@ -56,6 +59,6 @@ export async function settleRoulette(room: GameRoom<RouletteState>, tx: RoomTran
     }
     await account.saveProgress(stats);
   }
-  if (!winner) s.logs.push("本局无人获胜。");
+  if (!winner) s.logs.push(rouletteText.noWinner);
   s.settled = true;
 }

@@ -3,11 +3,12 @@ import type { RoulettePlayer as Player, RouletteState as State } from "./types";
 import { RouletteRegistry, type RouletteEffectContext as Effect } from "./registry";
 import { pick, shuffle, secureRandom, type RandomSource } from "./random";
 import { chaos } from "./paths";
+import { rouletteText } from "./messages";
 
 export class RouletteEngine {
   constructor(readonly rules: RouletteRegistry, private random: RandomSource = secureRandom) {}
   start(s: State) {
-    s.order = shuffle(s.players.map((p) => p.uid), this.random); s.current = s.order[0];
+    s.order = s.players.map((p) => p.uid); s.current = s.order[0];
     for (const p of s.players) this.rules.emit("start", this.context(s, p, p));
     this.reload(s);
   }
@@ -17,8 +18,8 @@ export class RouletteEngine {
     s.logs = [];
     const c = this.context(s, actor, actor);
     if (timeout) {
-      actor.timeouts++; s.logs.push(`${actor.name}：超时 ${actor.timeouts} 次。`);
-      if (actor.timeouts >= 2) { this.kill(s, actor, "累计两次超时", true); this.advance(s, actor); return; }
+      actor.timeouts++; s.logs.push(rouletteText.timeout(actor.name, actor.timeouts));
+      if (actor.timeouts >= 2) { s.logs.push(rouletteText.timeoutDeath(actor.name)); this.kill(s, actor, "被恶魔直接处决", true); this.advance(s, actor); return; }
     }
     if (ability !== "开枪") {
       try { this.rules.ability(ability, c); } catch (error) { throw new BusinessError("NOT_ALLOWED", (error as Error).message); }
@@ -58,7 +59,7 @@ export class RouletteEngine {
     const chambers = target.path === "存在" && !target.flags.disabled && target.chambers.length ? target.chambers : s.chambers;
     if (!chambers.length) return;
     c.bullet = chambers.shift()!; c.damage = s.field === "crazy" ? (s.demon === c.actor.uid ? 3 : 2) : 1;
-    s.logs.push(`${target.name}：${c.bullet ? "实弹" : "空仓"}。`);
+    s.logs.push(c.bullet ? rouletteText.bullet(target.name) : rouletteText.empty(target.name));
     if (s.extra === "whispers") s.fear = Math.min(20, s.fear + (c.bullet ? 2 : 1));
     if (c.bullet) {
       this.rules.emit("bullet", c);
@@ -78,7 +79,7 @@ export class RouletteEngine {
   }
   private kill(s: State, p: Player, reason: string, forced = false) {
     if (!p.alive) return;
-    p.alive = false; s.deaths.push(p.uid); s.logs.push(`${p.name}：${reason}，出局。`);
+    p.alive = false; s.deaths.push(p.uid); s.logs.push(rouletteText.death(p.name, reason));
     const base = s.mode === "crazy" ? [150, 75] : s.mode === "gambler" ? [20, 10] : s.firstBlood && !forced ? [10, 2] : [0, 0];
     if (s.mode === "normal" && !forced) s.firstBlood = false;
     const multiplier = s.extra === "take_all" && p.uid === s.dealer ? s.players.length - 1 : 1;
@@ -114,7 +115,7 @@ export class RouletteEngine {
     if (s.field === "crazy") s.demon = pick(living, this.random).uid;
     if (s.extra === "whispers") s.fear = Math.max(0, s.fear - 5);
     for (const p of living) { p.flags.retreat = 0; this.rules.emit("reload", this.context(s, p, p)); }
-    s.logs.push(`重新装填：${s.chambers.filter(Boolean).length}实弹 / ${s.chambers.filter((b) => !b).length}空仓。`);
+    s.logs.push(rouletteText.reload(s.chambers.filter(Boolean).length, s.chambers.filter((b) => !b).length));
   }
   private context(s: State, actor: Player, target: Player): Effect {
     return { state: s, actor, target, random: this.random, damage: 1, cancelled: false, bullet: false, messages: s.logs, tags: new Set(),

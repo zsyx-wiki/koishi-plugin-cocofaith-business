@@ -11,6 +11,7 @@ import { secureRandom, pick, shuffle } from "./random";
 import { benefits } from "./progress";
 import { settleRoulette } from "./settlement";
 import { renderRoulette } from "./render";
+import { rouletteText } from "./messages";
 
 export class RouletteService implements RoomGame<RouletteState> {
   readonly id = "roulette";
@@ -30,7 +31,8 @@ export class RouletteService implements RoomGame<RouletteState> {
   async start(room: GameRoom<RouletteState>, tx: RoomTransaction) {
     const s = room.state;
     s.logs = [];
-    for (const [seat, member] of room.members.entries()) {
+    const orderedMembers = shuffle(room.members, secureRandom);
+    for (const [seat, member] of orderedMembers.entries()) {
       const account = tx.player(member.uid), user = await account.user.get(), stats = await account.progress(initialStats());
       const path = this.core.faiths.get(user.faiths[0])?.path ?? "无";
       if (!Number.isSafeInteger(stats.level) || stats.level < 1 || stats.level > 10) throw new BusinessError("INVALID_INPUT", "玩家轮盘等级数据异常，请联系创造者。");
@@ -52,6 +54,7 @@ export class RouletteService implements RoomGame<RouletteState> {
       s.players.forEach((p, i) => { p.path = paths[i % paths.length]; });
     }
     this.engine.start(s); this.deadline(room);
+    s.logs.unshift(rouletteText.started(s.chambers.filter(Boolean).length, s.chambers.filter((value) => !value).length));
     s.logs.push(...s.players.map((p) => `${p.name}：${p.path}`));
   }
   async action(room: GameRoom<RouletteState>, uid: number, action: string, _args: readonly string[], tx: RoomTransaction) {

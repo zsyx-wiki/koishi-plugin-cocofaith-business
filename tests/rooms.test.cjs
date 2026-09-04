@@ -10,6 +10,27 @@ const { App } = require('koishi')
 const core = require('../../koishi-plugin-faith-core/lib/index.js')
 const business = require('../lib/index.js')
 
+test('faith abandonment atomically pays both costs and changes faith without false conflicts', async () => {
+  const app = new App()
+  app.plugin(require('@minatojs/driver-sqlite').default, { path: ':memory:' })
+  app.plugin(core, { gameDay: { enabled: false } })
+  app.plugin(business, { faith: { config: { abandonBaseAscensionCost: 1200, abandonAscensionCostPerUse: 1000, abandonMaxAscensionCost: 10000 } } })
+  await app.start()
+  try {
+    const [oldFaith, newFaith] = app.faithCore.faiths.all().slice(0, 2).map((faith) => faith.name)
+    const user = await app.faithCore.faiths.registerUser({ adapter: 'onebot', type: 'qq_account', value: '40001', scope: 'global' }, oldFaith, 0)
+    await app.faithCore.users.change(user.uid, { ascension_score: 5000, audience_score: 100 })
+    const event = { uid: user.uid, scene: 'group', channelId: 'faith', eventId: 'abandon-once', content: `信仰 弃誓 ${newFaith}` }
+    const result = await app.faithBusiness.dispatch(event)
+    assert.ok(result.result, JSON.stringify(result))
+    const after = await app.faithCore.users.require(user.uid)
+    assert.equal(after.faiths[0], newFaith)
+    assert.equal(after.abandon_count, 1)
+    assert.equal(after.ascension_score, 3800)
+    assert.equal(after.audience_score, 100)
+  } finally { await app.stop() }
+})
+
 test('Business may first load after Core ready; table registration remains limited to module initialization', async () => {
   const app = new App()
   app.plugin(require('@minatojs/driver-sqlite').default, { path: ':memory:' })
@@ -226,10 +247,23 @@ test('round engine terminates with repeated timeouts and preserves every partici
   const state = business.initialState('normal')
   state.players = [1, 2, 3, 4].map((uid) => ({ uid, name: String(uid), path: '无', level: 1, alive: true, timeouts: 0, flags: {}, chambers: [], penalty: {} }))
   engine.start(state)
+  assert.equal(state.current, 1)
+  assert.deepEqual(state.order, [1, 2, 3, 4])
   for (let n = 0; n < 10 && state.players.filter((p) => p.alive).length > 1; n++) engine.act(state, state.current, '开枪', true)
   assert.ok(state.players.filter((p) => p.alive).length <= 1)
   assert.equal(state.players.length, 4)
   assert.equal(new Set(state.deaths).size, state.deaths.length)
+})
+
+test('roulette assigns seat numbers after shuffling so seat one is always first', async () => {
+  const service = new business.RouletteService({ faiths: { get: () => ({ path: '生命' }) } }, {}, business.DEFAULT_ROULETTE_CONFIG)
+  const room = { members: [1, 2, 3, 4].map((uid) => ({ uid, name: `加入${uid}`, ticket: {} })), state: business.initialState('normal') }
+  const tx = { player: () => ({ user: { get: async () => ({ faiths: ['测试'] }) }, progress: async () => business.initialStats() }) }
+  await service.start(room, tx)
+  assert.equal(room.state.players[0].uid, room.state.current)
+  assert.match(room.state.players[0].name, /^1号·/)
+  assert.deepEqual(room.state.order, room.state.players.map((player) => player.uid))
+  for (const [index, player] of room.state.players.entries()) assert.match(player.name, new RegExp(`^${index + 1}号·`))
 })
 
 test('join response stays three lines while explicit room view keeps the full roster', () => {
@@ -376,7 +410,7 @@ test('total elimination gives neither prize nor winner experience and settlement
   await f.service.finish(f.room, f.tx, false)
   assert.deepEqual(f.credits, [])
   assert.deepEqual(f.s.rewards, [])
-  assert.ok(f.s.logs.includes('本局无人获胜。'))
+  assert.ok(f.s.logs.includes(business.rouletteText.noWinner))
   for (const stats of f.stats.values()) { assert.equal(stats.exp, 0); assert.equal(stats.plays, 1); assert.equal(stats.crazy.wins, 0) }
   await f.service.finish(f.room, f.tx, false)
   assert.equal(f.stats.get(1).plays, 1)
