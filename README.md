@@ -1,6 +1,6 @@
-# Faith Business
+# CoCoFaith Business
 
-Faith v3 的玩法层，强依赖 `faithCore`
+CoCoFaith v3 的玩法层，强依赖 `faithCore`
 
 ## 内置玩法
 
@@ -22,7 +22,10 @@ Faith v3 的玩法层，强依赖 `faithCore`
 信仰 强制卖出等级 [等级]
 虚空祈求 [次数]
 虚空祈求 次数
+关于椰子水
 ```
+
+`关于椰子水` 可在未注册状态下使用，显示 Koishi、Core、Business 以及当前平台 Adapter 的版本。
 
 每日祈祷使用各信仰自己的祷词，不占 QQ 指令面板位置。
 

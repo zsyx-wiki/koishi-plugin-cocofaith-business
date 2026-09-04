@@ -28,7 +28,7 @@ export function createFaithAdminModule() {
     id: "faith_admin", commands: ["信仰管理"], description: "创造者管理命令", allowUnregistered: true,
     async execute(ctx) {
       if (ctx.uid === null || !(await admin.isCreator(ctx.uid))) return { type: "silent" };
-      if (!admin.commands.get("数值")) throw new BusinessError("MODULE_NOT_READY", "管理命令尚未就绪，请重新加载 Faith Business。");
+      if (!admin.commands.get("数值")) throw new BusinessError("MODULE_NOT_READY", "管理命令尚未就绪，请重新加载 CoCoFaith Business。");
       const [name, ...args] = ctx.args, command = name ? admin.commands.get(name) : undefined;
       if (!command) throw new BusinessError("INVALID_INPUT", `可用管理命令：${admin.commands.list().map((item) => item.command).join("、")}`);
       const requestId = ctx.event.eventId ? createHash("sha256").update(JSON.stringify([

@@ -3,7 +3,7 @@ const assert = require('node:assert/strict')
 const Module = require('node:module')
 const originalLoad = Module._load
 Module._load = function (request, parent, isMain) {
-  if (request === '@mueo/koishi-plugin-faith-core') return require('../../koishi-plugin-faith-core/lib/index.js')
+  if (request === '@mueo/koishi-plugin-cocofaith-core') return require('../../koishi-plugin-cocofaith-core/lib/index.js')
   return originalLoad.call(this, request, parent, isMain)
 }
 const business = require('../lib/index.js')

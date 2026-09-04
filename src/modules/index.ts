@@ -8,10 +8,11 @@ import { createJunkModule } from "./junk";
 import { createTitleModule } from "./title";
 import { createRoomsModule } from "./rooms";
 import { createRouletteModule } from "./roulette";
+import { createAboutModule } from "./about";
 
 export function createBuiltInBusinessModules(): readonly FaithBusinessModule<any, any, any>[] {
   return [createFaithModule(), createFaithAdminModule(), createVoidPrayerModule(), createDailyPrayerModule(),
-    createJunkModule(), createTitleModule(), createRoomsModule(), createRouletteModule()];
+    createJunkModule(), createTitleModule(), createRoomsModule(), createRouletteModule(), createAboutModule()];
 }
 
 /** 兼容旧的模块清单导出；注册新实例请使用工厂函数。 */
@@ -29,3 +30,4 @@ export * from "./junk";
 export * from "./title";
 export * from "./rooms";
 export * from "./roulette";
+export * from "./about";

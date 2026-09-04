@@ -1,10 +1,10 @@
 import { Context } from "koishi";
 import { Config as ConfigSchema, type Config as BusinessConfig } from "../config";
-import type {} from "@mueo/koishi-plugin-faith-core";
+import type {} from "@mueo/koishi-plugin-cocofaith-core";
 import { FaithBusinessService } from "./framework/service";
 import { registerBuiltInBusinessModules } from "./modules";
 
-export const name = "faith-business";
+export const name = "cocofaith-business";
 export const inject = ["faithCore"] as const;
 export const Config = ConfigSchema;
 export type Config = BusinessConfig;
@@ -32,3 +32,4 @@ export * from "./modules";
 export * from "./framework/service";
 export * from "./framework/router";
 export * from "./framework/protocol";
+export * from "./version";

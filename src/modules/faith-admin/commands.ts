@@ -1,10 +1,10 @@
-import { CallbackDisposable, type FaithBusinessCoreScope } from "@mueo/koishi-plugin-faith-core";
+import { CallbackDisposable, type FaithBusinessCoreScope } from "@mueo/koishi-plugin-cocofaith-core";
 import { BusinessError } from "../../framework/errors";
 import type { BusinessResult } from "../../framework/types";
 
 export interface FaithAdminCommandContext { actorUid: number; args: readonly string[]; core: FaithBusinessCoreScope; requestId?: string; }
 export interface FaithAdminCommand { business: string; command: string; description?: string; execute(context: FaithAdminCommandContext): BusinessResult | Promise<BusinessResult>; }
-export interface FaithAdminCommandsApi { register(command: FaithAdminCommand): import("@mueo/koishi-plugin-faith-core").FaithDisposable; list(): readonly Omit<Readonly<FaithAdminCommand>, "execute">[]; }
+export interface FaithAdminCommandsApi { register(command: FaithAdminCommand): import("@mueo/koishi-plugin-cocofaith-core").FaithDisposable; list(): readonly Omit<Readonly<FaithAdminCommand>, "execute">[]; }
 
 export class FaithAdminCommandRegistry {
   private commands = new Map<string, Readonly<FaithAdminCommand>>();

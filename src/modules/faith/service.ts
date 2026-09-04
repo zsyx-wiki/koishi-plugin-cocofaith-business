@@ -1,4 +1,4 @@
-import type { FaithBusinessCoreScope, FaithCoreUserData, FaithProfessionDefinition, IdentityInput } from "@mueo/koishi-plugin-faith-core";
+import type { FaithBusinessCoreScope, FaithCoreUserData, FaithProfessionDefinition, IdentityInput } from "@mueo/koishi-plugin-cocofaith-core";
 import { BusinessError } from "../../framework/errors";
 
 export interface FaithGameplayConfig extends Record<string, unknown> {

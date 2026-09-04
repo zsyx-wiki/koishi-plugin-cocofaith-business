@@ -1,4 +1,4 @@
-import type { FaithBusinessCoreScope, FaithDisposable } from "@mueo/koishi-plugin-faith-core";
+import type { FaithBusinessCoreScope, FaithDisposable } from "@mueo/koishi-plugin-cocofaith-core";
 import { BusinessConfigStore } from "./module-config";
 import { BusinessError } from "./errors";
 import { BusinessInterfaceRegistry } from "./interfaces";

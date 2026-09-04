@@ -1,4 +1,4 @@
-import type { FaithCoreService, IdentityInput } from "@mueo/koishi-plugin-faith-core";
+import type { FaithCoreService, IdentityInput } from "@mueo/koishi-plugin-cocofaith-core";
 import { BusinessError } from "./errors";
 import type { BusinessEvent, BusinessResult, MessageNode } from "./types";
 
@@ -21,6 +21,14 @@ export function normalizeBusinessEvent(core: FaithCoreService, event: BusinessEv
   if (event.channelId !== undefined && (typeof event.channelId !== "string" || event.channelId.length > 255)) {
     throw new BusinessError("INVALID_INPUT", "BusinessEvent.channelId 无效。");
   }
+  let adapter;
+  if (event.adapter !== undefined) {
+    const { name, version } = event.adapter;
+    if (typeof name !== "string" || !name.trim() || name.length > 128 || typeof version !== "string" || !version.trim() || version.length > 64) {
+      throw new BusinessError("INVALID_INPUT", "BusinessEvent.adapter 无效。");
+    }
+    adapter = Object.freeze({ name: name.trim(), version: version.trim() });
+  }
   let identity: Readonly<IdentityInput> | undefined;
   if (event.identity !== undefined) identity = Object.freeze(core.adapter.normalize(event.identity));
   if (event.uid === null && !identity) throw new BusinessError("INVALID_INPUT", "未注册事件必须包含标准身份。");
@@ -29,7 +37,7 @@ export function normalizeBusinessEvent(core: FaithCoreService, event: BusinessEv
   }
   if (event.reply !== undefined && typeof event.reply !== "function") throw new BusinessError("INVALID_INPUT", "回复通道无效");
   const reply = event.reply ? async (result: BusinessResult) => { assertBusinessResult(result); return event.reply!(result); } : undefined;
-  return Object.freeze({ uid: event.uid, identity, scene: event.scene, content: event.content, channelId: event.channelId, roomKey: event.roomKey, eventId: event.eventId, displayName: event.displayName, reply });
+  return Object.freeze({ uid: event.uid, identity, scene: event.scene, content: event.content, channelId: event.channelId, adapter, roomKey: event.roomKey, eventId: event.eventId, displayName: event.displayName, reply });
 }
 
 export function assertBusinessResult(result: unknown): asserts result is BusinessResult {

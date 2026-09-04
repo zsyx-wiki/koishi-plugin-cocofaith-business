@@ -1,4 +1,4 @@
-import type { FaithBusinessCoreScope } from "@mueo/koishi-plugin-faith-core";
+import type { FaithBusinessCoreScope } from "@mueo/koishi-plugin-cocofaith-core";
 import { BusinessError } from "../../framework/errors";
 import { VoidPrayerPool } from "./pool";
 import { VOID_PRAYER_LEVELS, type VoidPrayerConfig, type VoidPrayerDraw, type VoidPrayerResult, type VoidPrayerState } from "./types";

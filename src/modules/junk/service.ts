@@ -1,4 +1,4 @@
-import { CORE_JUNK_PICKABLE_ITEM_IDS, type FaithBusinessCoreScope } from "@mueo/koishi-plugin-faith-core";
+import { CORE_JUNK_PICKABLE_ITEM_IDS, type FaithBusinessCoreScope } from "@mueo/koishi-plugin-cocofaith-core";
 import { BusinessError } from "../../framework/errors";
 import type { JunkConfig, JunkState } from "./types";
 

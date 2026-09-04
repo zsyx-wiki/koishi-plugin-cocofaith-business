@@ -1,4 +1,4 @@
-import { CallbackDisposable } from "@mueo/koishi-plugin-faith-core";
+import { CallbackDisposable } from "@mueo/koishi-plugin-cocofaith-core";
 import { BusinessError } from "./errors";
 
 export type BusinessContributionHandler<I, O> = (input: Readonly<I>) => O | readonly O[] | null | undefined | Promise<O | readonly O[] | null | undefined>;

@@ -1,4 +1,4 @@
-import type { FaithMoney } from "@mueo/koishi-plugin-faith-core";
+import type { FaithMoney } from "@mueo/koishi-plugin-cocofaith-core";
 export type RouletteMode = "normal" | "gambler" | "crazy";
 export interface RoulettePlayer {
   uid: number; name: string; path: string; level: number; alive: boolean; timeouts: number;

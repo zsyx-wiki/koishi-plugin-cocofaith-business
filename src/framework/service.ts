@@ -1,5 +1,5 @@
 import { Context, Service } from "koishi";
-import type { FaithLifecycleScope } from "@mueo/koishi-plugin-faith-core";
+import type { FaithLifecycleScope } from "@mueo/koishi-plugin-cocofaith-core";
 import { BusinessError, businessFailure } from "./errors";
 import { BusinessModuleManager } from "./manager";
 import { assertBusinessResult, normalizeBusinessEvent } from "./protocol";
@@ -14,7 +14,7 @@ export class FaithBusinessService extends Service {
 
   constructor(ctx: Context, config: Config) {
     super(ctx, "faithBusiness", true);
-    this.businessLogger = ctx.logger("faith-business");
+    this.businessLogger = ctx.logger("cocofaith-business");
     this.core = ctx.faithCore;
     this.manager = new BusinessModuleManager(
       config,

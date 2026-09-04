@@ -1,4 +1,4 @@
-import type { FaithBusinessCoreScope, UserValueDelta } from "@mueo/koishi-plugin-faith-core";
+import type { FaithBusinessCoreScope, UserValueDelta } from "@mueo/koishi-plugin-cocofaith-core";
 import { BusinessError } from "../../framework/errors";
 import { FaithAdminFieldRegistry } from "./fields";
 import { FaithAdminCommandRegistry } from "./commands";
@@ -20,7 +20,7 @@ export class FaithAdminService {
     if (!Number.isFinite(delta) || delta <= 0) throw new BusinessError("INVALID_INPUT", "全体数值增加必须是正数，不支持批量扣除。");
     if (["gold", "ascension_score", "abandon_count"].includes(field) && !Number.isSafeInteger(delta)) throw new BusinessError("INVALID_INPUT", "货币及弃誓次数增量必须是正安全整数。");
     const result = await this.core.bulk.incrementValuesForAll({ [field]: delta }, { operationId, status: "active" });
-    const logger = new Logger("faith-business-admin");
+    const logger = new Logger("cocofaith-business-admin");
     logger.info(`全体数值调整 actor=${actorUid} field=${field} delta=${delta} operation=${result.operationId} total=${result.total} succeeded=${result.succeeded} skipped=${result.skipped} failed=${result.failed.length}`);
     for (const failure of result.failed) logger.warn(`全体数值调整失败 operation=${result.operationId} uid=${failure.uid} code=${failure.code} message=${failure.message}`);
     return { type: "text" as const, content: `全体数值：${fieldName} +${delta}\n范围：正常状态的已注册用户\n成功：${result.succeeded} 人\n已处理跳过：${result.skipped} 人\n失败：${result.failed.length} 人${result.failed.length ? "（详见日志）" : ""}` };

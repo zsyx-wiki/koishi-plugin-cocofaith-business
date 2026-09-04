@@ -1,4 +1,4 @@
-import type { FaithItemDefinition } from "@mueo/koishi-plugin-faith-core";
+import type { FaithItemDefinition } from "@mueo/koishi-plugin-cocofaith-core";
 
 export const VOID_PRAYER_LEVELS = ["SP", "SSS", "SS", "S", "A", "B", "C", "D"] as const;
 export type VoidPrayerLevel = typeof VOID_PRAYER_LEVELS[number];

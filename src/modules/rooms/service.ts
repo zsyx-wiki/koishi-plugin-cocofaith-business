@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { Logger } from "koishi";
-import type { FaithBusinessCoreScope } from "@mueo/koishi-plugin-faith-core";
+import type { FaithBusinessCoreScope } from "@mueo/koishi-plugin-cocofaith-core";
 import { BusinessError } from "../../framework/errors";
 import type { BusinessResult } from "../../framework/types";
 import type { CreateRoom, GameRoom, RoomEvent, RoomGame } from "./types";
@@ -15,7 +15,7 @@ export class GameRoomService {
   private timers = new Map<string, ReturnType<typeof setTimeout>>();
   private replies = new Map<string, NonNullable<RoomEvent["reply"]>>();
   private stopped = false;
-  private logger = new Logger("faith-business-room");
+  private logger = new Logger("cocofaith-business-room");
   constructor(private core: FaithBusinessCoreScope) {}
   async load() {
     for (const row of await this.core.table.get({ active: true })) {

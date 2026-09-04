@@ -1,10 +1,16 @@
-import type { FaithBusinessCoreScope, FaithDisposable, IdentityInput } from "@mueo/koishi-plugin-faith-core";
+import type { FaithBusinessCoreScope, FaithDisposable, IdentityInput } from "@mueo/koishi-plugin-cocofaith-core";
 import type { BusinessContributionHandler, BusinessContributionOptions, BusinessContributionResult } from "./contributions";
 
 export type BusinessModuleState = "registered" | "disabled" | "initializing" | "initialized" | "readying" | "ready" | "reloading" | "disposing" | "failed" | "disposed";
 export type BusinessScene = "group" | "private";
+export interface BusinessAdapterInfo {
+  readonly name: string;
+  readonly version: string;
+}
 export interface BusinessEvent {
   uid: number | null; identity?: Readonly<IdentityInput>; scene: BusinessScene; content: string; channelId?: string;
+  /** 仅用于诊断和“关于”信息，不参与业务分支判断。 */
+  adapter?: Readonly<BusinessAdapterInfo>;
   /** Adapter 生成的群作用域，不由用户命令传入。 */
   roomKey?: string;
   eventId?: string;

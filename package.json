@@ -1,7 +1,7 @@
 {
-  "name": "@mueo/koishi-plugin-faith-business",
-  "version": "3.0.0-alpha.1",
-  "description": "Faith v3 结构化业务与玩法服务",
+  "name": "@mueo/koishi-plugin-cocofaith-business",
+  "version": "3.0.0-alpha.2",
+  "description": "CoCoFaith v3 结构化业务与玩法服务",
   "author": "Mueo <mueo@mueoo.com>",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
@@ -15,7 +15,7 @@
     "test": "npm run build && node --test tests/*.test.cjs"
   },
   "peerDependencies": {
-    "@mueo/koishi-plugin-faith-core": "^3.0.0-alpha.1",
+    "@mueo/koishi-plugin-cocofaith-core": "^3.0.0-alpha.2",
     "koishi": "^4.16.0"
   },
   "devDependencies": {
@@ -25,9 +25,9 @@
   },
   "license": "GPL-3.0-or-later",
   "koishi": {
-    "name": "Faith Business",
+    "name": "CoCoFaith Business",
     "description": {
-      "zh-CN": "Faith v3 玩法层，只调用 Faith Core 并返回结构化结果。"
+      "zh-CN": "CoCoFaith v3 玩法层，只调用 CoCoFaith Core 并返回结构化结果。"
     },
     "services": {
       "required": [

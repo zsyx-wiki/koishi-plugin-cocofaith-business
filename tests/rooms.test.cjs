@@ -3,11 +3,11 @@ const assert = require('node:assert/strict')
 const Module = require('node:module')
 const load = Module._load
 Module._load = function (name, parent, main) {
-  if (name === '@mueo/koishi-plugin-faith-core') return require('../../koishi-plugin-faith-core/lib/index.js')
+  if (name === '@mueo/koishi-plugin-cocofaith-core') return require('../../koishi-plugin-cocofaith-core/lib/index.js')
   return load.call(this, name, parent, main)
 }
 const { App } = require('koishi')
-const core = require('../../koishi-plugin-faith-core/lib/index.js')
+const core = require('../../koishi-plugin-cocofaith-core/lib/index.js')
 const business = require('../lib/index.js')
 
 test('faith abandonment atomically pays both costs and changes faith without false conflicts', async () => {

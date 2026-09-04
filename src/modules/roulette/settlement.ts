@@ -1,4 +1,4 @@
-import type { FaithBusinessCoreScope, FaithMoney } from "@mueo/koishi-plugin-faith-core";
+import type { FaithBusinessCoreScope, FaithMoney } from "@mueo/koishi-plugin-cocofaith-core";
 import type { GameRoom, RoomTransaction } from "../rooms";
 import type { RouletteState } from "./types";
 import { initialStats } from "./types";
