@@ -1,6 +1,6 @@
 import { CallbackDisposable, type FaithBusinessCoreScope } from "@mueo/koishi-plugin-faith-core";
-import { BusinessError } from "../../errors";
-import type { BusinessResult } from "../../types";
+import { BusinessError } from "../../framework/errors";
+import type { BusinessResult } from "../../framework/types";
 
 export interface FaithAdminCommandContext { actorUid: number; args: readonly string[]; core: FaithBusinessCoreScope; requestId?: string; }
 export interface FaithAdminCommand { business: string; command: string; description?: string; execute(context: FaithAdminCommandContext): BusinessResult | Promise<BusinessResult>; }

@@ -1,5 +1,5 @@
 import type { FaithBusinessCoreScope } from "@mueo/koishi-plugin-faith-core";
-import { BusinessError } from "../../errors";
+import { BusinessError } from "../../framework/errors";
 import { TitleRegistry } from "./registry";
 import type { TitleDefinition, TitleServiceApi, UserTitleState } from "./types";
 

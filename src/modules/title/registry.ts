@@ -1,4 +1,4 @@
-import { BusinessError } from "../../errors";
+import { BusinessError } from "../../framework/errors";
 import type { TitleDefinition } from "./types";
 
 export class TitleRegistry {

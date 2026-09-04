@@ -1,4 +1,4 @@
-import type { BusinessResult } from "../../types";
+import type { BusinessResult } from "../../framework/types";
 import type { GameRoom, RoomRenderContext } from "../rooms";
 import type { RouletteState } from "./types";
 import type { RouletteRegistry } from "./registry";

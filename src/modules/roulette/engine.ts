@@ -1,4 +1,4 @@
-import { BusinessError } from "../../errors";
+import { BusinessError } from "../../framework/errors";
 import type { RoulettePlayer as Player, RouletteState as State } from "./types";
 import { RouletteRegistry, type RouletteEffectContext as Effect } from "./registry";
 import { pick, shuffle, secureRandom, type RandomSource } from "./random";

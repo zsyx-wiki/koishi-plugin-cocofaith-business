@@ -1,5 +1,5 @@
 import type { FaithBusinessCoreScope, UserValueDelta } from "@mueo/koishi-plugin-faith-core";
-import { BusinessError } from "../../errors";
+import { BusinessError } from "../../framework/errors";
 import { FaithAdminFieldRegistry } from "./fields";
 import { FaithAdminCommandRegistry } from "./commands";
 import { Logger } from "koishi";

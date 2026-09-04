@@ -1,5 +1,5 @@
-import { defineBusinessModule } from "../../types";
-import type { BusinessCommandContext } from "../../types";
+import { defineBusinessModule } from "../../framework/types";
+import type { BusinessCommandContext } from "../../framework/types";
 import type { GameRoomsApi } from "../rooms";
 import type { TitleServiceApi } from "../title";
 import { RouletteService } from "./service";

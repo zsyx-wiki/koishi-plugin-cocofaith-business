@@ -1,9 +1,9 @@
-import { BusinessError } from "../../errors";
-import { defineBusinessModule } from "../../types";
+import { BusinessError } from "../../framework/errors";
+import { defineBusinessModule } from "../../framework/types";
 import { DEFAULT_JUNK_CONFIG, validateJunkConfig } from "./config";
 import { JunkService } from "./service";
 import type { JunkConfig } from "./types";
-import { formatItem } from "../item-format";
+import { formatItem } from "../../shared/item-format";
 
 export function createJunkModule() {
   let service: JunkService;

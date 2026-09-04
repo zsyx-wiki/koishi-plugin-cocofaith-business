@@ -1,5 +1,5 @@
-import { BusinessError } from "../../errors";
-import { defineBusinessModule } from "../../types";
+import { BusinessError } from "../../framework/errors";
+import { defineBusinessModule } from "../../framework/types";
 import { FaithAdminService } from "./service";
 import { createHash, randomUUID } from "node:crypto";
 

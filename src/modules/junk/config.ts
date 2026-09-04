@@ -1,4 +1,4 @@
-import { BusinessError } from "../../errors";
+import { BusinessError } from "../../framework/errors";
 import type { JunkConfig } from "./types";
 
 export const DEFAULT_JUNK_CONFIG: Readonly<JunkConfig> = Object.freeze({ itemCount: 3, paidGoldCost: 200, paidAscensionCost: 5 });

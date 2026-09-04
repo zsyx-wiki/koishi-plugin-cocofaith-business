@@ -1,6 +1,6 @@
 import type { FaithBusinessCoreScope, FaithOpenResult } from "@mueo/koishi-plugin-faith-core";
-import { BusinessError } from "../../errors";
-import { formatItem } from "../item-format";
+import { BusinessError } from "../../framework/errors";
+import { formatItem } from "../../shared/item-format";
 
 export class FaithOpenItemService {
   constructor(private core: FaithBusinessCoreScope, private random: () => number = Math.random) {}

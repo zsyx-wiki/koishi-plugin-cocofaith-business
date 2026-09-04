@@ -1,7 +1,7 @@
 import type { FaithAdminNumericFieldsApi } from "../faith-admin";
-import { formatItem } from "../item-format";
-import { BusinessError } from "../../errors";
-import { defineBusinessModule, type BusinessResult } from "../../types";
+import { formatItem } from "../../shared/item-format";
+import { BusinessError } from "../../framework/errors";
+import { defineBusinessModule, type BusinessResult } from "../../framework/types";
 import { DEFAULT_VOID_PRAYER_CONFIG, validateVoidPrayerConfig } from "./config";
 import { VoidPrayerService, type VoidPrayerAdjustment } from "./service";
 import { VOID_PRAYER_LEVELS, type VoidPrayerConfig, type VoidPrayerResult } from "./types";

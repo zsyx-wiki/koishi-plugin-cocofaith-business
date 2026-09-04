@@ -1,5 +1,5 @@
-import type { FaithBusinessService } from "../service";
-import type { FaithBusinessModule } from "../types";
+import type { FaithBusinessService } from "../framework/service";
+import type { FaithBusinessModule } from "../framework/types";
 import { createFaithModule } from "./faith";
 import { createFaithAdminModule } from "./faith-admin";
 import { createVoidPrayerModule } from "./void-prayer";

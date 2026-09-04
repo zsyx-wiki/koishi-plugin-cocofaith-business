@@ -1,4 +1,4 @@
-import { defineBusinessModule } from "../../types";
+import { defineBusinessModule } from "../../framework/types";
 import { GameRoomService } from "./service";
 export function createRoomsModule() {
   let rooms: GameRoomService;

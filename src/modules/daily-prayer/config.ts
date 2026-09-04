@@ -1,4 +1,4 @@
-import { BusinessError } from "../../errors";
+import { BusinessError } from "../../framework/errors";
 import type { DailyPrayerConfig } from "./types";
 
 export const DEFAULT_DAILY_PRAYER_CONFIG: Readonly<DailyPrayerConfig> = Object.freeze({

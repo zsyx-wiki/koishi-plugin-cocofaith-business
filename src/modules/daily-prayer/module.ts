@@ -1,5 +1,5 @@
-import { BusinessError } from "../../errors";
-import { defineBusinessModule, type BusinessResult } from "../../types";
+import { BusinessError } from "../../framework/errors";
+import { defineBusinessModule, type BusinessResult } from "../../framework/types";
 import { DEFAULT_DAILY_PRAYER_CONFIG, validateDailyPrayerConfig } from "./config";
 import { PRAYER_BY_WORD } from "./data";
 import { DailyPrayerService } from "./service";

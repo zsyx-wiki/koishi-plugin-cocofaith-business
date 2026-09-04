@@ -1,5 +1,5 @@
 import { Schema } from "koishi";
-import type { Config as BusinessConfig } from "./src/types";
+import type { Config as BusinessConfig } from "./src/framework/types";
 
 const faithDefaults = { abandonBaseAscensionCost: 1200, abandonAscensionCostPerUse: 1000, abandonMaxAscensionCost: 10000, changeProfessionGoldCost: 1000, changeProfessionAscensionCost: 50 };
 const probabilityDefaults = { SP: 0.0005, SSS: 0.0043, SS: 0.0152, S: 0.0374, A: 0.0897, B: 0.1608, C: 0.3188, D: 0.3733 };

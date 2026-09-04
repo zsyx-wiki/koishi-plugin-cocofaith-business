@@ -1,5 +1,5 @@
 import type { FaithBusinessCoreScope } from "@mueo/koishi-plugin-faith-core";
-import { BusinessError } from "../../errors";
+import { BusinessError } from "../../framework/errors";
 import type { DailyPrayerConfig, DailyPrayerResult, DailyPrayerState } from "./types";
 
 export class DailyPrayerService {

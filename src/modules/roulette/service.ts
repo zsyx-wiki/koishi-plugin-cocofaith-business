@@ -1,5 +1,5 @@
 import type { FaithBusinessCoreScope } from "@mueo/koishi-plugin-faith-core";
-import { BusinessError } from "../../errors";
+import { BusinessError } from "../../framework/errors";
 import type { GameRoom, GameRoomsApi, RoomEvent, RoomGame, RoomTransaction, RoomRenderContext } from "../rooms";
 import type { RouletteConfig, RouletteState, RouletteMode } from "./types";
 import { initialState, initialStats } from "./types";

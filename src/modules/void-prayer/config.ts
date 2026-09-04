@@ -1,4 +1,4 @@
-import { BusinessError } from "../../errors";
+import { BusinessError } from "../../framework/errors";
 import { VOID_PRAYER_LEVELS, type VoidPrayerConfig, type VoidPrayerLevel } from "./types";
 
 export const DEFAULT_VOID_PRAYER_CONFIG: VoidPrayerConfig = Object.freeze({

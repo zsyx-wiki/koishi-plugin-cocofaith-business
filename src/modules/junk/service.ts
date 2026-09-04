@@ -1,5 +1,5 @@
 import { CORE_JUNK_PICKABLE_ITEM_IDS, type FaithBusinessCoreScope } from "@mueo/koishi-plugin-faith-core";
-import { BusinessError } from "../../errors";
+import { BusinessError } from "../../framework/errors";
 import type { JunkConfig, JunkState } from "./types";
 
 const LEVELS = Object.freeze([...["D", "C", "B", "A", "S"]].map((level, index) => ({ level, weight: [32, 32, 20, 12, 4][index] })));

@@ -1,6 +1,6 @@
 import type { FaithBusinessCoreScope, FaithItemDefinition } from "@mueo/koishi-plugin-faith-core";
-import { BusinessError } from "../../errors";
-import { formatItem } from "../item-format";
+import { BusinessError } from "../../framework/errors";
+import { formatItem } from "../../shared/item-format";
 
 export interface FaithSaleResult {
   quantity: number;

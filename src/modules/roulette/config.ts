@@ -1,4 +1,4 @@
-import { BusinessError } from "../../errors";
+import { BusinessError } from "../../framework/errors";
 import type { RouletteConfig } from "./types";
 export const DEFAULT_ROULETTE_CONFIG: RouletteConfig = { turnSeconds: 45, normalMin: 4, gamblerMin: 5, crazyMin: 8, entryFee: 100 };
 export function validateRouletteConfig(value: unknown): RouletteConfig {

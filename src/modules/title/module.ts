@@ -1,5 +1,5 @@
-import { BusinessError } from "../../errors";
-import { defineBusinessModule } from "../../types";
+import { BusinessError } from "../../framework/errors";
+import { defineBusinessModule } from "../../framework/types";
 import { BUILTIN_TITLES } from "./data";
 import { TitleService } from "./service";
 import type { TitleServiceApi } from "./types";
