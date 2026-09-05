@@ -62,7 +62,7 @@ export class VoidPrayerService {
     return Object.freeze({ ...state, dailyLimit, remaining: Math.max(0, dailyLimit - state.dailyUsed) + state.consumableExtra });
   }
 
-  adjust(uid: number, field: VoidPrayerAdjustment, delta: number) {
+  adjust(uid: number, field: VoidPrayerAdjustment, delta: number, idempotencyKey?: string) {
     if (!Number.isSafeInteger(delta) || delta === 0) throw new BusinessError("INVALID_INPUT", "祈求次数变化必须是非零安全整数。");
     const date = this.core.gameDay.currentDate();
     return this.core.transaction.run(uid, async (tx) => {
@@ -72,7 +72,7 @@ export class VoidPrayerService {
       if (field === "temporaryExtra") state.temporaryDate = date;
       await tx.data.set({ private: state });
       return next;
-    }, { source: `void_prayer.adjust_${field}` });
+    }, { source: `void_prayer.adjust_${field}`, idempotencyKey });
   }
 }
 

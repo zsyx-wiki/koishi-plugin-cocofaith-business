@@ -43,10 +43,19 @@ export function createCollectionModule() {
       }, { id: "collection-inventory", timeout: 0 }));
       ctx.core.lifecycle.track(ctx.use<FaithAdminCommandsApi>("faith_admin", "commands").register({
         business: "collection", command: "图鉴", description: "根据背包刷新图鉴",
-        async execute({ args }) {
-          if (args.length !== 1 || args[0] !== "刷新") throw new BusinessError("INVALID_INPUT", "格式：信仰管理 图鉴 刷新");
-          const result = await service.refreshAll();
-          return { type: "text", content: MESSAGES.collection.refreshed(result.checked, result.added, result.failed) };
+        async execute({ args, core }) {
+          if (args.length === 1 && args[0] === "全量刷新") {
+            const result = await service.refreshAll();
+            return { type: "text", content: MESSAGES.collection.refreshed(result.checked, result.added, result.failed) };
+          }
+          if (args.length === 2 && args[0] === "刷新") {
+            const uid = Number(args[1]);
+            if (!Number.isSafeInteger(uid)) throw new BusinessError("INVALID_INPUT", "UID 格式无效。");
+            await core.users.require(uid);
+            const added = await service.refresh(uid);
+            return { type: "text", content: MESSAGES.collection.refreshedOne(uid, added) };
+          }
+          throw new BusinessError("INVALID_INPUT", "格式：信仰管理 图鉴 全量刷新\n指定用户：信仰管理 图鉴 刷新 [uid]");
         },
       }));
     },

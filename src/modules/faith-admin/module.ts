@@ -15,10 +15,10 @@ export function createFaithAdminModule() {
     context.provide("commands", Object.freeze({ register: admin.commands.register.bind(admin.commands), list: admin.commands.list.bind(admin.commands) }), { version: "1.0.0" });
     context.core.lifecycle.track(admin.commands.register({ business: "faith_admin", command: "数值", description: "调整用户数值", async execute({ actorUid, args, requestId }) {
       if (args[0] === "全体") {
-        if (args.length !== 3) throw new BusinessError("INVALID_INPUT", "格式：信仰管理 数值 全体 [数值名] [正数增量]");
+        if (args.length !== 3) throw new BusinessError("INVALID_INPUT", "格式：信仰管理 数值 全体 [数值名] [变化值]");
         return admin.changeAll(actorUid, args[1], args[2], requestId ?? randomUUID(), true);
       }
-      if (args.length !== 4) throw new BusinessError("INVALID_INPUT", "格式：信仰管理 数值 [数值名] [qq|uid] [目标] [变化值]\n全体增加：信仰管理 数值 全体 [数值名] [正数增量]");
+      if (args.length !== 4) throw new BusinessError("INVALID_INPUT", "格式：信仰管理 数值 [数值名] [qq|uid] [目标] [变化值]\n全体调整：信仰管理 数值 全体 [数值名] [变化值]");
       const result = await admin.change(actorUid, args[0], args[1], args[2], args[3], true);
       const content = typeof result.message === "string" ? result.message : MESSAGES.admin.changed(result.targetUid, args[0], result.delta);
       return { type: "text", content };

@@ -53,10 +53,11 @@ export const MESSAGES = Object.freeze({
     progress: (rows: readonly string[]) => ["图鉴进度", ...rows].join("\n"),
     page: (limited: boolean, page: number, pages: number, entries: readonly string[]) => [`${limited ? "限定" : "稀有"}图鉴：${page}/${pages} 页`, ...entries, ...(entries.length ? [] : ["暂无收藏品"])].join("\n"),
     refreshed: (checked: number, added: number, failed: number) => `图鉴刷新：检查 ${checked} 人，新增 ${added} 项，失败 ${failed} 人。`,
+    refreshedOne: (uid: number, added: number) => `图鉴刷新：UID ${uid} 新增 ${added} 项。`,
   }),
   admin: Object.freeze({
     changed: (uid: number, field: string, delta: number) => `已为 UID ${uid} 调整 ${field}：${signed(delta)}`,
-    changedAll: (field: string, delta: number, succeeded: number, skipped: number, failed: number) => `全体数值：${field} +${delta}\n范围：正常状态的已注册用户\n成功：${succeeded} 人\n已处理跳过：${skipped} 人\n失败：${failed} 人${failed ? "（详见日志）" : ""}`,
+    changedAll: (field: string, delta: number, succeeded: number, skipped: number, failed: number) => `全体数值：${field} ${signed(delta)}\n范围：正常状态的已注册用户\n成功：${succeeded} 人\n已处理跳过：${skipped} 人\n失败：${failed} 人${failed ? "（详见日志）" : ""}`,
     commands: (commands: readonly string[]) => `可用管理命令：${commands.join("、")}`,
   }),
   roulette: Object.freeze({

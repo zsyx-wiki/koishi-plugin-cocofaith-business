@@ -36,7 +36,7 @@ export class DailyPrayerService {
     return Object.freeze({ ...state, limit, remaining: Math.max(0, limit - state.count) });
   }
 
-  adjust(uid: number, field: "permanentExtra" | "temporaryExtra", delta: number) {
+  adjust(uid: number, field: "permanentExtra" | "temporaryExtra", delta: number, idempotencyKey?: string) {
     if (!Number.isSafeInteger(delta) || delta === 0) throw new BusinessError("INVALID_INPUT", "祈祷次数变化必须是非零安全整数。");
     const date = this.core.gameDay.currentDate();
     return this.core.transaction.run(uid, async (tx) => {
@@ -46,7 +46,7 @@ export class DailyPrayerService {
       if (field === "temporaryExtra") state.temporaryDate = date;
       await tx.data.set({ private: { ...state } });
       return next;
-    }, { source: `daily_prayer.adjust_${field}` });
+    }, { source: `daily_prayer.adjust_${field}`, idempotencyKey });
   }
 }
 

@@ -1,6 +1,6 @@
-import type { FaithBusinessCoreScope, UserValueDelta } from "@mueo/koishi-plugin-cocofaith-core";
+import { FaithCoreError, type FaithBusinessCoreScope, type UserValueDelta } from "@mueo/koishi-plugin-cocofaith-core";
 import { BusinessError } from "../../framework/errors";
-import { FaithAdminFieldRegistry } from "./fields";
+import { FaithAdminFieldRegistry, type FaithAdminNumericField } from "./fields";
 import { FaithAdminCommandRegistry } from "./commands";
 import { Logger } from "koishi";
 import { MESSAGES } from "../../../messages";
@@ -16,13 +16,15 @@ export class FaithAdminService {
   async isCreator(uid: number) { return this.core.permissions.check(uid, "faith.creator"); }
   async changeAll(actorUid: number, fieldName: string, deltaValue: string, operationId: string, authorized = false) {
     if (!authorized && !(await this.isCreator(actorUid))) throw new BusinessError("NOT_ALLOWED", "此操作仅限创造者使用。");
-    const field = CORE_FIELDS[fieldName], delta = Number(deltaValue);
-    if (!field) throw new BusinessError("INVALID_INPUT", `全体操作仅支持：${Object.keys(CORE_FIELDS).join("、")}。`);
-    if (!Number.isFinite(delta) || delta <= 0) throw new BusinessError("INVALID_INPUT", "全体数值增加必须是正数，不支持批量扣除。");
-    if (["gold", "ascension_score", "abandon_count"].includes(field) && !Number.isSafeInteger(delta)) throw new BusinessError("INVALID_INPUT", "货币及弃誓次数增量必须是正安全整数。");
-    const result = await this.core.bulk.incrementValuesForAll({ [field]: delta }, { operationId, status: "active" });
+    const field = CORE_FIELDS[fieldName], custom = this.fields.get(fieldName), delta = Number(deltaValue);
+    if (!field && !custom) throw new BusinessError("INVALID_INPUT", `未知数值名。可选：${this.fieldNames().join("、")}`);
+    if (!Number.isFinite(delta) || delta === 0) throw new BusinessError("INVALID_INPUT", "全体数值变化必须是非零有限数字。");
+    if (field && ["gold", "ascension_score", "abandon_count"].includes(field) && !Number.isSafeInteger(delta)) throw new BusinessError("INVALID_INPUT", "货币及弃誓次数变化必须是安全整数。");
+    const result = field
+      ? await this.core.bulk.changeValuesForAll({ [field]: delta }, { operationId, status: "active" })
+      : await this.changeCustomForAll(actorUid, custom!, delta, operationId);
     const logger = new Logger("cocofaith-business-admin");
-    logger.info(`全体数值调整 actor=${actorUid} field=${field} delta=${delta} operation=${result.operationId} total=${result.total} succeeded=${result.succeeded} skipped=${result.skipped} failed=${result.failed.length}`);
+    logger.info(`全体数值调整 actor=${actorUid} field=${field ?? custom?.name} delta=${delta} operation=${result.operationId} total=${result.total} succeeded=${result.succeeded} skipped=${result.skipped} failed=${result.failed.length}`);
     for (const failure of result.failed) logger.warn(`全体数值调整失败 operation=${result.operationId} uid=${failure.uid} code=${failure.code} message=${failure.message}`);
     return { type: "text" as const, content: MESSAGES.admin.changedAll(fieldName, delta, result.succeeded, result.skipped, result.failed.length) };
   }
@@ -37,8 +39,7 @@ export class FaithAdminService {
       await this.core.transaction.run(targetUid, async (tx) => {
         if (coreField === "gold" || coreField === "ascension_score") {
           if (!Number.isSafeInteger(delta)) throw new BusinessError("INVALID_INPUT", "货币只能按安全整数调整。");
-          if (delta > 0) await tx.economy.creditFixed({ [coreField]: delta });
-          else await tx.economy.pay({ [coreField]: -delta });
+          await tx.users.change({ [coreField]: delta });
           return;
         }
         await tx.users.change({ [coreField]: delta });
@@ -49,6 +50,30 @@ export class FaithAdminService {
     }
     const message = await custom!.change({ actorUid, targetUid, delta });
     return { targetUid, delta, message };
+  }
+  private fieldNames() { return [...new Set([...Object.keys(CORE_FIELDS), ...this.fields.list().map((item) => item.name)])]; }
+  private async changeCustomForAll(actorUid: number, field: Readonly<FaithAdminNumericField>, delta: number, operationId: string) {
+    let cursor = 0, total = 0, succeeded = 0, skipped = 0;
+    const failed: Array<{ uid: number; code: string; message: string }> = [];
+    while (true) {
+      const uids = await this.core.users.listUids(cursor, 100);
+      if (!uids.length) break;
+      let index = 0;
+      const worker = async () => {
+        while (true) {
+          const uid = uids[index++]; if (uid === undefined) return;
+          total++;
+          try { await field.change({ actorUid, targetUid: uid, delta, operationId: `${operationId}:${uid}` }); succeeded++; }
+          catch (error) {
+            if (error instanceof FaithCoreError && error.code === "IDEMPOTENCY_CONFLICT") { skipped++; continue; }
+            failed.push({ uid, code: error instanceof FaithCoreError ? error.code : "INTERNAL_ERROR", message: error instanceof Error ? error.message : String(error) });
+          }
+        }
+      };
+      await Promise.all(Array.from({ length: Math.min(4, uids.length) }, worker));
+      cursor = uids[uids.length - 1];
+    }
+    return { operationId, total, succeeded, skipped, failed };
   }
   private async resolveTarget(type: string, value: string) {
     if (type === "uid") {

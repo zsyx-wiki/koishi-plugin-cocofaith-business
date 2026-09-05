@@ -135,12 +135,21 @@ test('all-user numeric command requires creator, validates input and deduplicate
     const repeated = await app.faithBusiness.dispatch(event)
     assert.match(repeated.result.content, /已处理跳过：2 人/)
     for (const user of users) assert.equal((await app.faithCore.users.require(user.uid)).gold, 1000)
-    for (const content of ['信仰管理 数值 全体 金币 -1', '信仰管理 数值 全体 金币 0.5', '信仰管理 数值 全体 金币 Infinity', '信仰管理 数值 全体 未知 1', '信仰管理 数值 全体 金币 1 多余']) {
+    const negative = await app.faithBusiness.dispatch({ ...event, eventId: 'bulk-negative', content: '信仰管理 数值 全体 金币 -1200' })
+    assert.match(negative.result.content, /成功：2 人/)
+    for (const user of users) assert.equal((await app.faithCore.users.require(user.uid)).gold, -200)
+    const custom = await app.faithBusiness.dispatch({ ...event, eventId: 'bulk-custom', content: '信仰管理 数值 全体 奖励祈求 3' })
+    assert.match(custom.result.content, /成功：2 人/)
+    const voidApi = app.faithBusiness.interfaces.use('test', 'void_prayer', 'default', new Set(['void_prayer']))
+    for (const user of users) assert.equal((await voidApi.status(user.uid)).consumableExtra, 3)
+    const customRepeated = await app.faithBusiness.dispatch({ ...event, eventId: 'bulk-custom', content: '信仰管理 数值 全体 奖励祈求 3' })
+    assert.match(customRepeated.result.content, /已处理跳过：2 人/)
+    for (const content of ['信仰管理 数值 全体 金币 0.5', '信仰管理 数值 全体 金币 Infinity', '信仰管理 数值 全体 未知 1', '信仰管理 数值 全体 金币 1 多余']) {
       assert.ok((await app.faithBusiness.dispatch({ ...event, eventId: content, content })).error)
     }
     const single = await app.faithBusiness.dispatch({ ...event, eventId: 'single', content: `信仰管理 数值 金币 uid ${users[1].uid} -5` })
     assert.ok(single.result)
-    assert.equal((await app.faithCore.users.require(users[1].uid)).gold, 995)
+    assert.equal((await app.faithCore.users.require(users[1].uid)).gold, -205)
     permission.dispose()
   } finally { await app.stop() }
 })

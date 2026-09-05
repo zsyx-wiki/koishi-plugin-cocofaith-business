@@ -14,12 +14,12 @@ export function createDailyPrayerModule() {
     init(context) {
       service = new DailyPrayerService(context.core, context.config);
       const admin = context.use<FaithAdminNumericFieldsApi>("faith_admin", "numeric-fields");
-      context.core.lifecycle.track(admin.register({ name: "永久祈祷", description: "永久增加每日祈祷上限", async change({ targetUid, delta }) {
-        const after = await service.adjust(targetUid, "permanentExtra", delta);
+      context.core.lifecycle.track(admin.register({ name: "永久祈祷", description: "永久增加每日祈祷上限", async change({ targetUid, delta, operationId }) {
+        const after = await service.adjust(targetUid, "permanentExtra", delta, operationId);
         return MESSAGES.dailyPrayer.adjusted(targetUid, "永久祈祷次数", delta, after);
       } }));
-      context.core.lifecycle.track(admin.register({ name: "临时祈祷", description: "仅当前游戏日有效的额外祈祷次数", async change({ targetUid, delta }) {
-        const after = await service.adjust(targetUid, "temporaryExtra", delta);
+      context.core.lifecycle.track(admin.register({ name: "临时祈祷", description: "仅当前游戏日有效的额外祈祷次数", async change({ targetUid, delta, operationId }) {
+        const after = await service.adjust(targetUid, "temporaryExtra", delta, operationId);
         return MESSAGES.dailyPrayer.adjusted(targetUid, "临时祈祷次数", delta, after);
       } }));
       context.provide("default", Object.freeze({ status: (uid: number) => service.status(uid) }), { version: "1.0.0" });

@@ -56,8 +56,8 @@ function formatResult(result: VoidPrayerResult, compare: (a: string, b: string) 
   return MESSAGES.voidPrayer.result(result.actual, result.requested, result.cost, levels, top.map((draw) => formatItem(draw.item)).join("\n"), result.used, result.dailyLimit, result.remaining);
 }
 function registerAdminField(admin: FaithAdminNumericFieldsApi, context: Parameters<NonNullable<ReturnType<typeof defineBusinessModule>["init"]>>[0], service: VoidPrayerService, name: string, field: VoidPrayerAdjustment, description: string) {
-  context.core.lifecycle.track(admin.register({ name, description, async change({ targetUid, delta }) {
-    const after = await service.adjust(targetUid, field, delta);
+  context.core.lifecycle.track(admin.register({ name, description, async change({ targetUid, delta, operationId }) {
+    const after = await service.adjust(targetUid, field, delta, operationId);
     return MESSAGES.voidPrayer.adjusted(targetUid, name, delta, after);
   } }));
 }
