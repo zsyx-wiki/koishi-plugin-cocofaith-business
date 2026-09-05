@@ -5,6 +5,7 @@ import { PRAYER_BY_WORD } from "./data";
 import { DailyPrayerService } from "./service";
 import type { DailyPrayerConfig, DailyPrayerResult } from "./types";
 import type { FaithAdminNumericFieldsApi } from "../faith-admin";
+import { MESSAGES } from "../../../messages";
 
 export function createDailyPrayerModule() {
   let service: DailyPrayerService;
@@ -15,11 +16,11 @@ export function createDailyPrayerModule() {
       const admin = context.use<FaithAdminNumericFieldsApi>("faith_admin", "numeric-fields");
       context.core.lifecycle.track(admin.register({ name: "永久祈祷", description: "永久增加每日祈祷上限", async change({ targetUid, delta }) {
         const after = await service.adjust(targetUid, "permanentExtra", delta);
-        return `已调整 UID ${targetUid} 的永久祈祷次数：${signed(delta)}，当前为 ${after}。`;
+        return MESSAGES.dailyPrayer.adjusted(targetUid, "永久祈祷次数", delta, after);
       } }));
       context.core.lifecycle.track(admin.register({ name: "临时祈祷", description: "仅当前游戏日有效的额外祈祷次数", async change({ targetUid, delta }) {
         const after = await service.adjust(targetUid, "temporaryExtra", delta);
-        return `已调整 UID ${targetUid} 的临时祈祷次数：${signed(delta)}，当前为 ${after}。`;
+        return MESSAGES.dailyPrayer.adjusted(targetUid, "临时祈祷次数", delta, after);
       } }));
       context.provide("default", Object.freeze({ status: (uid: number) => service.status(uid) }), { version: "1.0.0" });
     },
@@ -39,6 +40,5 @@ export function createDailyPrayerModule() {
 export const dailyPrayerModule = createDailyPrayerModule();
 
 function formatResult(result: DailyPrayerResult) {
-  return `${result.god}回应了你｜登神分 ${signed(result.reward.ascension_score)}｜金币 ${signed(result.reward.gold)}\n今日祈祷 ${result.count}/${result.limit}`;
+  return MESSAGES.dailyPrayer.result(result.god, result.reward.ascension_score, result.reward.gold, result.count, result.limit);
 }
-function signed(value: number) { return `${value >= 0 ? "+" : ""}${value}`; }

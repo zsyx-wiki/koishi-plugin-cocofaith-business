@@ -4,6 +4,7 @@ import { BUILTIN_TITLES } from "./data";
 import { TitleService } from "./service";
 import type { TitleServiceApi } from "./types";
 import type { FaithAdminCommandsApi } from "../faith-admin";
+import { MESSAGES } from "../../../messages";
 
 export function createTitleModule() {
   let service: TitleService;
@@ -26,7 +27,7 @@ export function createTitleModule() {
         return result;
       }, { id: "title-bonuses" }));
       context.contribute<{ uid: number }, string>("faith.info", async ({ uid }) => {
-        const active = await service.getActive(uid); return `称号：${active ? `【${active.name}】` : "无"}`;
+        const active = await service.getActive(uid); return MESSAGES.title.active(active?.name);
       }, { id: "active-title", priority: 10 });
       context.provide<TitleServiceApi>("default", createPublicApi(service), { version: "1.0.0" });
       const admin = context.use<FaithAdminCommandsApi>("faith_admin", "commands");
@@ -37,11 +38,11 @@ export function createTitleModule() {
         await core.users.require(uid);
         if (action === "给予") {
           const changed = await service.grant(uid, name);
-          return { type: "text", content: changed ? `已向 UID ${uid} 给予称号【${service.require(name).name}】。` : `UID ${uid} 已拥有该称号。` };
+          return { type: "text", content: MESSAGES.title.granted(uid, service.require(name).name, changed) };
         }
         if (action === "收回") {
           const title = service.require(name), changed = await service.revoke(uid, title.id);
-          return { type: "text", content: changed ? `已从 UID ${uid} 收回称号【${title.name}】。` : `UID ${uid} 未持有该称号。` };
+          return { type: "text", content: MESSAGES.title.revoked(uid, title.name, changed) };
         }
         throw new BusinessError("INVALID_INPUT", "操作只能是“给予”或“收回”。");
       } }));
@@ -49,24 +50,24 @@ export function createTitleModule() {
     dispose() { service.clearCache(); },
     commands: [{
       id: "title", commands: ["称号"], scenes: ["group"], description: "查看和使用称号",
-      execute() { return { type: "text", content: "称号命令｜称号 列表｜称号 详情 [称号名]｜称号 使用 [称号名]" }; },
+      execute() { return { type: "text", content: MESSAGES.title.help }; },
       children: [
         { id: "list", commands: ["列表"], async execute(ctx) {
           const titles = await service.listOwned(requireUid(ctx.uid)), active = await service.getActive(requireUid(ctx.uid));
-          if (!titles.length) return { type: "text", content: "你尚未获得任何称号。" };
-          return { type: "text", content: titles.map((title, index) => `${index + 1}. 【${title.name}】${active?.id === title.id ? "（使用中）" : ""}`).join("\n") };
+          if (!titles.length) return { type: "text", content: MESSAGES.title.empty };
+          return { type: "text", content: MESSAGES.title.list(titles.map((title) => ({ name: title.name, active: active?.id === title.id }))) };
         } },
         { id: "detail", commands: ["详情"], async execute(ctx) {
           const name = ctx.args.join(" ").trim(); if (!name) throw new BusinessError("INVALID_INPUT", "格式：称号 详情 [称号名]");
           const owned = await service.listOwned(requireUid(ctx.uid)), title = service.resolve(name);
           if (!title || !owned.some((item) => item.id === title.id)) throw new BusinessError("NOT_FOUND", `你尚未拥有称号【${name}】。`);
           const bonuses = title.bonuses?.length ? title.bonuses.map(formatBonus).join("、") : "无";
-          return { type: "text", content: `【${title.name}】\n${title.description}\n来源：${title.source}\n加成：${bonuses}` };
+          return { type: "text", content: MESSAGES.title.detail(title.name, title.description, title.source, bonuses) };
         } },
         { id: "use", commands: ["使用", "佩戴"], async execute(ctx) {
           const name = ctx.args.join(" ").trim(); if (!name) throw new BusinessError("INVALID_INPUT", "格式：称号 使用 [称号名]");
           const title = await service.use(requireUid(ctx.uid), name);
-          return { type: "text", content: `已使用称号【${title!.name}】。` };
+          return { type: "text", content: MESSAGES.title.used(title!.name) };
         } },
       ],
     }],

@@ -33,3 +33,5 @@ export * from "./framework/service";
 export * from "./framework/router";
 export * from "./framework/protocol";
 export * from "./version";
+export { MESSAGES } from "../messages";
+export type { FaithMessages } from "../messages";

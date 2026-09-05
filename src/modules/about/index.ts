@@ -2,6 +2,7 @@ import { version as koishiVersion } from "koishi";
 import { COCOFAITH_CORE_VERSION } from "@mueo/koishi-plugin-cocofaith-core";
 import { defineBusinessModule } from "../../framework/types";
 import { COCOFAITH_BUSINESS_VERSION } from "../../version";
+import { MESSAGES } from "../../../messages";
 
 export function createAboutModule() {
   return defineBusinessModule({
@@ -17,13 +18,7 @@ export function createAboutModule() {
           : `${event.identity?.adapter ?? "未知"}（版本未知）`;
         return {
           type: "text" as const,
-          content: [
-            "关于椰子水",
-            `架构：Koishi ${koishiVersion}`,
-            `Core：CoCoFaith Core ${COCOFAITH_CORE_VERSION}`,
-            `Business：CoCoFaith Business ${COCOFAITH_BUSINESS_VERSION}`,
-            `Adapter：${adapter}`,
-          ].join("\n"),
+          content: MESSAGES.about(koishiVersion, COCOFAITH_CORE_VERSION, COCOFAITH_BUSINESS_VERSION, adapter),
         };
       },
     }],

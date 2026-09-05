@@ -5,6 +5,7 @@ import type { TitleServiceApi } from "../title";
 import { RouletteService } from "./service";
 import { DEFAULT_ROULETTE_CONFIG, validateRouletteConfig } from "./config";
 import type { RouletteConfig } from "./types";
+import { MESSAGES } from "../../../messages";
 
 export function createRouletteModule() {
   let service: RouletteService, registration: { dispose(): Promise<void> }, titles: TitleServiceApi;
@@ -36,7 +37,7 @@ export function createRouletteModule() {
     reload(ctx) { service.configure(ctx.config); },
     dispose: () => registration.dispose(),
     commands: [{ id: "roulette", commands: ["恶魔轮盘"], scenes: ["group"],
-      execute: () => ({ type: "text", content: "恶魔轮盘\n发起 / 发起赌徒 / 发起疯狂\n加入 / 退出 / 开始 / 结束\n开枪 / 恐惧 / 无畏 / 退缩\n对局 / 状态 / 强制结束\n超时45秒自动开枪，累计第二次超时淘汰。QQ消息无法发送时对局仍继续。" }),
+      execute: () => ({ type: "text", content: MESSAGES.roulette.help }),
       children: [
         { id: "create", commands: ["发起", "创建"], execute: (ctx) => service.create(ctx.event, "normal") },
         { id: "gambler", commands: ["发起赌徒"], execute: (ctx) => service.create(ctx.event, "gambler") },
@@ -46,7 +47,7 @@ export function createRouletteModule() {
         { id: "ability", commands: ["能力"], execute: (ctx) => service.command(ctx.event, ctx.args[0] ?? "", ctx.args.slice(1)) },
         { id: "stats", commands: ["状态"], async execute(ctx) {
           const s = await service.stats(ctx.uid!); await grantMaxTitle(ctx.uid!);
-          return { type: "text", content: `轮盘等级：${s.level}\n经验：${s.exp}\n荣誉：${s.honor}\n总场次：${s.plays}\n普通：${s.normal.wins}/${s.normal.plays}胜\n赌徒：${s.gambler.wins}/${s.gambler.plays}胜\n疯狂：${s.crazy.wins}/${s.crazy.plays}胜` };
+          return { type: "text", content: MESSAGES.roulette.stats(s) };
         } },
       ],
     }],

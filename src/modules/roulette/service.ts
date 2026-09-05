@@ -12,6 +12,7 @@ import { benefits } from "./progress";
 import { settleRoulette } from "./settlement";
 import { renderRoulette } from "./render";
 import { rouletteText } from "./messages";
+import { MESSAGES } from "../../../messages";
 
 export class RouletteService implements RoomGame<RouletteState> {
   readonly id = "roulette";
@@ -67,7 +68,7 @@ export class RouletteService implements RoomGame<RouletteState> {
   announcement(room: Readonly<GameRoom<RouletteState>>) {
     if (room.state.aborted || !room.state.maxLevelUids.length) return;
     const names = room.state.players.filter((p) => room.state.maxLevelUids.includes(p.uid)).map((p) => `${p.name}（UID ${p.uid}）`);
-    return { id: `roulette:${room.id}:max-level`, content: `恶魔轮盘满级\n${names.join("\n")}\n达到10级，获得「恶魔赌徒」称号及满级奖励。` };
+    return { id: `roulette:${room.id}:max-level`, content: MESSAGES.roulette.maxLevel(names) };
   }
   private async turn(room: GameRoom<RouletteState>, uid: number, action: string, timeout: boolean, tx: RoomTransaction) {
     if (room.state.field && !this.rules.field(room.state.field)) throw new BusinessError("MODULE_NOT_READY", "本局场地扩展尚未加载");

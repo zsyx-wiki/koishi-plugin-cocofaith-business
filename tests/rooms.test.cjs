@@ -79,7 +79,7 @@ test('reloading the Business plugin releases its old lifecycle and restores admi
     assert.notEqual(next, old)
     await next.start()
     const commands = next.interfaces.use('test', 'faith_admin', 'commands', new Set(['faith_admin']))
-    assert.deepEqual(commands.list().map((command) => command.command).sort(), ['数值', '称号'].sort())
+    assert.deepEqual(commands.list().map((command) => command.command).sort(), ['数值', '称号', '图鉴'].sort())
     const user = await app.faithCore.faiths.registerUser({ adapter: 'onebot', type: 'qq_account', value: '30002', scope: 'global' }, app.faithCore.faiths.all()[0].name, 0)
     app.faithCore.permissions.register('faith.creator', () => true)
     const reply = await next.dispatch({ uid: user.uid, scene: 'group', eventId: 'after-reload', content: '信仰管理 数值 全体 金币 1000' })

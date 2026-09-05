@@ -1,12 +1,18 @@
 import { Schema } from "koishi";
 import type { Config as BusinessConfig } from "./src/framework/types";
+import { DEFAULT_FAITH_CONFIG } from "./src/modules/faith/config";
+import { DEFAULT_VOID_PRAYER_CONFIG } from "./src/modules/void-prayer/config";
+import { DEFAULT_DAILY_PRAYER_CONFIG } from "./src/modules/daily-prayer/config";
+import { DEFAULT_JUNK_CONFIG } from "./src/modules/junk/config";
+import { DEFAULT_ROULETTE_CONFIG } from "./src/modules/roulette/config";
 
-const faithDefaults = { abandonBaseAscensionCost: 1200, abandonAscensionCostPerUse: 1000, abandonMaxAscensionCost: 10000, changeProfessionGoldCost: 1000, changeProfessionAscensionCost: 50 };
-const probabilityDefaults = { SP: 0.0005, SSS: 0.0043, SS: 0.0152, S: 0.0374, A: 0.0897, B: 0.1608, C: 0.3188, D: 0.3733 };
-const upDefaults = ["真理仪轨", "忆妄之镜", "骨仆赎罪者子嗣之戒", "骨仆乐乐尔之戒"];
-const voidDefaults = { baseCost: 45, extraCost: 80, baseCostDraws: 3, dailyLimit: 10, maxDrawsPerCommand: 100, easterEggChance: 0.05, probabilities: probabilityDefaults, upSpItems: upDefaults };
-const dailyDefaults = { baseLimit: 1, ascensionMin: -10, ascensionMax: 75, goldMin: -25, goldMax: 400 };
-const junkDefaults = { itemCount: 3, paidGoldCost: 200, paidAscensionCost: 5 };
+const faithDefaults = { ...DEFAULT_FAITH_CONFIG };
+const probabilityDefaults = { ...DEFAULT_VOID_PRAYER_CONFIG.probabilities };
+const upDefaults = [...DEFAULT_VOID_PRAYER_CONFIG.upSpItems];
+const voidDefaults = { ...DEFAULT_VOID_PRAYER_CONFIG, probabilities: probabilityDefaults, upSpItems: upDefaults };
+const dailyDefaults = { ...DEFAULT_DAILY_PRAYER_CONFIG };
+const junkDefaults = { ...DEFAULT_JUNK_CONFIG };
+const rouletteDefaults = { ...DEFAULT_ROULETTE_CONFIG };
 
 export const Config: Schema<BusinessConfig> = Schema.object({
   faith: Schema.object({
@@ -62,8 +68,8 @@ export const Config: Schema<BusinessConfig> = Schema.object({
       gamblerMin: integerInput(5, "赌徒模式最低人数，默认5，范围2-15。"),
       crazyMin: integerInput(8, "疯狂模式最低人数，默认8，范围2-16。"),
       entryFee: integerInput(100, "疯狂模式基础门票，默认100金币；开局时按等级折扣统一扣费。"),
-    }).default({ turnSeconds: 45, normalMin: 4, gamblerMin: 5, crazyMin: 8, entryFee: 100 }),
-  }).default({ enabled: true, config: { turnSeconds: 45, normalMin: 4, gamblerMin: 5, crazyMin: 8, entryFee: 100 } }).description("恶魔轮盘。门票需足额支付，淘汰罚款可使余额为负。"),
+    }).default(rouletteDefaults),
+  }).default({ enabled: true, config: rouletteDefaults }).description("恶魔轮盘。门票需足额支付，淘汰罚款可使余额为负。"),
   modules: Schema.dict(Schema.object({
     enabled: Schema.boolean().default(true),
     config: Schema.dict(Schema.any()).default({}),

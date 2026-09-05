@@ -92,6 +92,6 @@ function normalizeState(value: Record<string, unknown>, date: string): VoidPraye
 }
 function countLevels(draws: readonly VoidPrayerDraw[]) {
   const counts: Record<string, number> = {};
-  for (const draw of draws) counts[draw.easterEgg ? "彩蛋" : draw.item.level] = (counts[draw.easterEgg ? "彩蛋" : draw.item.level] ?? 0) + 1;
-  return Object.freeze(Object.fromEntries(["彩蛋", ...VOID_PRAYER_LEVELS].flatMap((level) => counts[level] ? [[level, counts[level]]] : [])));
+  for (const draw of draws) counts[draw.item.level] = (counts[draw.item.level] ?? 0) + 1;
+  return Object.freeze(counts);
 }

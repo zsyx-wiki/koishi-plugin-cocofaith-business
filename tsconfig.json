@@ -11,5 +11,5 @@
     "baseUrl": ".",
     "paths": { "@mueo/koishi-plugin-cocofaith-core": ["../koishi-plugin-cocofaith-core/src/index.ts"] }
   },
-  "include": ["src", "config.ts"]
+  "include": ["src", "config.ts", "messages.ts"]
 }
