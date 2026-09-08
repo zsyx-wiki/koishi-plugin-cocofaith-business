@@ -11,7 +11,9 @@ export class DailyPrayerService {
     if (user.faiths[0] !== expectedFaith) throw new BusinessError("NOT_ALLOWED", "这段祷词没有回应你。请使用当前信仰对应的祷词。");
     const base = { ascension_score: randomInt(this.random, this.config.ascensionMin, this.config.ascensionMax), gold: randomInt(this.random, this.config.goldMin, this.config.goldMax) };
     const positive = { ascension_score: Math.max(0, base.ascension_score), gold: Math.max(0, base.gold) };
-    const preview = await this.core.economy.previewReward(uid, positive, "reward");
+    const preview = Object.values(positive).some((value) => value > 0)
+      ? await this.core.economy.previewReward(uid, positive, "reward")
+      : { applied: { gold: 0, ascension_score: 0 } };
     const reward = {
       ascension_score: base.ascension_score < 0 ? base.ascension_score : preview.applied.ascension_score ?? 0,
       gold: base.gold < 0 ? base.gold : preview.applied.gold ?? 0,

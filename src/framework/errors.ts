@@ -11,14 +11,15 @@ export const BUSINESS_ERROR_CATALOG = {
   INTERFACE_FORBIDDEN: "未声明依赖，不能访问目标业务接口。", INTERFACE_EXISTS: "跨业务接口已经注册。",
   COMMAND_CONFLICT: "业务命令存在冲突。", COMMAND_INCOMPLETE: "命令需要子命令。",
   COMMAND_SCENE_FORBIDDEN: "当前会话类型不能使用该命令。",
+  LIMIT_REACHED: "操作次数或持有数量已达上限。",
   UNREGISTERED: "用户尚未注册。",
 } as const;
-export type BusinessErrorCode = keyof typeof BUSINESS_ERROR_CATALOG | (string & {});
+export type BusinessErrorCode = keyof typeof BUSINESS_ERROR_CATALOG;
 
 export class BusinessError extends Error {
   constructor(
     readonly code: BusinessErrorCode,
-    message = BUSINESS_ERROR_CATALOG[code as keyof typeof BUSINESS_ERROR_CATALOG] ?? String(code),
+    message: string = BUSINESS_ERROR_CATALOG[code as keyof typeof BUSINESS_ERROR_CATALOG] ?? String(code),
     readonly details?: Record<string, unknown>,
     options?: ErrorOptions,
   ) { super(message, options); this.name = "BusinessError"; }

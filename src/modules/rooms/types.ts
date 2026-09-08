@@ -2,7 +2,7 @@ import type { FaithMoney, FaithAtomicScope } from "@mueo/koishi-plugin-cocofaith
 import type { BusinessEvent, BusinessResult } from "../../framework/types";
 
 export interface RoomMember { uid: number; name: string; ticket: FaithMoney; }
-export interface GameRoom<S = any> {
+export interface GameRoom<S extends object = object> {
   id: string; key: string; owner: string; creator: number;
   status: "waiting" | "playing" | "ended"; version: number;
   min: number; max: number; members: RoomMember[];
@@ -16,7 +16,7 @@ export interface RoomPlayerTransaction {
 }
 export interface RoomTransaction { player(uid: number): RoomPlayerTransaction; }
 export interface RoomRenderContext { action: string; uid?: number; }
-export interface RoomGame<S = any> {
+export interface RoomGame<S extends object = object> {
   id: string;
   start(room: GameRoom<S>, tx: RoomTransaction): Promise<void>;
   action(room: GameRoom<S>, uid: number, action: string, args: readonly string[], tx: RoomTransaction): Promise<void>;
@@ -26,5 +26,5 @@ export interface RoomGame<S = any> {
   afterCommit?(room: Readonly<GameRoom<S>>): Promise<void>;
   announcement?(room: Readonly<GameRoom<S>>): BusinessResult["broadcast"];
 }
-export interface CreateRoom<S> { min: number; max: number; state: S; }
+export interface CreateRoom<S extends object> { min: number; max: number; state: S; }
 export type RoomEvent = Readonly<BusinessEvent>;

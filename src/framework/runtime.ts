@@ -43,8 +43,9 @@ export class BusinessModuleRuntime {
     } catch (error) {
       this.state = "failed";
       this.error = error instanceof Error ? error : new Error(String(error));
-      await this.releaseResources();
-      throw new BusinessError("LIFECYCLE_FAILED", `业务 ${this.module.name} 启动失败。`, undefined, { cause: error });
+      const cleanupErrors = await this.releaseResources();
+      const cause = cleanupErrors.length ? new AggregateError([error, ...cleanupErrors], `业务 ${this.module.name} 启动及清理均失败`) : error;
+      throw new BusinessError("LIFECYCLE_FAILED", `业务 ${this.module.name} 启动失败。`, undefined, { cause });
     }
   }
 
@@ -93,7 +94,7 @@ export class BusinessModuleRuntime {
     this.assertReady();
     this.activeExecutions++;
     try {
-      const context = Object.create(this.contextCache) as BusinessExecutionContext;
+      const context = Object.create(this.contextCache!) as BusinessExecutionContext;
       Object.defineProperty(context, "uid", { value: uid, enumerable: true });
       return await task(Object.freeze(context));
     } finally {
@@ -107,16 +108,22 @@ export class BusinessModuleRuntime {
 
   async stop(finalState: "disabled" | "disposed" = "disabled") {
     if (["disabled", "disposed", "registered"].includes(this.state)) {
-      this.state = finalState; await this.releaseResources(); return;
+      this.state = finalState;
+      const cleanupErrors = await this.releaseResources();
+      if (cleanupErrors.length) throw new BusinessError("LIFECYCLE_FAILED", `业务 ${this.module.name} 清理失败。`, undefined, { cause: new AggregateError(cleanupErrors) });
+      return;
     }
     this.state = "disposing";
     await this.drain();
     let failure: unknown;
     try { if (this.contextCache) await this.module.dispose?.(this.contextCache); }
     catch (error) { failure = error; }
-    await this.releaseResources();
+    const cleanupErrors = await this.releaseResources();
     this.state = finalState;
-    if (failure) throw new BusinessError("LIFECYCLE_FAILED", `业务 ${this.module.name} 卸载失败。`, undefined, { cause: failure });
+    if (failure || cleanupErrors.length) {
+      const errors = [...(failure ? [failure] : []), ...cleanupErrors];
+      throw new BusinessError("LIFECYCLE_FAILED", `业务 ${this.module.name} 卸载失败。`, undefined, { cause: errors.length === 1 ? errors[0] : new AggregateError(errors) });
+    }
   }
 
   status(enabled: boolean) {
@@ -155,11 +162,13 @@ export class BusinessModuleRuntime {
   }
 
   private async releaseResources() {
+    const errors: unknown[] = [];
     for (const resource of this.resources.splice(0).reverse()) {
-      try { await resource.dispose(); } catch {}
+      try { await resource.dispose(); } catch (error) { errors.push(error); }
     }
     this.interfaces.removeProvider(this.module.name);
-    await this.core?.lifecycle.dispose();
+    try { await this.core?.lifecycle.dispose(); } catch (error) { errors.push(error); }
     this.core = undefined; this.contextCache = undefined;
+    return errors;
   }
 }

@@ -46,7 +46,12 @@ export class FaithBusinessService extends Service {
 
   async start() {
     const startedAt = Date.now();
-    await this.manage(() => this.manager.start());
+    const started = await this.manage(async () => {
+      if (this.manager.started) return false;
+      await this.manager.start();
+      return true;
+    });
+    if (!started) return;
     const modules = [...this.manager.registry.enabled];
     this.businessLogger.info(`Business 已就绪（${modules.length} 个模块，${Date.now() - startedAt}ms）：${modules.join(" → ")}`);
   }

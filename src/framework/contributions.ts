@@ -10,6 +10,7 @@ interface Entry { provider: string; id: string; priority: number; order: number;
 /** 多业务向同一展示槽提供结构化片段，不建立业务数据层耦合。 */
 export class BusinessContributionRegistry {
   private slots = new Map<string, Map<string, Entry>>();
+  private ordered = new Map<string, readonly Entry[]>();
   private order = 0;
   constructor(private logError: (message: string, error: unknown) => void) {}
 
@@ -22,12 +23,17 @@ export class BusinessContributionRegistry {
     if (entries.size >= 256) throw new BusinessError("CONFLICT", `扩展槽已达到数量上限：${slot}`);
     entries.set(key, { provider, id: options.id, priority: options.priority ?? 0, order: this.order++, handler: handler as BusinessContributionHandler<unknown, unknown> });
     this.slots.set(slot, entries);
-    return new CallbackDisposable(() => { entries.delete(key); if (!entries.size) this.slots.delete(slot); });
+    this.ordered.delete(slot);
+    return new CallbackDisposable(() => { entries.delete(key); this.ordered.delete(slot); if (!entries.size) this.slots.delete(slot); });
   }
 
   async collect<I, O>(slot: string, input: Readonly<I>): Promise<BusinessContributionResult<O>> {
     validateName(slot, "扩展槽");
-    const entries = [...(this.slots.get(slot)?.values() ?? [])].sort((a, b) => a.priority - b.priority || a.order - b.order);
+    let entries = this.ordered.get(slot);
+    if (!entries) {
+      entries = Object.freeze([...(this.slots.get(slot)?.values() ?? [])].sort((a, b) => a.priority - b.priority || a.order - b.order));
+      this.ordered.set(slot, entries);
+    }
     const settled = await Promise.all(entries.map(async (entry) => {
       try {
         const value = await entry.handler(input);
@@ -42,7 +48,7 @@ export class BusinessContributionRegistry {
     return Object.freeze({ results: Object.freeze(results), failures: Object.freeze(failures) });
   }
 
-  clear() { this.slots.clear(); }
+  clear() { this.slots.clear(); this.ordered.clear(); }
 }
 
 function validateName(value: string, label: string) {

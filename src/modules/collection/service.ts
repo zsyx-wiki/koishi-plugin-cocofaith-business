@@ -7,6 +7,7 @@ import { CollectionCatalog, type CollectionEntry } from "./catalog";
 export interface CollectionState { uid: number; items: readonly string[]; }
 export interface CollectionProgress { category: string; pool: string; collected: number; total: number; }
 export interface CollectionPage { page: number; pages: number; total: number; entries: readonly (CollectionEntry & { collected: boolean })[]; }
+interface CollectionRow extends Record<string, unknown> { uid: number; items: string[]; updated_at: Date; }
 
 export class CollectionService {
   readonly catalog: CollectionCatalog;
@@ -19,7 +20,7 @@ export class CollectionService {
   }
 
   async state(uid: number): Promise<CollectionState> {
-    const rows = await this.core.table.get({ uid });
+    const rows = await this.core.table.get<CollectionRow>({ uid });
     return Object.freeze({ uid, items: Object.freeze(readItems(rows[0]?.items)) });
   }
 
@@ -33,7 +34,7 @@ export class CollectionService {
       return 0;
     }
     const result = await this.core.transaction.run(uid, async (tx) => {
-      const rows = await tx.table.get({ uid }), previous = rows[0];
+      const rows = await tx.table.get<CollectionRow>({ uid }), previous = rows[0];
       const owned = new Set(readItems(previous?.items)), before = owned.size;
       eligible.forEach((id) => owned.add(id));
       const added = owned.size - before;

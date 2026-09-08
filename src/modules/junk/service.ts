@@ -25,13 +25,15 @@ export class JunkService {
         await tx.economy.pay(payment); state.paidUsed = true;
         cost = `${payment.gold} 金币、${payment.ascension_score} 登神分`;
       } else throw new BusinessError("LIMIT_REACHED", "今天已经捡过两次垃圾了。");
-      const picked: string[] = [];
+      const picked: string[] = [], quantities = new Map<string, number>();
       for (let index = 0; index < this.config.itemCount; index++) {
         const level = weightedLevel(this.random), pool = this.pools.get(level);
         if (!pool?.length) throw new BusinessError("INTERNAL_ERROR", `等级 ${level} 没有可捡取物品。`);
         const itemId = pool[Math.floor(safeRandom(this.random) * pool.length)];
-        await tx.items.give(itemId, 1); picked.push(this.core.items.require(itemId).name);
+        quantities.set(itemId, (quantities.get(itemId) ?? 0) + 1);
+        picked.push(this.core.items.require(itemId).name);
       }
+      for (const [itemId, quantity] of quantities) await tx.items.give(itemId, quantity);
       await tx.data.set({ private: { ...state } });
       return Object.freeze({ cost, items: Object.freeze(picked) });
     }, { source: "junk.pick" });

@@ -119,6 +119,20 @@ test('daily prayer preserves v2 limits, reward ranges and applies the credited r
   assert.equal(user.gold, 476)
   assert.equal(user.ascension_score, 76)
   await assert.rejects(() => service.pray(10000000, '真理', '真理之神'), /已达上限/)
+
+  privateData = {}
+  user = { ...user, gold: 100, ascension_score: 10 }
+  let previewCalls = 0
+  core.economy.previewReward = async () => { previewCalls++; throw new Error('zero positive rewards must not be previewed') }
+  const negative = new business.DailyPrayerService(core, {
+    ...business.DEFAULT_DAILY_PRAYER_CONFIG,
+    ascensionMin: -1, ascensionMax: -1, goldMin: -1, goldMax: -1,
+  }, () => 0.5)
+  const negativeResult = await negative.pray(10000000, '真理', '真理之神')
+  assert.equal(previewCalls, 0)
+  assert.deepEqual(negativeResult.reward, { gold: -1, ascension_score: -1 })
+  assert.equal(user.gold, 99)
+  assert.equal(user.ascension_score, 9)
 })
 
 test('daily prayer words form a valid Business command tree without entering the QQ panel', () => {

@@ -82,5 +82,5 @@ export class RouletteService implements RoomGame<RouletteState> {
     if (room.state.players.filter((p) => p.alive).length <= 1) room.status = "ended";
     this.deadline(room);
   }
-  private deadline(room: GameRoom) { room.deadline = Date.now() + this.config.turnSeconds * 1000; }
+  private deadline(room: GameRoom<RouletteState>) { room.deadline = Date.now() + this.config.turnSeconds * 1000; }
 }

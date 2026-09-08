@@ -17,7 +17,7 @@ export function createTitleModule() {
       service = new TitleService(context.core);
       service.registerMany(BUILTIN_TITLES);
       context.core.lifecycle.track(context.core.bonuses.registerProvider(async ({ uid, type }) => {
-        const state = await service.state(uid), result = [];
+        const state = await service.state(uid, false), result = [];
         for (const id of state.titles) {
           const title = service.get(id); if (!title) continue;
           for (const bonus of title.bonuses ?? []) if (bonus.type === type && (bonus.activeWhen !== "equipped" || state.active === id)) {
@@ -27,7 +27,7 @@ export function createTitleModule() {
         return result;
       }, { id: "title-bonuses" }));
       context.contribute<{ uid: number }, string>("faith.info", async ({ uid }) => {
-        const active = await service.getActive(uid); return MESSAGES.title.active(active?.name);
+        const active = await service.getActiveForKnownUser(uid); return MESSAGES.title.active(active?.name);
       }, { id: "active-title", priority: 10 });
       context.provide<TitleServiceApi>("default", createPublicApi(service), { version: "1.0.0" });
       const admin = context.use<FaithAdminCommandsApi>("faith_admin", "commands");
@@ -78,10 +78,11 @@ export const titleModule = createTitleModule();
 function requireUid(uid: number | null) { if (uid === null) throw new BusinessError("UNREGISTERED"); return uid; }
 function formatBonus(value: { modifier?: number; fixedBonus?: number; detail?: string }) { if (value.detail) return value.detail; return [value.modifier ? `${value.modifier > 0 ? "+" : ""}${value.modifier * 100}%` : "", value.fixedBonus ? `${value.fixedBonus > 0 ? "+" : ""}${value.fixedBonus}` : ""].filter(Boolean).join(" "); }
 function createPublicApi(service: TitleService): TitleServiceApi {
-  return Object.freeze({
+  const api: TitleServiceApi = {
     register: (value, options) => service.register(value, options), registerMany: (values, options) => service.registerMany(values, options),
     unregister: (value, options) => service.unregister(value, options), get: (id) => service.get(id), getByName: (name) => service.getByName(name),
     resolve: (value) => service.resolve(value), all: () => service.all(), listOwned: (uid) => service.listOwned(uid), getActive: (uid) => service.getActive(uid),
     grant: (uid, value) => service.grant(uid, value), revoke: (uid, value) => service.revoke(uid, value), use: (uid, value) => service.use(uid, value),
-  });
+  };
+  return Object.freeze(api);
 }
