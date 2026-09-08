@@ -1,16 +1,51 @@
-# CoCoFaith Business
+<div align="center">
+  <h1>CoCoFaith Business</h1>
 
-CoCoFaith v3 的玩法层，强依赖 `faithCore`
+  <p><strong>CoCoFaith v3 的业务与玩法服务</strong></p>
+
+  <p>
+    <img alt="Koishi" src="https://img.shields.io/badge/Koishi-4.16%2B-60a5fa?style=flat-square">
+    <img alt="Version" src="https://img.shields.io/badge/version-3.0.0--alpha.2-a78bfa?style=flat-square">
+    <img alt="License" src="https://img.shields.io/badge/license-GPL--3.0-52b788?style=flat-square">
+    <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.9-3178c6?style=flat-square&logo=typescript&logoColor=white">
+  </p>
+</div>
+
+---
+
+CoCoFaith Business 是 CoCoFaith v3 的玩法插件，负责命令路由、业务规则和结构化响应。它通过 `faithCore` 使用公共数据与事务能力，不直接处理 OneBot、QQ 官方机器人等平台事件。
+
+插件强依赖 CoCoFaith Core。平台消息需要通过对应 Adapter 接入。
 
 ## 内置玩法
 
-- 信仰注册、信息、弃誓与职业
-- 每日祈祷
-- 虚空祈求与彩蛋
-- 按物品或等级出售背包物品
-- 创造者数值管理
-- 收藏图鉴、限定收藏与收集称号
-- 恶魔轮盘：普通、赌徒、疯狂模式
+- 信仰注册、信息、弃誓和职业管理
+- 每日祈祷、虚空祈求、捡垃圾与物品开启
+- 背包物品出售
+- 称号、称号加成与收藏图鉴
+- 普通、赌徒和疯狂模式恶魔轮盘
+- 创造者数值、称号和图鉴管理
+
+图鉴记录玩家曾经获得的物品。物品出售或消耗后不会从图鉴中移除，常规收藏与限定收藏分别统计。
+
+## 安装
+
+```bash
+npm install @mueo/koishi-plugin-cocofaith-core
+npm install @mueo/koishi-plugin-cocofaith-business
+```
+
+插件加载顺序：
+
+```text
+CoCoFaith Core
+→ CoCoFaith Business
+→ CoCoFaith Adapter
+```
+
+Business 启动时会检查 `faithCore` 服务。未加载 Core 时不会注册玩法。
+
+## 常用命令
 
 ```text
 信仰 信息
@@ -18,80 +53,36 @@ CoCoFaith v3 的玩法层，强依赖 `faithCore`
 信仰 弃誓 [目标信仰]
 信仰 职业 [职业名]
 信仰 变更职业 [职业名]
+
+信仰 打开 [物品名]
 信仰 卖出 [物品名] [数量/全部]
 信仰 卖出等级 [等级]
 信仰 强制卖出等级 [等级]
+
 虚空祈求 [次数]
 虚空祈求 次数
-关于椰子水
+捡垃圾
+
+称号
+称号 列表
+称号 详情 [称号名]
+称号 使用 [称号名]
+
 图鉴 查看
 图鉴 详情 [页码]
 图鉴 限定详情 [页码]
+
+关于椰子水
 ```
 
-`关于椰子水` 可在未注册状态下使用，显示 Koishi、Core、Business 以及当前平台 Adapter 的版本。
+每日祈祷使用各信仰对应的祷词，不设置统一的“每日祈祷”命令。
 
-每日祈祷使用各信仰自己的祷词，不占 QQ 指令面板位置。
-
-图鉴记录曾经获得的物品，出售或消耗后不会熄灭。常规收藏与限定收藏分别统计；集齐常规 SP、SSS、彩蛋会获得对应的收藏称号。详情按页显示，每页最多 12 件，群聊和私聊均可使用，不新增 QQ 面板项。
-
-创造者可使用 `信仰管理 图鉴 全量刷新` 按当前背包补齐所有正常用户的图鉴，或使用 `信仰管理 图鉴 刷新 [uid]` 只刷新指定用户。
-
-## 源码结构
+### 恶魔轮盘
 
 ```text
-src/
-├── framework/          # 模块生命周期、依赖图、路由、协议与服务入口
-├── modules/            # 独立玩法；一个玩法一个目录
-├── shared/             # 玩法间无状态的通用显示工具
-└── index.ts            # Koishi 插件入口与公开导出
-```
-
-新增普通玩法只需要在 `modules/<玩法名>` 内实现，并在 `modules/index.ts` 注册。
-
-框架代码不包含具体玩法，玩法之间通过公开接口和贡献点协作，不直接读取其他玩法的数据表。
-
-内置称号维护在 `src/modules/title/data.ts`，彩蛋和物品定义由 Core 维护。
-
-称号数据使用 `TitleDefinition` 检查，加成类型、来源和隐藏状态集中在同一条定义中。
-
-用户回复模板统一在根目录 `messages.ts`，规则描述和数据说明仍留在对应数据文件附近，避免把玩法规则混进消息模板。
-
-## 数值管理
-
-仅创造者可用，其他用户的管理命令直接忽略。
-
-```text
-信仰管理 数值 [数值名] [qq|uid] [目标] [变化值]
-信仰管理 数值 全体 [数值名] [变化值]
-
-信仰管理 数值 金币 uid 10000000 -100
-信仰管理 数值 全体 金币 1000
-```
-
-内置数值名：金币、登神分数、觐见分数（兼容“觐神分数”）、弃誓次数。
-
-支持业务注册的扩展数值。
-
-
-## 配置
-
-Business 可以在 Core 已就绪后加载。独立业务表只能在该业务自身的 `init/ready` 初始化阶段注册；运行期间和配置 reload 不允许新建表，重新启用时只能复用相同表定义。
-
-Koishi 配置定义集中在根目录 [`config.ts`](./config.ts)，面向用户的主要回复集中在 [`messages.ts`](./messages.ts)。根配置直接复用各模块的默认值，避免维护两份默认配置。`faith`、`voidPrayer` 和 `dailyPrayer` 可单独启停；其他模块使用 `modules.<name>` 配置。
-
-## TODO
-
-- 🏗️ 迁移v2玩法
-
-...
-
-版本变化见 [CHANGELOG.md](./CHANGELOG.md)。
-
-## 恶魔轮盘
-
-```text
-恶魔轮盘 发起 / 发起赌徒 / 发起疯狂
+恶魔轮盘 发起
+恶魔轮盘 发起赌徒
+恶魔轮盘 发起疯狂
 恶魔轮盘 加入 / 退出
 恶魔轮盘 开始 / 结束
 恶魔轮盘 开枪 / 恐惧 / 无畏 / 退缩
@@ -99,22 +90,87 @@ Koishi 配置定义集中在根目录 [`config.ts`](./config.ts)，面向用户�
 恶魔轮盘 强制结束
 ```
 
-房主负责开局；开始前可解散，进行中仅创造者能强制结束。默认45秒未行动会代开一枪，同一玩家累计第二次超时淘汰。
+同一群聊同时只能存在一个游戏房间。房主负责开始和解散等待中的房间，进行中的房间只能由创造者强制结束。
 
-QQ回复次数用完、凭证过期或发送失败，都不会暂停游戏。发送“对局”或“开枪”可查看或继续当前状态；已结束时返回最后结果。
+房间、门票、资产和战绩通过 Core 原子事务提交。平台发送失败不会暂停或回滚已经完成的游戏行动。
 
-疯狂模式开局统一扣门票，一人不足则整个开局回滚，不会留下部分扣费。门票要求足额；
+## 创造者命令
 
-淘汰罚款沿用 v2，可产生负余额。奖池按实际扣除的罚款累计，不把等级减免的部分算入奖池
+`信仰管理` 下的命令默认仅创造者可用。非创造者调用时不会回复。
 
-强制结束按完整参与名单返还实际门票和已扣罚款，不发胜者奖励。
+```text
+信仰管理 数值 [数值名] [qq|uid] [目标] [变化值]
+信仰管理 数值 全体 [数值名] [变化值]
 
-配置在 `roulette.config`：`turnSeconds`、`normalMin`、`gamblerMin`、`crazyMin`、`entryFee`。不新增指令面板项，不使用按钮。
+信仰管理 称号 [uid] 给予 [称号名]
+信仰管理 称号 [uid] 收回 [称号名]
 
-## 房间与玩法扩展
+信仰管理 图鉴 刷新 [uid]
+信仰管理 图鉴 全量刷新
+```
 
-新增组队玩法依赖 `rooms`，通过其公开接口注册游戏。房间服务负责群内互斥、加入与开局、门票、串行处理、计时及持久化；玩法负责规则和结构化结果。
+创造者身份由平台 Adapter 配置，不在 Business 中填写平台账号。
 
-房间和按 UID 索引的游戏战绩都由 `faith_business_rooms` 保存，使用不同主键。每次行动通过 Core 的多人原子事务同时提交房间版本、资产变化和战绩。其他业务不能直接查询此表，只使用房间接口。
+## 配置
 
-接口与扩展示例见 [游戏房间开发说明](./docs/game-rooms.md)。
+配置定义位于根目录 [`config.ts`](./config.ts)。
+
+| 配置 | 默认值 | 说明 |
+| --- | ---: | --- |
+| `faith.enabled` | `true` | 启用信仰基础业务 |
+| `voidPrayer.enabled` | `true` | 启用虚空祈求 |
+| `dailyPrayer.enabled` | `true` | 启用每日祈祷 |
+| `junk.enabled` | `true` | 启用捡垃圾 |
+| `roulette.enabled` | `true` | 启用恶魔轮盘 |
+| `roulette.config.turnSeconds` | `45` | 每名玩家的操作时限 |
+| `roulette.config.entryFee` | `100` | 疯狂模式基础门票 |
+| `modules` | `{}` | 额外业务模块的启停和配置 |
+
+各玩法的数值范围和默认值会显示在 Koishi 配置界面中。
+
+## 开发
+
+源码按框架和玩法分开：
+
+```text
+src/
+├── framework/    # 生命周期、依赖、命令路由和通用协议
+├── modules/      # 内置玩法
+├── shared/       # 无状态的公共工具
+└── index.ts      # 插件入口与公共导出
+```
+
+新增普通玩法时，只需在 `src/modules` 中注册业务模块。玩法返回统一的 `BusinessResult`，不应生成 CQ Code、QQ Markdown 或调用平台发送接口。
+
+跨业务访问通过公开接口和贡献点完成。业务不能直接查询其他业务的数据表。
+
+需要同时修改数值、背包或业务数据时，应使用 Business Scope 提供的原子事务：
+
+```ts
+await core.transaction.run(uid, async (tx) => {
+  await tx.economy.pay({ gold: 100 })
+  await tx.items.give('reward_item', 1)
+
+  const data = await tx.data.get()
+  await tx.data.set({
+    private: {
+      ...data.private,
+      purchaseCount: Number(data.private.purchaseCount ?? 0) + 1,
+    },
+  })
+}, {
+  source: 'shop.purchase',
+  idempotencyKey: `shop:${eventId}`,
+})
+```
+
+游戏房间扩展见 [游戏房间开发说明](./docs/game-rooms.md)，图鉴规则见 [图鉴说明](./docs/collection.md)。
+
+```bash
+npm run build
+npm test
+```
+
+数据结构和公共接口仍可能在正式版前调整，生产环境升级前请先备份数据库。
+
+版本记录见 [CHANGELOG.md](./CHANGELOG.md)。项目采用 GPL-3.0-or-later 许可证。
