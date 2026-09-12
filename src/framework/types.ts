@@ -90,6 +90,8 @@ export interface Config {
   /** 内置捡垃圾业务的便捷配置。 */
   junk?: BusinessModuleConfig;
   roulette?: BusinessModuleConfig;
+  /** OneBot QQ 与现有 QQBot UID 的双向验证绑定。 */
+  binding?: BusinessModuleConfig;
 }
 export interface BusinessModuleStatus { name: string; state: BusinessModuleState; enabled: boolean; dependencies: readonly string[]; error?: string; }
 export function defineBusinessModule<I = never, O = never, C = Record<string, unknown>>(module: FaithBusinessModule<I, O, C>) { return module; }

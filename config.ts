@@ -5,6 +5,7 @@ import { DEFAULT_VOID_PRAYER_CONFIG } from "./src/modules/void-prayer/config";
 import { DEFAULT_DAILY_PRAYER_CONFIG } from "./src/modules/daily-prayer/config";
 import { DEFAULT_JUNK_CONFIG } from "./src/modules/junk/config";
 import { DEFAULT_ROULETTE_CONFIG } from "./src/modules/roulette/config";
+import { DEFAULT_BINDING_CONFIG } from "./src/modules/binding/config";
 
 const faithDefaults = { ...DEFAULT_FAITH_CONFIG };
 const probabilityDefaults = { ...DEFAULT_VOID_PRAYER_CONFIG.probabilities };
@@ -13,6 +14,7 @@ const voidDefaults = { ...DEFAULT_VOID_PRAYER_CONFIG, probabilities: probability
 const dailyDefaults = { ...DEFAULT_DAILY_PRAYER_CONFIG };
 const junkDefaults = { ...DEFAULT_JUNK_CONFIG };
 const rouletteDefaults = { ...DEFAULT_ROULETTE_CONFIG };
+const bindingDefaults = { ...DEFAULT_BINDING_CONFIG };
 
 export const Config: Schema<BusinessConfig> = Schema.object({
   faith: Schema.object({
@@ -70,6 +72,13 @@ export const Config: Schema<BusinessConfig> = Schema.object({
       entryFee: integerInput(100, "疯狂模式基础门票，默认100金币；开局时按等级折扣统一扣费。"),
     }).default(rouletteDefaults),
   }).default({ enabled: true, config: rouletteDefaults }).description("恶魔轮盘。门票需足额支付，淘汰罚款可使余额为负。"),
+  binding: Schema.object({
+    enabled: Schema.boolean().default(true),
+    config: Schema.object({
+      tokenTtlSeconds: integerInput(300, "绑定令牌有效时间。默认 300 秒，范围 60-900。"),
+      maxPending: integerInput(1000, "同时保留的待确认绑定数量。默认 1000，范围 10-5000。"),
+    }).default(bindingDefaults),
+  }).default({ enabled: true, config: bindingDefaults }).description("OneBot QQ 与 QQ 官方机器人 UID 绑定。只绑定现有 UID，不创建或合并用户。"),
   modules: Schema.dict(Schema.object({
     enabled: Schema.boolean().default(true),
     config: Schema.dict(Schema.any()).default({}),

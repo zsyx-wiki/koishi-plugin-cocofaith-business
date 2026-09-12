@@ -35,6 +35,7 @@ export function createFaithModule() {
       { id: "info", commands: ["信息", "info"], execute: information },
       { id: "register", commands: ["注册", "register"], allowUnregistered: true, async execute(ctx) {
         if (!ctx.event.identity) throw new BusinessError("INVALID_INPUT", "注册事件缺少平台身份。");
+        if (ctx.event.identity.adapter !== "qqbot") throw new BusinessError("NOT_ALLOWED", "新 UID 只能通过 QQ 官方机器人注册；OneBot 用户请先使用“椰子水 申请绑定”。");
         const faith = ctx.args.join(" ").trim();
         const user = await gameplay.register(ctx.event.identity, faith);
         return { type: "text", content: MESSAGES.faith.registered(user.faiths[0], user.gold) };

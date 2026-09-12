@@ -72,10 +72,26 @@ Business 启动时会检查 `faithCore` 服务。未加载 Core 时不会注册�
 图鉴 详情 [页码]
 图鉴 限定详情 [页码]
 
+椰子水 申请绑定
+椰子水 申请绑定 [TokenA]
+椰子水 确认绑定 [TokenB]
+椰子水 用户信息
+
 关于椰子水
 ```
 
 每日祈祷使用各信仰对应的祷词，不设置统一的“每日祈祷”命令。
+
+### 平台身份绑定
+
+UID 由 QQ 官方机器人注册产生，OneBot 不创建 UID。绑定流程只会把 OneBot QQ 添加到已有 UID，不迁移旧数据，也不会合并两个已有 UID。
+
+1. OneBot 私聊发送 `椰子水 申请绑定`，取得 Token A。
+2. 已注册用户在 QQ 官方机器人群聊发送 `椰子水 申请绑定 [TokenA]`。
+3. Token B 会发往第一步的 OneBot 私聊。
+4. 创建 Token A 的同一 OneBot QQ 私聊发送 `椰子水 确认绑定 [TokenB]`。
+
+令牌默认有效 300 秒。领取 Token A 的 QQ 官方群身份必须已有 UID，最终确认必须来自创建 Token A 的同一 OneBot QQ。
 
 ### 恶魔轮盘
 
@@ -122,6 +138,9 @@ Business 启动时会检查 `faithCore` 服务。未加载 Core 时不会注册�
 | `dailyPrayer.enabled` | `true` | 启用每日祈祷 |
 | `junk.enabled` | `true` | 启用捡垃圾 |
 | `roulette.enabled` | `true` | 启用恶魔轮盘 |
+| `binding.enabled` | `true` | 启用 OneBot QQ 身份绑定 |
+| `binding.config.tokenTtlSeconds` | `300` | 绑定令牌有效时间 |
+| `binding.config.maxPending` | `1000` | 内存中待确认申请数量上限 |
 | `roulette.config.turnSeconds` | `45` | 每名玩家的操作时限 |
 | `roulette.config.entryFee` | `100` | 疯狂模式基础门票 |
 | `modules` | `{}` | 额外业务模块的启停和配置 |

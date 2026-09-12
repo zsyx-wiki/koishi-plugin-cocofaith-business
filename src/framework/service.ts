@@ -92,7 +92,10 @@ export class FaithBusinessService extends Service {
     if (!match) return { matched: false, reason: "not-found" };
     const { business, commandId } = match;
     if (normalized.uid === null && !match.command.allowUnregistered) {
-      return dispatchFailure(business, commandId, new BusinessError("UNREGISTERED", "你尚未注册，只能使用“信仰 注册 [信仰名]”。"));
+      const message = normalized.identity?.adapter === "onebot"
+        ? "当前 OneBot QQ 尚未绑定 UID，请私聊发送“椰子水 申请绑定”。"
+        : "你尚未注册，只能使用“信仰 注册 [信仰名]”。";
+      return dispatchFailure(business, commandId, new BusinessError("UNREGISTERED", message));
     }
     if (!this.manager.registry.enabled.has(business)) {
       return dispatchFailure(business, commandId, new BusinessError("MODULE_DISABLED", `业务未启用：${business}`));
