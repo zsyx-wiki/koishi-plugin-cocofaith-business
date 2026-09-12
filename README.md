@@ -23,6 +23,7 @@ CoCoFaith Business 是 CoCoFaith v3 的玩法插件，负责命令路由、业�
 - 每日祈祷、虚空祈求、捡垃圾与物品开启
 - 背包物品出售
 - 称号、称号加成与收藏图鉴
+- 椰汁俱乐部、会员等级、贡献池、救济与分成
 - 普通、赌徒和疯狂模式恶魔轮盘
 - 创造者数值、称号和图鉴管理
 
@@ -71,6 +72,12 @@ Business 启动时会检查 `faithCore` 服务。未加载 Core 时不会注册�
 图鉴 查看
 图鉴 详情 [页码]
 图鉴 限定详情 [页码]
+
+俱乐部 加入
+俱乐部 退出
+俱乐部 救济
+俱乐部 贡献 [金币|登神分] [数值]
+俱乐部 信息
 
 椰子水 申请绑定
 椰子水 申请绑定 [TokenA]
@@ -123,7 +130,17 @@ UID 由 QQ 官方机器人注册产生，OneBot 不创建 UID。绑定流程只�
 
 信仰管理 图鉴 刷新 [uid]
 信仰管理 图鉴 全量刷新
+
+信仰管理 俱乐部 分成
+信仰管理 俱乐部 总贡献 [+/-数值]
+信仰管理 俱乐部 总贡献 [金币|登神分] [+/-数值]
 ```
+
+`俱乐部缴费次数`、`俱乐部金币贡献`、`俱乐部登神贡献` 已注册到 `信仰管理 数值`。这些管理项只修正会员累计数据，不会同步改动贡献池。
+
+不指定货币时，`信仰管理 俱乐部 总贡献 [+/-数值]` 会同时调整贡献池中的金币和登神分；需要单独调整时应带上货币名称。
+
+同一游戏日最多收取一次会费。殿堂椰汁永久保留身份、收益加成和分成资格；退出只停止每日会费，重新加入后恢复缴费。
 
 创造者身份由平台 Adapter 配置，不在 Business 中填写平台账号。
 
@@ -139,6 +156,11 @@ UID 由 QQ 官方机器人注册产生，OneBot 不创建 UID。绑定流程只�
 | `junk.enabled` | `true` | 启用捡垃圾 |
 | `roulette.enabled` | `true` | 启用恶魔轮盘 |
 | `binding.enabled` | `true` | 启用 OneBot QQ 身份绑定 |
+| `club.enabled` | `true` | 启用椰汁俱乐部 |
+| `club.config.firstGoldFee` | `2000` | 首次入会金币会费 |
+| `club.config.firstAscensionFee` | `200` | 首次入会登神分会费 |
+| `club.config.dailyGoldFee` | `200` | 每日金币会费 |
+| `club.config.dailyAscensionFee` | `20` | 每日登神分会费 |
 | `binding.config.tokenTtlSeconds` | `300` | 绑定令牌有效时间 |
 | `binding.config.maxPending` | `1000` | 内存中待确认申请数量上限 |
 | `roulette.config.turnSeconds` | `45` | 每名玩家的操作时限 |

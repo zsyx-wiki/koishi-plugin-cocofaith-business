@@ -6,6 +6,7 @@ import { DEFAULT_DAILY_PRAYER_CONFIG } from "./src/modules/daily-prayer/config";
 import { DEFAULT_JUNK_CONFIG } from "./src/modules/junk/config";
 import { DEFAULT_ROULETTE_CONFIG } from "./src/modules/roulette/config";
 import { DEFAULT_BINDING_CONFIG } from "./src/modules/binding/config";
+import { DEFAULT_CLUB_CONFIG } from "./src/modules/club/config";
 
 const faithDefaults = { ...DEFAULT_FAITH_CONFIG };
 const probabilityDefaults = { ...DEFAULT_VOID_PRAYER_CONFIG.probabilities };
@@ -15,6 +16,7 @@ const dailyDefaults = { ...DEFAULT_DAILY_PRAYER_CONFIG };
 const junkDefaults = { ...DEFAULT_JUNK_CONFIG };
 const rouletteDefaults = { ...DEFAULT_ROULETTE_CONFIG };
 const bindingDefaults = { ...DEFAULT_BINDING_CONFIG };
+const clubDefaults = { ...DEFAULT_CLUB_CONFIG };
 
 export const Config: Schema<BusinessConfig> = Schema.object({
   faith: Schema.object({
@@ -79,6 +81,20 @@ export const Config: Schema<BusinessConfig> = Schema.object({
       maxPending: integerInput(1000, "同时保留的待确认绑定数量。默认 1000，范围 10-5000。"),
     }).default(bindingDefaults),
   }).default({ enabled: true, config: bindingDefaults }).description("OneBot QQ 与 QQ 官方机器人 UID 绑定。只绑定现有 UID，不创建或合并用户。"),
+  club: Schema.object({
+    enabled: Schema.boolean().default(true),
+    config: Schema.object({
+      firstGoldFee: integerInput(2000, "首次入会金币会费。默认 2000。"),
+      firstAscensionFee: integerInput(200, "首次入会登神分会费。默认 200。"),
+      dailyGoldFee: integerInput(200, "每日金币会费。默认 200。"),
+      dailyAscensionFee: integerInput(20, "每日登神分会费。默认 20。"),
+      poolRate: Schema.number().default(1.1).description("会费和主动贡献计入贡献池的倍率。默认 1.1。"),
+      aidGold: integerInput(300, "单次救济金币。默认 300。"),
+      aidAscension: integerInput(40, "单次救济登神分。默认 40。"),
+      aidGoldThreshold: integerInput(2000, "领取救济时金币必须低于此值。默认 2000。"),
+      aidAscensionThreshold: integerInput(600, "领取救济时登神分必须低于此值。默认 600。"),
+    }).default(clubDefaults),
+  }).default({ enabled: true, config: clubDefaults }).description("椰汁俱乐部。会费、身份等级、贡献池、救济与会员分成。"),
   modules: Schema.dict(Schema.object({
     enabled: Schema.boolean().default(true),
     config: Schema.dict(Schema.any()).default({}),

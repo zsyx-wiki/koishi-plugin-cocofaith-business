@@ -52,6 +52,7 @@ export class BusinessConfigStore {
     if (config.junk) this.overrides.junk = clone({ ...(this.overrides.junk ?? {}), ...config.junk });
     if (config.roulette) this.overrides.roulette = clone({ ...(this.overrides.roulette ?? {}), ...config.roulette });
     if (config.binding) this.overrides.binding = clone({ ...(this.overrides.binding ?? {}), ...config.binding });
+    if (config.club) this.overrides.club = clone({ ...(this.overrides.club ?? {}), ...config.club });
   }
   isEnabled(name: string) { return this.overrides[name]?.enabled !== false; }
   resolve<C>(module: FaithBusinessModule<unknown, unknown, C>): Readonly<C> {

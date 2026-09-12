@@ -92,6 +92,8 @@ export interface Config {
   roulette?: BusinessModuleConfig;
   /** OneBot QQ 与现有 QQBot UID 的双向验证绑定。 */
   binding?: BusinessModuleConfig;
+  /** 椰汁俱乐部。 */
+  club?: BusinessModuleConfig;
 }
 export interface BusinessModuleStatus { name: string; state: BusinessModuleState; enabled: boolean; dependencies: readonly string[]; error?: string; }
 export function defineBusinessModule<I = never, O = never, C = Record<string, unknown>>(module: FaithBusinessModule<I, O, C>) { return module; }
