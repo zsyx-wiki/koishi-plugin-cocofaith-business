@@ -10,6 +10,7 @@ export function createRoomsModule() {
       ctx.provide("default", {
         register: rooms.register.bind(rooms), create: rooms.create.bind(rooms),
         command: rooms.command.bind(rooms), progress: rooms.progress.bind(rooms),
+        updateProgress: rooms.updateProgress.bind(rooms),
       });
     },
     ready: () => rooms.load(),

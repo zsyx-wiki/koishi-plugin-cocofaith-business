@@ -1,9 +1,14 @@
 import { Context, Service } from "koishi";
-import type { FaithLifecycleScope } from "@mueo/koishi-plugin-cocofaith-core";
+import {
+  isGameplayDefinition,
+  type FaithLifecycleScope,
+  type GameplayDefinition,
+} from "@mueo/koishi-plugin-cocofaith-core";
 import { BusinessError, businessFailure } from "./errors";
 import { BusinessModuleManager } from "./manager";
 import { assertBusinessResult, normalizeBusinessEvent } from "./protocol";
 import type { BusinessDispatchResult, BusinessEvent, Config, FaithBusinessModule, LegacyModuleResult } from "./types";
+import { adaptGameplayDefinition } from "./gameplay";
 
 export class FaithBusinessService extends Service {
   readonly lifecycle: FaithLifecycleScope;
@@ -39,9 +44,14 @@ export class FaithBusinessService extends Service {
     });
   }
 
-  register<I, O, C>(module: FaithBusinessModule<I, O, C>) {
-    this.manager.register(module as FaithBusinessModule);
-    return this.lifecycle.defer(() => this.unregister(module.name, true));
+  register<M extends FaithBusinessModule<any, any, any> | GameplayDefinition<any, any>>(
+    module: M,
+  ): ReturnType<FaithLifecycleScope["defer"]> {
+    const normalized = isGameplayDefinition(module)
+      ? adaptGameplayDefinition(module)
+      : module;
+    this.manager.register(normalized as FaithBusinessModule);
+    return this.lifecycle.defer(() => this.unregister(normalized.name, true));
   }
 
   async start() {

@@ -49,6 +49,7 @@ export class BusinessConfigStore {
     if (config.faith) this.overrides.faith = clone({ ...(this.overrides.faith ?? {}), ...config.faith });
     if (config.voidPrayer) this.overrides.void_prayer = clone({ ...(this.overrides.void_prayer ?? {}), ...config.voidPrayer });
     if (config.dailyPrayer) this.overrides.daily_prayer = clone({ ...(this.overrides.daily_prayer ?? {}), ...config.dailyPrayer });
+    if (config.container) this.overrides.container = clone({ ...(this.overrides.container ?? {}), ...config.container });
     if (config.junk) this.overrides.junk = clone({ ...(this.overrides.junk ?? {}), ...config.junk });
     if (config.roulette) this.overrides.roulette = clone({ ...(this.overrides.roulette ?? {}), ...config.roulette });
     if (config.binding) this.overrides.binding = clone({ ...(this.overrides.binding ?? {}), ...config.binding });

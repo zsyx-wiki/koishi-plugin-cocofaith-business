@@ -18,11 +18,17 @@ export class DailyPrayerService {
       ascension_score: base.ascension_score < 0 ? base.ascension_score : preview.applied.ascension_score ?? 0,
       gold: base.gold < 0 ? base.gold : preview.applied.gold ?? 0,
     };
+    const limitBonus = await this.core.bonuses.calculate({
+      uid,
+      type: "daily_prayer.daily_limit",
+      baseValue: this.config.baseLimit,
+      source: "daily_prayer.limit",
+    });
     return this.core.transaction.run(uid, async (tx) => {
       const current = await tx.users.get();
       if (current.faiths[0] !== expectedFaith) throw new BusinessError("CONFLICT", "信仰状态已变化，请重新祈祷。");
       const row = await tx.data.get(), state = normalizeState(row.private, date);
-      const limit = this.config.baseLimit + state.permanentExtra + state.temporaryExtra;
+      const limit = Math.max(0, limitBonus.finalValue) + state.permanentExtra + state.temporaryExtra;
       if (state.count >= limit) throw new BusinessError("LIMIT_REACHED", `你今天已经祈祷了 ${state.count} 次，已达上限（${limit} 次）。`);
       const delta = Object.fromEntries(Object.entries(reward).filter(([, value]) => value !== 0));
       if (Object.keys(delta).length) await tx.users.change(delta);
@@ -34,7 +40,8 @@ export class DailyPrayerService {
 
   async status(uid: number) {
     const date = this.core.gameDay.currentDate(), row = await this.core.data.get(uid), state = normalizeState(row.private, date);
-    const limit = this.config.baseLimit + state.permanentExtra + state.temporaryExtra;
+    const bonus = await this.core.bonuses.calculate({ uid, type: "daily_prayer.daily_limit", baseValue: this.config.baseLimit, source: "daily_prayer.status" });
+    const limit = Math.max(0, bonus.finalValue) + state.permanentExtra + state.temporaryExtra;
     return Object.freeze({ ...state, limit, remaining: Math.max(0, limit - state.count) });
   }
 

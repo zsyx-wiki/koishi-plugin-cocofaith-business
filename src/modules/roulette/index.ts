@@ -7,6 +7,11 @@ import { DEFAULT_ROULETTE_CONFIG, validateRouletteConfig } from "./config";
 import type { RouletteConfig } from "./types";
 import { MESSAGES } from "../../../messages";
 
+export interface RouletteGameplayApi {
+  stats(uid: number): ReturnType<RouletteService["stats"]>;
+  changeHonor(uid: number, delta: number, idempotencyKey?: string): ReturnType<RouletteService["changeHonor"]>;
+}
+
 export function createRouletteModule() {
   let service: RouletteService, registration: { dispose(): Promise<void> }, titles: TitleServiceApi;
   const run = (action: string) => async (ctx: BusinessCommandContext) => {
@@ -29,9 +34,13 @@ export function createRouletteModule() {
         });
       };
       registration = rooms.register(service);
-      ctx.provide("default", Object.freeze({
+      ctx.provide<RouletteGameplayApi & {
+        registerPath: RouletteService["rules"]["registerPath"];
+        registerField: RouletteService["rules"]["registerField"];
+        registerHook: RouletteService["rules"]["registerHook"];
+      }>("default", Object.freeze({
         registerPath: service.rules.registerPath.bind(service.rules), registerField: service.rules.registerField.bind(service.rules),
-        registerHook: service.rules.registerHook.bind(service.rules), stats: service.stats.bind(service),
+        registerHook: service.rules.registerHook.bind(service.rules), stats: service.stats.bind(service), changeHonor: service.changeHonor.bind(service),
       }));
     },
     reload(ctx) { service.configure(ctx.config); },

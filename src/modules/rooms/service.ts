@@ -3,13 +3,13 @@ import { Logger } from "koishi";
 import type { FaithBusinessCoreScope } from "@mueo/koishi-plugin-cocofaith-core";
 import { BusinessError } from "../../framework/errors";
 import type { BusinessResult } from "../../framework/types";
-import type { CreateRoom, GameRoom, RoomEvent, RoomGame } from "./types";
+import type { CreateRoom, GameRoom, ProgressUpdateOptions, RoomEvent, RoomGame } from "./types";
 import { roomTransaction, progressKey } from "./transaction";
 
 const hash = (value: string) => createHash("sha256").update(value).digest("hex");
 interface RoomTableRow extends Record<string, unknown> { key: string; active: boolean; version: number; room: GameRoom; }
 interface RoomProgressTableRow extends Record<string, unknown> { key: string; active: boolean; version: number; room: { progress: Record<string, unknown> }; }
-export type GameRoomsApi = Pick<GameRoomService, "register" | "create" | "command" | "progress">;
+export type GameRoomsApi = Pick<GameRoomService, "register" | "create" | "command" | "progress" | "updateProgress">;
 export class GameRoomService {
   private games = new Map<string, RoomGame>();
   private rooms = new Map<string, GameRoom>();
@@ -83,6 +83,29 @@ export class GameRoomService {
     this.requireGame(game);
     const [row] = await this.core.table.get<RoomProgressTableRow>({ key: progressKey(uid, game) });
     return structuredClone(row ? readProgress(row) as T : initial);
+  }
+  /**
+   * 由房间模块持有战绩表的事务边界，其他玩法只能通过该方法修改自己的战绩。
+   * 这避免跨模块直接访问 rooms 私有表。
+   */
+  updateProgress<T extends Record<string, unknown>, R>(
+    uid: number,
+    game: string,
+    initial: T,
+    update: (progress: T) => R | Promise<R>,
+    options: ProgressUpdateOptions = {},
+  ) {
+    this.requireGame(game);
+    return this.core.transaction.run(uid, async (scope) => {
+      const player = roomTransaction(new Map([[uid, scope]]), game).player(uid);
+      const progress = await player.progress(initial);
+      const result = await update(progress);
+      await player.saveProgress(progress);
+      return result;
+    }, {
+      source: options.source ?? `rooms.progress.${game}`,
+      idempotencyKey: options.idempotencyKey,
+    });
   }
   private async change(key: string, owner: string, action: string, event?: RoomEvent, args: readonly string[] = [], expected?: number): Promise<BusinessResult> {
     const game = this.requireGame(owner);

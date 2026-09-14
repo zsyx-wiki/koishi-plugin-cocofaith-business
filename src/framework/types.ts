@@ -55,6 +55,8 @@ export interface BusinessCommand<C = Record<string, unknown>> {
   readonly id: string;
   /** 第一个值是推荐显示名，其余为别名。 */
   readonly commands: readonly string[];
+  /** 用于祷词等动态内容；仅在没有普通根命令命中时执行，必须是无副作用的同步判断。 */
+  readonly match?: (content: string) => boolean;
   readonly description?: string;
   readonly scenes?: readonly BusinessScene[];
   readonly allowUnregistered?: boolean;
@@ -94,6 +96,11 @@ export interface Config {
   binding?: BusinessModuleConfig;
   /** 椰汁俱乐部。 */
   club?: BusinessModuleConfig;
+  /** 神性容器。 */
+  container?: BusinessModuleConfig;
 }
 export interface BusinessModuleStatus { name: string; state: BusinessModuleState; enabled: boolean; dependencies: readonly string[]; error?: string; }
 export function defineBusinessModule<I = never, O = never, C = Record<string, unknown>>(module: FaithBusinessModule<I, O, C>) { return module; }
+
+/** 复杂玩法的显式名称；defineBusinessModule 保留且行为完全兼容。 */
+export const defineAdvancedGameplay = defineBusinessModule;

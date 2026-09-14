@@ -11,6 +11,7 @@ interface CompiledCommand { readonly command: BusinessCommand; readonly aliases:
 export class BusinessCommandRouter {
   private roots = new Map<string, RegisteredRoot>();
   private byBusiness = new Map<string, string[]>();
+  private dynamicRoots = new Map<string, BusinessCommand[]>();
   private compiled = new WeakMap<BusinessCommand, CompiledCommand>();
 
   register(business: string, commands: readonly BusinessCommand[]) {
@@ -27,23 +28,40 @@ export class BusinessCommandRouter {
     const aliases = additions.map(({ alias }) => alias);
     for (const { alias, command } of additions) this.roots.set(alias, { business, command });
     this.byBusiness.set(business, aliases);
+    const dynamic = commands.filter((command) => !!command.match);
+    if (dynamic.length) this.dynamicRoots.set(business, dynamic);
   }
 
   unregister(business: string) {
     for (const alias of this.byBusiness.get(business) ?? []) this.roots.delete(alias);
     this.byBusiness.delete(business);
+    this.dynamicRoots.delete(business);
   }
 
   acceptsCommand(content: string): boolean {
     const first = tokenPattern().exec(content.trimStart().replace(/^\/+/, ""));
-    return !!first && this.roots.has(normalizeToken(decodeToken(first)));
+    if (first && this.roots.has(normalizeToken(decodeToken(first)))) return true;
+    const value = content.trim();
+    if (!value) return false;
+    for (const commands of this.dynamicRoots.values()) for (const command of commands) if (command.match!(value)) return true;
+    return false;
   }
 
   resolve(event: BusinessEvent): BusinessCommandMatch | null {
     const tokens = tokenize(event.content);
     if (!tokens.length) return null;
     const root = this.roots.get(normalizeToken(tokens[0]));
-    if (!root) return null;
+    if (!root) {
+      const value = event.content.trim();
+      for (const [business, commands] of this.dynamicRoots) {
+        for (const command of commands) if (command.match!(value)) {
+          assertScene(command, event);
+          if (!command.execute) throw new BusinessError("COMMAND_INCOMPLETE", `动态命令 ${command.id} 没有处理器。`);
+          return { business, command, commandId: command.id, path: [command.id], args: [] };
+        }
+      }
+      return null;
+    }
     let compiled = this.compile(root.command), command = compiled.command, index = 1;
     const path = [command.id];
     assertScene(command, event);
@@ -60,10 +78,15 @@ export class BusinessCommandRouter {
 
   list() {
     const seen = new Set<BusinessCommand>();
-    return [...this.roots.values()].flatMap((item) => {
+    const result = [...this.roots.values()].flatMap((item) => {
       if (seen.has(item.command)) return [];
       seen.add(item.command); return [{ business: item.business, command: item.command }];
     });
+    for (const [business, commands] of this.dynamicRoots) for (const command of commands) {
+      if (seen.has(command)) continue;
+      seen.add(command); result.push({ business, command });
+    }
+    return result;
   }
 
   private compile(command: BusinessCommand): CompiledCommand {
@@ -89,7 +112,8 @@ function validateTree(commands: readonly BusinessCommand[], business: string, pa
     if (!/^[a-z][a-z0-9_-]{0,63}$/.test(command.id)) throw new BusinessError("INVALID_INPUT", `非法命令 ID：${command.id}`);
     if (ids.has(command.id)) throw new BusinessError("COMMAND_CONFLICT", `${parent} 存在重复命令 ID：${command.id}`);
     ids.add(command.id);
-    if (!command.commands.length) throw new BusinessError("INVALID_INPUT", `命令 ${command.id} 缺少触发词。`);
+    if (!command.commands.length && !command.match) throw new BusinessError("INVALID_INPUT", `命令 ${command.id} 缺少触发词或动态匹配器。`);
+    if (command.match && parent !== business) throw new BusinessError("INVALID_INPUT", `动态命令 ${command.id} 只能位于根节点。`);
     for (const raw of command.commands) {
       const alias = normalizeToken(raw);
       if (!alias || /\s/.test(alias)) throw new BusinessError("INVALID_INPUT", `命令触发词只能是单个词：${raw}`);

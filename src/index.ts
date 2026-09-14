@@ -32,6 +32,20 @@ export * from "./modules";
 export * from "./framework/service";
 export * from "./framework/router";
 export * from "./framework/protocol";
+export * from "./framework/gameplay";
 export * from "./version";
+export {
+  defineGameplay,
+  defineGameplayConfig,
+  fail,
+  gameplayBoolean,
+  gameplayInteger,
+  gameplayNumber,
+  gameplayString,
+  image,
+  mixed,
+  silent,
+  text,
+} from "@mueo/koishi-plugin-cocofaith-core";
 export { MESSAGES } from "../messages";
 export type { FaithMessages } from "../messages";

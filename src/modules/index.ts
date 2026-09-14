@@ -11,19 +11,31 @@ import { createAboutModule } from "./about";
 import { createCollectionModule } from "./collection";
 import { createBindingModule } from "./binding";
 import { createClubModule } from "./club";
+import { createContainerModule } from "./container";
 
 export function createBuiltInBusinessModules() {
-  return [createFaithModule(), createFaithAdminModule(), createVoidPrayerModule(), createDailyPrayerModule(),
-    createJunkModule(), createTitleModule(), createRoomsModule(), createRouletteModule(), createAboutModule(), createCollectionModule(), createBindingModule(), createClubModule()] as const;
+  return [
+    createFaithModule(),
+    createFaithAdminModule(),
+    createVoidPrayerModule(),
+    createDailyPrayerModule(),
+    createJunkModule(),
+    createTitleModule(),
+    createRoomsModule(),
+    createRouletteModule(),
+    createAboutModule(),
+    createCollectionModule(),
+    createBindingModule(),
+    createClubModule(),
+    createContainerModule(),
+  ] as const;
 }
 
 /** 兼容旧的模块清单导出；注册新实例请使用工厂函数。 */
 export const BUILT_IN_BUSINESS_MODULES = createBuiltInBusinessModules();
 
 export function registerBuiltInBusinessModules(service: FaithBusinessService) {
-  const [faith, admin, voidPrayer, dailyPrayer, junk, title, rooms, roulette, about, collection, binding, club] = createBuiltInBusinessModules();
-  return [service.register(faith), service.register(admin), service.register(voidPrayer), service.register(dailyPrayer),
-    service.register(junk), service.register(title), service.register(rooms), service.register(roulette), service.register(about), service.register(collection), service.register(binding), service.register(club)];
+  return createBuiltInBusinessModules().map((module) => service.register(module));
 }
 
 export * from "./faith";
@@ -38,3 +50,4 @@ export * from "./about";
 export * from "./collection";
 export * from "./binding";
 export * from "./club";
+export * from "./container";

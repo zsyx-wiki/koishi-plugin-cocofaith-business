@@ -7,6 +7,7 @@ import { DEFAULT_JUNK_CONFIG } from "./src/modules/junk/config";
 import { DEFAULT_ROULETTE_CONFIG } from "./src/modules/roulette/config";
 import { DEFAULT_BINDING_CONFIG } from "./src/modules/binding/config";
 import { DEFAULT_CLUB_CONFIG } from "./src/modules/club/config";
+import { CONTAINER_CONFIG } from "./src/modules/container/config";
 
 const faithDefaults = { ...DEFAULT_FAITH_CONFIG };
 const probabilityDefaults = { ...DEFAULT_VOID_PRAYER_CONFIG.probabilities };
@@ -17,6 +18,8 @@ const junkDefaults = { ...DEFAULT_JUNK_CONFIG };
 const rouletteDefaults = { ...DEFAULT_ROULETTE_CONFIG };
 const bindingDefaults = { ...DEFAULT_BINDING_CONFIG };
 const clubDefaults = { ...DEFAULT_CLUB_CONFIG };
+const containerDefaults = { ...CONTAINER_CONFIG.defaults };
+const containerSchema = CONTAINER_CONFIG.schema as Schema<Record<string, unknown>>;
 
 export const Config: Schema<BusinessConfig> = Schema.object({
   faith: Schema.object({
@@ -95,6 +98,10 @@ export const Config: Schema<BusinessConfig> = Schema.object({
       aidAscensionThreshold: integerInput(600, "领取救济时登神分必须低于此值。默认 600。"),
     }).default(clubDefaults),
   }).default({ enabled: true, config: clubDefaults }).description("椰汁俱乐部。会费、身份等级、贡献池、救济与会员分成。"),
+  container: Schema.object({
+    enabled: Schema.boolean().default(true),
+    config: containerSchema.default(containerDefaults),
+  }).default({ enabled: true, config: containerDefaults }).description("神性容器。投入、觐献、从神与真神晋升。"),
   modules: Schema.dict(Schema.object({
     enabled: Schema.boolean().default(true),
     config: Schema.dict(Schema.any()).default({}),

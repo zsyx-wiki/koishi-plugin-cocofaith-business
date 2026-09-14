@@ -108,6 +108,7 @@ test('daily prayer preserves v2 limits, reward ranges and applies the credited r
   }
   const core = {
     users: { require: async () => user }, gameDay: { currentDate: () => '2026-09-02' },
+    bonuses: { calculate: async (request) => ({ ...request, finalValue: request.baseValue, multiplier: 1, fixedBonus: 0, contributions: [], failures: [] }) },
     economy: { previewReward: async (_uid, value) => ({ applied: { gold: value.gold * 2, ascension_score: value.ascension_score * 2 } }) },
     transaction: { run: async (_uid, task) => task(scope) },
     data: { get: async () => ({ private: privateData, public: {} }) },
@@ -135,11 +136,14 @@ test('daily prayer preserves v2 limits, reward ranges and applies the credited r
   assert.equal(user.ascension_score, 9)
 })
 
-test('daily prayer words form a valid Business command tree without entering the QQ panel', () => {
+test('dynamic message commands participate in fast filtering and routing', () => {
   const router = new business.BusinessCommandRouter()
-  router.register('daily_prayer', business.dailyPrayerModule.commands)
+  router.register('daily_prayer', [{ id: 'pray', commands: [], match: (content) => content === '洞窥本质，行见真理', execute: async () => ({ type: 'silent' }) }])
+  assert.equal(router.acceptsCommand('洞窥本质，行见真理'), true)
+  assert.equal(router.acceptsCommand('普通聊天'), false)
   const match = router.resolve({ uid: 10000000, scene: 'group', content: '洞窥本质，行见真理' })
   assert.equal(match.business, 'daily_prayer')
+  assert.equal(router.list()[0].command.id, 'pray')
 })
 
 test('faith sale atomically removes items and credits their fixed v3 price', async () => {

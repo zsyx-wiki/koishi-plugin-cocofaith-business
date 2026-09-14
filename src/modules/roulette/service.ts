@@ -29,6 +29,15 @@ export class RouletteService implements RoomGame<RouletteState> {
   }
   command(event: RoomEvent, action: string, args: readonly string[] = []) { return this.rooms.command(event, this.id, action, args); }
   stats(uid: number) { return this.rooms.progress(uid, this.id, initialStats()); }
+  changeHonor(uid: number, delta: number, idempotencyKey?: string) {
+    if (!Number.isSafeInteger(delta) || delta === 0) throw new BusinessError("INVALID_INPUT", "轮盘荣誉变化必须是非零安全整数。");
+    return this.rooms.updateProgress(uid, this.id, initialStats(), (stats) => {
+      const next = stats.honor + delta;
+      if (!Number.isSafeInteger(next) || next < 0) throw new BusinessError("INSUFFICIENT_RESOURCE", "轮盘赌荣誉不足。");
+      stats.honor = next;
+      return next;
+    }, { source: "roulette.change_honor", idempotencyKey });
+  }
   async start(room: GameRoom<RouletteState>, tx: RoomTransaction) {
     const s = room.state;
     s.logs = [];

@@ -41,7 +41,10 @@ export function createFaithModule() {
         return { type: "text", content: MESSAGES.faith.registered(user.faiths[0], user.gold) };
       } },
       { id: "abandon", commands: ["弃誓"], async execute(ctx) {
-        const result = await gameplay.abandon(requireUid(ctx.uid), ctx.args.join(" "));
+        const uid = requireUid(ctx.uid);
+        const blockers = await ctx.collect<{ uid: number; targetFaith: string }, string>("faith.before-abandon", Object.freeze({ uid, targetFaith: ctx.args.join(" ").trim() }));
+        if (blockers.results.length) throw new BusinessError("NOT_ALLOWED", blockers.results.join("\n"));
+        const result = await gameplay.abandon(uid, ctx.args.join(" "));
         return { type: "text", content: MESSAGES.faith.abandoned(result.oldFaith, result.newFaith, result.cost.ascensionCost, result.cost.audienceCost) };
       } },
       { id: "profession", commands: ["职业"], async execute(ctx) {

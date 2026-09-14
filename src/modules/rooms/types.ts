@@ -26,5 +26,6 @@ export interface RoomGame<S extends object = object> {
   afterCommit?(room: Readonly<GameRoom<S>>): Promise<void>;
   announcement?(room: Readonly<GameRoom<S>>): BusinessResult["broadcast"];
 }
+export interface ProgressUpdateOptions { source?: string; idempotencyKey?: string; }
 export interface CreateRoom<S extends object> { min: number; max: number; state: S; }
 export type RoomEvent = Readonly<BusinessEvent>;
