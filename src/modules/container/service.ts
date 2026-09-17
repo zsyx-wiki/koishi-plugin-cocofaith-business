@@ -134,7 +134,7 @@ export class ContainerService {
   }
 
   trueGodCost(path: string) {
-    const count = this.core.faiths.byPath(path).filter((faith) => faith.type === "dynamic").length;
+    const count = this.core.faiths.byPath(path).filter((faith) => faith.type === "dynamic" && faith.metadata?.source === "divinity_container").length;
     return Object.freeze({
       gold: safeAdd(this.config.truegodBaseGoldCost, safeMultiply(this.config.truegodGoldIncrement, count)),
       ascension_score: safeAdd(this.config.truegodBaseAscensionCost, safeMultiply(this.config.truegodAscensionIncrement, count)),

@@ -31,7 +31,6 @@ export function createBuiltInBusinessModules() {
   ] as const;
 }
 
-/** 兼容旧的模块清单导出；注册新实例请使用工厂函数。 */
 export const BUILT_IN_BUSINESS_MODULES = createBuiltInBusinessModules();
 
 export function registerBuiltInBusinessModules(service: FaithBusinessService) {

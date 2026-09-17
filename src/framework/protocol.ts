@@ -23,11 +23,12 @@ export function normalizeBusinessEvent(core: FaithCoreService, event: BusinessEv
   }
   let adapter;
   if (event.adapter !== undefined) {
-    const { name, version } = event.adapter;
+    const { name, version, allowRegistration } = event.adapter;
     if (typeof name !== "string" || !name.trim() || name.length > 128 || typeof version !== "string" || !version.trim() || version.length > 64) {
       throw new BusinessError("INVALID_INPUT", "BusinessEvent.adapter 无效。");
     }
-    adapter = Object.freeze({ name: name.trim(), version: version.trim() });
+    if (allowRegistration !== undefined && typeof allowRegistration !== "boolean") throw new BusinessError("INVALID_INPUT", "BusinessEvent.adapter.allowRegistration 无效。");
+    adapter = Object.freeze({ name: name.trim(), version: version.trim(), allowRegistration: allowRegistration === true });
   }
   let identity: Readonly<IdentityInput> | undefined;
   if (event.identity !== undefined) identity = Object.freeze(core.adapter.normalize(event.identity));

@@ -5,9 +5,6 @@ import {
   gameplayInteger,
 } from "@mueo/koishi-plugin-cocofaith-core";
 
-/**
- * 最小玩法示例。它只用于文档和类型检查，不会被内置玩法自动注册。
- */
 const config = defineGameplayConfig({
   rewardGold: gameplayInteger(50, {
     min: 0,

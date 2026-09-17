@@ -40,7 +40,6 @@ export class RouletteRegistry {
   emit(phase: RoulettePhase, context: RouletteEffectContext) {
     const field = this.field(context.state.field);
     this.invoke(field?.hooks?.[phase], context);
-    // 开枪前与行动后作用于行动者；承伤阶段作用于实际目标。
     const player = phase === "beforeShot" || phase === "afterShot" ? context.actor : context.target;
     if (!player.flags.disabled) this.invoke(this.path(player.path)?.hooks?.[phase], context);
     for (const hook of this.hooks) if (hook.phase === phase) this.invoke(hook.apply, context);

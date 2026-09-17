@@ -21,6 +21,17 @@ test('container EX items and v2 infusion tiers are explicit', () => {
   assert.equal(business.calculateDivinityGain('roulette', 2, 10), 1.5)
 })
 
+test('true god cost only counts container-created faiths on the selected path', () => {
+  const faiths = [
+    { type: 'fixed', metadata: {} },
+    { type: 'dynamic', metadata: { source: 'external' } },
+    { type: 'dynamic', metadata: { source: 'divinity_container' } },
+    { type: 'dynamic', metadata: { source: 'divinity_container' } },
+  ]
+  const service = new business.ContainerService({ faiths: { byPath: () => faiths } }, {}, {}, business.CONTAINER_CONFIG.defaults)
+  assert.deepEqual(service.trueGodCost('生命'), { gold: 130000, ascension_score: 8000 })
+})
+
 test('container grants, infuses, ascends and reuses dynamic faith customization', async () => {
   const app = new App()
   app.plugin(require('@minatojs/driver-sqlite').default, { path: ':memory:' })

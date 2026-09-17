@@ -102,9 +102,11 @@ export class FaithBusinessService extends Service {
     if (!match) return { matched: false, reason: "not-found" };
     const { business, commandId } = match;
     if (normalized.uid === null && !match.command.allowUnregistered) {
-      const message = normalized.identity?.adapter === "onebot"
-        ? "当前 OneBot QQ 尚未绑定 UID，请私聊发送“椰子水 申请绑定”。"
-        : "你尚未注册，只能使用“信仰 注册 [信仰名]”。";
+      const message = normalized.adapter?.allowRegistration
+        ? "你尚未注册，只能使用“信仰 注册 [信仰名]”。"
+        : normalized.identity?.adapter === "onebot"
+          ? "当前 OneBot QQ 尚未绑定 UID，请私聊发送“椰子水 申请绑定”。"
+          : "当前接入端未开放新 UID 注册。";
       return dispatchFailure(business, commandId, new BusinessError("UNREGISTERED", message));
     }
     if (!this.manager.registry.enabled.has(business)) {
@@ -128,7 +130,6 @@ export class FaithBusinessService extends Service {
   }
 
   commands() { return this.manager.commands.list(); }
-  /** 仅检查命令根节点，不解析身份或执行业务。 */
   acceptsCommand(content: string) { return this.manager.commands.acceptsCommand(content); }
 
   status(name?: string) {

@@ -30,7 +30,7 @@ test('Business protocol validates and preserves adapter metadata', () => {
   const event = business.normalizeBusinessEvent(core, {
     uid: null, identity, scene: 'group', content: '关于椰子水', adapter: { name: ' CoCoFaith Adapter QQ ', version: ' 3.0.0-alpha.2 ' },
   })
-  assert.deepEqual(event.adapter, { name: 'CoCoFaith Adapter QQ', version: '3.0.0-alpha.2' })
+  assert.deepEqual(event.adapter, { name: 'CoCoFaith Adapter QQ', version: '3.0.0-alpha.2', allowRegistration: false })
   assert.equal(Object.isFrozen(event.adapter), true)
   assert.throws(() => business.normalizeBusinessEvent(core, { uid: 1, scene: 'group', content: '关于椰子水', adapter: { name: '', version: '1' } }))
 })

@@ -11,7 +11,6 @@ export interface FaithSaleResult {
   keptOne?: boolean;
 }
 
-/** 背包出售只依赖 Core 的物品定义、背包和经济原子接口。 */
 export class FaithSaleService {
   constructor(private core: FaithBusinessCoreScope) {}
 

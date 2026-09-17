@@ -12,10 +12,6 @@ import type {
   FaithBusinessModule,
 } from "./types";
 
-/**
- * 将 Core 的简化玩法定义转换为完整 Business 模块。
- * 旧模块运行时保持不变；所有简化语法都在这一层展开。
- */
 export function adaptGameplayDefinition(
   definition: GameplayDefinition<Record<string, unknown>, unknown>,
 ): FaithBusinessModule {

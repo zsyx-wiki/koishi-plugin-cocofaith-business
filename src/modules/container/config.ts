@@ -4,7 +4,6 @@ import {
   gameplayNumber,
 } from "@mueo/koishi-plugin-cocofaith-core";
 
-/** 默认值与 v2 最终版保持一致，配置、类型和校验只声明一次。 */
 export const CONTAINER_CONFIG = defineGameplayConfig({
   maxCapacity: gameplayInteger(300, { min: 1, max: 1_000_000, description: "神性容器硬上限。" }),
   manualInfusionMax: gameplayInteger(250, { min: 1, max: 1_000_000, description: "允许手动投入达到的神性上限。" }),

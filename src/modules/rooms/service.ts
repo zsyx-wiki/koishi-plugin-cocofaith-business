@@ -126,7 +126,6 @@ export class GameRoomService {
     const participant = room.members.some((p) => p.uid === uid);
     if (action === "force_abort" && !await this.core.permissions.check(uid!, "faith.creator")) throw new BusinessError("NOT_ALLOWED");
     if (event && !participant && action !== "join" && action !== "force_abort") throw new BusinessError("NOT_ALLOWED", "你没有加入本局。");
-    // 参赛者询问或误发当前回合命令，也可为后续结果提供新的回复通道。
     if (event && participant) this.bind(previous, event);
     const ids = [...room.members.map((p) => p.uid), ...(action === "join" && uid ? [uid] : [])];
     await this.core.transaction.runMany(ids, async (scopes) => {

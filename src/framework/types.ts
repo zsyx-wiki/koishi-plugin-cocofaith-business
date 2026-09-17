@@ -6,16 +6,14 @@ export type BusinessScene = "group" | "private";
 export interface BusinessAdapterInfo {
   readonly name: string;
   readonly version: string;
+  readonly allowRegistration?: boolean;
 }
 export interface BusinessEvent {
   uid: number | null; identity?: Readonly<IdentityInput>; scene: BusinessScene; content: string; channelId?: string;
-  /** 仅用于诊断和“关于”信息，不参与业务分支判断。 */
   adapter?: Readonly<BusinessAdapterInfo>;
-  /** Adapter 生成的群作用域，不由用户命令传入。 */
   roomKey?: string;
   eventId?: string;
   displayName?: string;
-  /** 绑定当前会话的后续发送通道；平台额度由 Adapter 控制。 */
   reply?: (result: BusinessResult) => Promise<unknown>;
 }
 export interface MessageTextNode { type: "text"; content: string; }
@@ -53,7 +51,6 @@ export interface BusinessCommandContext<C = Record<string, unknown>> extends Bus
 }
 export interface BusinessCommand<C = Record<string, unknown>> {
   readonly id: string;
-  /** 第一个值是推荐显示名，其余为别名。 */
   readonly commands: readonly string[];
   /** 用于祷词等动态内容；仅在没有普通根命令命中时执行，必须是无副作用的同步判断。 */
   readonly match?: (content: string) => boolean;
@@ -77,30 +74,21 @@ export interface FaithBusinessModule<I = unknown, O = unknown, C = Record<string
   ready?(context: BusinessModuleContext<C>): void | Promise<void>;
   reload?(context: BusinessModuleContext<C>, previousConfig: Readonly<C>): void | Promise<void>;
   dispose?(context: BusinessModuleContext<C>): void | Promise<void>;
-  /** 兼容非命令型内部调用；普通玩法优先使用 commands。 */
   execute?(context: BusinessExecutionContext<C>, input: I): Promise<LegacyModuleResult<O>>;
 }
 export interface BusinessModuleConfig { enabled?: boolean; config?: Record<string, unknown>; }
 export interface Config {
   modules: Record<string, BusinessModuleConfig>;
-  /** 内置信仰业务的便捷配置；同名值优先于 modules.faith。 */
   faith?: BusinessModuleConfig;
-  /** 内置虚空祈求的便捷配置；同名值优先于 modules.void_prayer。 */
   voidPrayer?: BusinessModuleConfig;
-  /** 内置每日祈祷的便捷配置。 */
   dailyPrayer?: BusinessModuleConfig;
-  /** 内置捡垃圾业务的便捷配置。 */
   junk?: BusinessModuleConfig;
   roulette?: BusinessModuleConfig;
-  /** OneBot QQ 与现有 QQBot UID 的双向验证绑定。 */
   binding?: BusinessModuleConfig;
-  /** 椰汁俱乐部。 */
   club?: BusinessModuleConfig;
-  /** 神性容器。 */
   container?: BusinessModuleConfig;
 }
 export interface BusinessModuleStatus { name: string; state: BusinessModuleState; enabled: boolean; dependencies: readonly string[]; error?: string; }
 export function defineBusinessModule<I = never, O = never, C = Record<string, unknown>>(module: FaithBusinessModule<I, O, C>) { return module; }
 
-/** 复杂玩法的显式名称；defineBusinessModule 保留且行为完全兼容。 */
 export const defineAdvancedGameplay = defineBusinessModule;

@@ -7,7 +7,6 @@ export interface BusinessContributionFailure { provider: string; id: string; err
 export interface BusinessContributionResult<O> { results: readonly O[]; failures: readonly BusinessContributionFailure[]; }
 interface Entry { provider: string; id: string; priority: number; order: number; handler: BusinessContributionHandler<unknown, unknown>; }
 
-/** 多业务向同一展示槽提供结构化片段，不建立业务数据层耦合。 */
 export class BusinessContributionRegistry {
   private slots = new Map<string, Map<string, Entry>>();
   private ordered = new Map<string, readonly Entry[]>();

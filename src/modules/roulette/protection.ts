@@ -3,7 +3,6 @@ import type { RouletteEffectContext } from "./registry";
 export interface RouletteProtection {
   id: string;
   kind: "shield" | "save";
-  /** 场地兜底护盾排在所有玩家来源之后。 */
   fallback?: boolean;
   available(context: RouletteEffectContext): number;
   probability(context: RouletteEffectContext): number;
