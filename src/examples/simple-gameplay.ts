@@ -3,7 +3,7 @@ import {
   defineGameplayConfig,
   fail,
   gameplayInteger,
-} from "@mueo/koishi-plugin-cocofaith-core";
+} from "@mueo/cocofaith-sdk/gameplay";
 
 const config = defineGameplayConfig({
   rewardGold: gameplayInteger(50, {

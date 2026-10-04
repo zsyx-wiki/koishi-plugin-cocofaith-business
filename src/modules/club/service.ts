@@ -1,5 +1,5 @@
 import { Logger } from "koishi";
-import type { FaithAtomicScope, FaithBusinessCoreScope, FaithStatusIdentityState } from "@mueo/koishi-plugin-cocofaith-core";
+import type { FaithAtomicScope, FaithBusinessCoreScope, FaithStatusIdentityState } from "@mueo/cocofaith-sdk/core";
 import { BusinessError } from "../../framework/errors";
 import type { TitleServiceApi } from "../title";
 import type { ClubConfig } from "./config";

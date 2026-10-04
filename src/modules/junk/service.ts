@@ -1,4 +1,4 @@
-import { CORE_JUNK_PICKABLE_ITEM_IDS, type FaithBusinessCoreScope } from "@mueo/koishi-plugin-cocofaith-core";
+import type { FaithBusinessCoreScope } from "@mueo/cocofaith-sdk/core";
 import { BusinessError } from "../../framework/errors";
 import type { JunkConfig, JunkState } from "./types";
 
@@ -7,8 +7,8 @@ const LEVELS = Object.freeze([...["D", "C", "B", "A", "S"]].map((level, index) =
 export class JunkService {
   private readonly pools = new Map<string, readonly string[]>();
   constructor(private core: FaithBusinessCoreScope, private config: Readonly<JunkConfig>, private random: () => number = Math.random) {
-    for (const id of CORE_JUNK_PICKABLE_ITEM_IDS) {
-      const item = core.items.require(id), values = this.pools.get(item.level) ?? [];
+    for (const item of core.items.all().filter((value) => ["D", "C", "B", "A", "S"].includes(value.level) && value.actions?.includes("open"))) {
+      const values = this.pools.get(item.level) ?? [];
       this.pools.set(item.level, Object.freeze([...values, item.item_id]));
     }
   }

@@ -1,4 +1,4 @@
-import type { FaithMoney, FaithAtomicScope } from "@mueo/koishi-plugin-cocofaith-core";
+import type { FaithMoney, FaithAtomicScope } from "@mueo/cocofaith-sdk/core";
 import type { BusinessEvent, BusinessResult } from "../../framework/types";
 
 export interface RoomMember { uid: number; name: string; ticket: FaithMoney; }

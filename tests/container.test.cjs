@@ -1,11 +1,5 @@
 const test = require('node:test')
 const assert = require('node:assert/strict')
-const Module = require('node:module')
-const load = Module._load
-Module._load = function (name, parent, main) {
-  if (name === '@mueo/koishi-plugin-cocofaith-core') return require('../../koishi-plugin-cocofaith-core/lib/index.js')
-  return load.call(this, name, parent, main)
-}
 const { App } = require('koishi')
 const core = require('../../koishi-plugin-cocofaith-core/lib/index.js')
 const business = require('../lib/index.js')

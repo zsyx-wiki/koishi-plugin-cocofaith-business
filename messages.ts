@@ -1,4 +1,4 @@
-import type { FaithCoreUserData, FaithProfessionDefinition } from "@mueo/koishi-plugin-cocofaith-core";
+import type { FaithCoreUserData, FaithProfessionDefinition } from "@mueo/cocofaith-sdk/core";
 
 const signed = (value: number) => `${value >= 0 ? "+" : ""}${value}`;
 

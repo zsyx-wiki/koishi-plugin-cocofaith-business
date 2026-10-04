@@ -1,5 +1,5 @@
 import { Logger } from "koishi";
-import type { FaithBusinessCoreScope } from "@mueo/koishi-plugin-cocofaith-core";
+import type { FaithBusinessCoreScope } from "@mueo/cocofaith-sdk/core";
 import type { TitleServiceApi } from "../title";
 import { BusinessError } from "../../framework/errors";
 import { CollectionCatalog, type CollectionEntry } from "./catalog";

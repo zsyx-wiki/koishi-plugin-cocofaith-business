@@ -1,4 +1,4 @@
-import type { FaithCoreService } from "@mueo/koishi-plugin-cocofaith-core";
+import type { FaithCoreService } from "@mueo/cocofaith-sdk/core";
 import { BusinessConfigStore } from "./module-config";
 import { BusinessError } from "./errors";
 import { normalizeDependencies } from "./graph";

@@ -4,7 +4,7 @@ import {
   type GameplayCommandDefinition,
   type GameplayDefinition,
   type GameplaySetupContext,
-} from "@mueo/koishi-plugin-cocofaith-core";
+} from "@mueo/cocofaith-sdk/gameplay";
 import { BusinessError } from "./errors";
 import type {
   BusinessCommand,

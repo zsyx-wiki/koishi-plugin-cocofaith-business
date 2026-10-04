@@ -1,6 +1,6 @@
 import { Context } from "koishi";
 import { Config as ConfigSchema, type Config as BusinessConfig } from "../config";
-import type {} from "@mueo/koishi-plugin-cocofaith-core";
+import type { FaithCoreServiceContract } from "@mueo/cocofaith-sdk/core";
 import { FaithBusinessService } from "./framework/service";
 import { registerBuiltInBusinessModules } from "./modules";
 
@@ -14,7 +14,7 @@ declare module "koishi" {
 }
 
 export function apply(ctx: Context, config: Config) {
-  const business = new FaithBusinessService(ctx, config);
+  const business = new FaithBusinessService(ctx as Context & { faithCore: FaithCoreServiceContract }, config);
   ctx.set("faithBusiness", business);
   registerBuiltInBusinessModules(business);
 }
@@ -32,7 +32,7 @@ export * from "./modules";
 export * from "./framework/service";
 export * from "./framework/router";
 export * from "./framework/protocol";
-export * from "./framework/gameplay";
+export * from "./framework/gameplay-adapter";
 export * from "./version";
 export {
   defineGameplay,
@@ -46,6 +46,8 @@ export {
   mixed,
   silent,
   text,
-} from "@mueo/koishi-plugin-cocofaith-core";
+} from "@mueo/cocofaith-sdk/gameplay";
+export type * from "@mueo/cocofaith-sdk/gameplay";
+export * from "@mueo/cocofaith-sdk/core";
 export { MESSAGES } from "../messages";
 export type { FaithMessages } from "../messages";

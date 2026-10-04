@@ -1,4 +1,4 @@
-import type { FaithStatusIdentityDefinition } from "@mueo/koishi-plugin-cocofaith-core";
+import type { FaithStatusIdentityDefinition } from "@mueo/cocofaith-sdk/core";
 import type { ClubLevel, ClubStats } from "./types";
 
 export const CLUB_IDENTITY_ID = "coconut_juice_club";

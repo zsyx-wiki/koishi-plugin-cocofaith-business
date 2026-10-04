@@ -1,4 +1,4 @@
-import type { FaithBusinessItemsApi, FaithItemDefinition } from "@mueo/koishi-plugin-cocofaith-core";
+import type { FaithBusinessItemsApi, FaithItemDefinition } from "@mueo/cocofaith-sdk/core";
 import { BusinessError } from "../../framework/errors";
 
 export interface CollectionRule { excluded?: boolean; pool?: string; category?: string; }

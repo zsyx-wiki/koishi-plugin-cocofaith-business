@@ -1,4 +1,4 @@
-import type { FaithItemDefinition, FaithStatusIdentityDefinition } from "@mueo/koishi-plugin-cocofaith-core";
+import type { FaithItemDefinition, FaithStatusIdentityDefinition } from "@mueo/cocofaith-sdk/core";
 
 export const FAITH_CONTAINER_ITEM_ID = "faith_container";
 export const DIVINITY_FRAGMENT_ITEM_ID = "divinity_fragment";

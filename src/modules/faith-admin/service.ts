@@ -1,4 +1,4 @@
-import { FaithCoreError, type FaithBusinessCoreScope, type UserValueDelta } from "@mueo/koishi-plugin-cocofaith-core";
+import { isFaithCoreError, type FaithBusinessCoreScope, type UserValueDelta } from "@mueo/cocofaith-sdk/core";
 import { BusinessError } from "../../framework/errors";
 import { FaithAdminFieldRegistry, type FaithAdminNumericField } from "./fields";
 import { FaithAdminCommandRegistry } from "./commands";
@@ -65,8 +65,8 @@ export class FaithAdminService {
           total++;
           try { await field.change({ actorUid, targetUid: uid, delta, operationId: `${operationId}:${uid}` }); succeeded++; }
           catch (error) {
-            if (error instanceof FaithCoreError && error.code === "IDEMPOTENCY_CONFLICT") { skipped++; continue; }
-            failed.push({ uid, code: error instanceof FaithCoreError ? error.code : "INTERNAL_ERROR", message: error instanceof Error ? error.message : String(error) });
+            if (isFaithCoreError(error) && error.code === "IDEMPOTENCY_CONFLICT") { skipped++; continue; }
+            failed.push({ uid, code: isFaithCoreError(error) ? error.code : "INTERNAL_ERROR", message: error instanceof Error ? error.message : String(error) });
           }
         }
       };

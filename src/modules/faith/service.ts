@@ -1,4 +1,4 @@
-import type { FaithBusinessCoreScope, FaithCoreUserData, FaithProfessionDefinition, IdentityInput } from "@mueo/koishi-plugin-cocofaith-core";
+import type { FaithBusinessCoreScope, FaithCoreUserData, FaithProfessionDefinition, IdentityInput } from "@mueo/cocofaith-sdk/core";
 import { BusinessError } from "../../framework/errors";
 import { MESSAGES } from "../../../messages";
 

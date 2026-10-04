@@ -1,4 +1,4 @@
-import type { FaithStatusIdentityState } from "@mueo/koishi-plugin-cocofaith-core";
+import type { FaithStatusIdentityState } from "@mueo/cocofaith-sdk/core";
 
 export type ContainerLevel = "mortal" | "subgod" | "truegod";
 

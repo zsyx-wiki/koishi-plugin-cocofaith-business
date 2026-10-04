@@ -1,4 +1,4 @@
-import type { FaithBusinessCoreScope, FaithDisposable, IdentityInput } from "@mueo/koishi-plugin-cocofaith-core";
+import type { FaithBusinessCoreScope, FaithDisposable, IdentityInput } from "@mueo/cocofaith-sdk/core";
 import type { BusinessContributionHandler, BusinessContributionOptions, BusinessContributionResult } from "./contributions";
 
 export type BusinessModuleState = "registered" | "disabled" | "initializing" | "initialized" | "readying" | "ready" | "reloading" | "disposing" | "failed" | "disposed";

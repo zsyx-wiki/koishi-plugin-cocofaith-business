@@ -1,4 +1,4 @@
-import type { FaithBusinessCoreScope } from "@mueo/koishi-plugin-cocofaith-core";
+import type { FaithBusinessCoreScope } from "@mueo/cocofaith-sdk/core";
 import { BusinessError } from "../../framework/errors";
 import { TitleRegistry } from "./registry";
 import type { TitleDefinition, TitleServiceApi, UserTitleState } from "./types";

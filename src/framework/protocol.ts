@@ -1,4 +1,4 @@
-import type { FaithCoreService, IdentityInput } from "@mueo/koishi-plugin-cocofaith-core";
+import type { FaithCoreService, IdentityInput } from "@mueo/cocofaith-sdk/core";
 import { BusinessError } from "./errors";
 import type { BusinessEvent, BusinessResult, MessageNode } from "./types";
 

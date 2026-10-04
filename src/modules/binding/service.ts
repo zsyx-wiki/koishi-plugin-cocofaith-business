@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import type { FaithBusinessCoreScope, IdentityInput } from "@mueo/koishi-plugin-cocofaith-core";
+import type { FaithBusinessCoreScope, IdentityInput } from "@mueo/cocofaith-sdk/core";
 import { BusinessError } from "../../framework/errors";
 import type { BusinessEvent, BusinessResult } from "../../framework/types";
 import type { BindingConfig } from "./config";

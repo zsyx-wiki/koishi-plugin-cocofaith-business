@@ -1,4 +1,4 @@
-import type { FaithCoreError } from "@mueo/koishi-plugin-cocofaith-core";
+import type { FaithCoreError } from "@mueo/cocofaith-sdk/core";
 import { defineAdvancedGameplay } from "../../framework/types";
 import type { RouletteGameplayApi } from "../roulette";
 import type { TitleServiceApi } from "../title";

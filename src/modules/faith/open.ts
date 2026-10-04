@@ -1,4 +1,4 @@
-import type { FaithBusinessCoreScope, FaithOpenResult } from "@mueo/koishi-plugin-cocofaith-core";
+import type { FaithBusinessCoreScope, FaithOpenResult } from "@mueo/cocofaith-sdk/core";
 import { BusinessError } from "../../framework/errors";
 import { formatItem } from "../../shared/item-format";
 

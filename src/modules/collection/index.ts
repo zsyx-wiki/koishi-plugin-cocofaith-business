@@ -1,4 +1,4 @@
-import type { InventoryMutation } from "@mueo/koishi-plugin-cocofaith-core";
+import type { InventoryMutation } from "@mueo/cocofaith-sdk/core";
 import { defineBusinessModule, type BusinessCommandContext } from "../../framework/types";
 import { BusinessError } from "../../framework/errors";
 import type { TitleServiceApi } from "../title";

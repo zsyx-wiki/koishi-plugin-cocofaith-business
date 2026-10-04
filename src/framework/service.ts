@@ -1,14 +1,11 @@
 import { Context, Service } from "koishi";
-import {
-  isGameplayDefinition,
-  type FaithLifecycleScope,
-  type GameplayDefinition,
-} from "@mueo/koishi-plugin-cocofaith-core";
+import { assertFaithCoreContract, type FaithCoreServiceContract, type FaithLifecycleScope } from "@mueo/cocofaith-sdk/core";
+import { isGameplayDefinition, type GameplayDefinition } from "@mueo/cocofaith-sdk/gameplay";
 import { BusinessError, businessFailure } from "./errors";
 import { BusinessModuleManager } from "./manager";
 import { assertBusinessResult, normalizeBusinessEvent } from "./protocol";
 import type { BusinessDispatchResult, BusinessEvent, Config, FaithBusinessModule, LegacyModuleResult } from "./types";
-import { adaptGameplayDefinition } from "./gameplay";
+import { adaptGameplayDefinition } from "./gameplay-adapter";
 
 export class FaithBusinessService extends Service {
   readonly lifecycle: FaithLifecycleScope;
@@ -17,8 +14,9 @@ export class FaithBusinessService extends Service {
   private readonly businessLogger;
   private readonly core;
 
-  constructor(ctx: Context, config: Config) {
+  constructor(ctx: Context & { faithCore: FaithCoreServiceContract }, config: Config) {
     super(ctx, "faithBusiness", true);
+    assertFaithCoreContract(ctx.faithCore);
     this.businessLogger = ctx.logger("cocofaith-business");
     this.core = ctx.faithCore;
     this.manager = new BusinessModuleManager(

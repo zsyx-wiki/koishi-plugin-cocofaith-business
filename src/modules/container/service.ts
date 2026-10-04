@@ -1,10 +1,9 @@
 import { createHash } from "node:crypto";
 import {
-  FAITH_CAMPS,
   type BonusContribution,
   type FaithAtomicScope,
   type FaithBusinessCoreScope,
-} from "@mueo/koishi-plugin-cocofaith-core";
+} from "@mueo/cocofaith-sdk/core";
 import { BusinessError } from "../../framework/errors";
 import type { TitleServiceApi } from "../title";
 import type { RouletteGameplayApi } from "../roulette";
@@ -144,7 +143,7 @@ export class ContainerService {
   async ascendTrueGod(uid: number, godName: string, path: string, spItemName: string, idempotencyKey?: string): Promise<ContainerTrueGodResult> {
     const name = godName.trim(), selectedPath = path.trim(), itemKey = spItemName.trim();
     if (!/^[\u4e00-\u9fff]{2}$/.test(name)) throw new BusinessError("INVALID_INPUT", "真神名号必须是两个纯中文字符。");
-    if (!(selectedPath in FAITH_CAMPS)) throw new BusinessError("INVALID_INPUT", "所选命途不存在。");
+    if (!this.core.faiths.paths().includes(selectedPath)) throw new BusinessError("INVALID_INPUT", "所选命途不存在。");
     if (this.core.faiths.has(name) || this.titles.resolve(name)) throw new BusinessError("CONFLICT", `名号【${name}】已被占用。`);
     const item = this.core.items.resolve(itemKey);
     if (!item || item.level !== "SP" || item.type !== "道具" || !item.marketable) throw new BusinessError("INVALID_INPUT", "祭品必须是可出售的常规 SP 级道具。");

@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { Logger } from "koishi";
-import type { FaithBusinessCoreScope } from "@mueo/koishi-plugin-cocofaith-core";
+import type { FaithBusinessCoreScope } from "@mueo/cocofaith-sdk/core";
 import { BusinessError } from "../../framework/errors";
 import type { BusinessResult } from "../../framework/types";
 import type { CreateRoom, GameRoom, ProgressUpdateOptions, RoomEvent, RoomGame } from "./types";

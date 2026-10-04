@@ -1,4 +1,4 @@
-import type { BonusValueType } from "@mueo/koishi-plugin-cocofaith-core";
+import type { BonusValueType } from "@mueo/cocofaith-sdk/core";
 
 export interface TitleBonus {
   type: BonusValueType;

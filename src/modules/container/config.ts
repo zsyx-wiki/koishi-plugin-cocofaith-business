@@ -2,7 +2,7 @@ import {
   defineGameplayConfig,
   gameplayInteger,
   gameplayNumber,
-} from "@mueo/koishi-plugin-cocofaith-core";
+} from "@mueo/cocofaith-sdk/gameplay";
 
 export const CONTAINER_CONFIG = defineGameplayConfig({
   maxCapacity: gameplayInteger(300, { min: 1, max: 1_000_000, description: "神性容器硬上限。" }),

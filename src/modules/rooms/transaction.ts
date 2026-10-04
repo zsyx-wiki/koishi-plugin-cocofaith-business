@@ -1,4 +1,4 @@
-import type { FaithAtomicScope } from "@mueo/koishi-plugin-cocofaith-core";
+import type { FaithAtomicScope } from "@mueo/cocofaith-sdk/core";
 import { createHash } from "node:crypto";
 import type { RoomTransaction } from "./types";
 

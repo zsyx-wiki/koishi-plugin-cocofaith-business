@@ -1,4 +1,4 @@
-import { CallbackDisposable } from "@mueo/koishi-plugin-cocofaith-core";
+import { CallbackDisposable, type FaithDisposable } from "@mueo/cocofaith-sdk/core";
 
 export interface FaithAdminNumericOperation {
   actorUid: number;
@@ -9,7 +9,7 @@ export interface FaithAdminNumericOperation {
 }
 export interface FaithAdminNumericField { name: string; description?: string; change(operation: FaithAdminNumericOperation): void | string | Promise<void | string>; }
 export interface FaithAdminNumericFieldsApi {
-  register(field: FaithAdminNumericField): import("@mueo/koishi-plugin-cocofaith-core").FaithDisposable;
+  register(field: FaithAdminNumericField): FaithDisposable;
   get(name: string): Readonly<FaithAdminNumericField> | undefined;
   list(): Readonly<FaithAdminNumericField>[];
 }

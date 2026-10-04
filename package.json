@@ -1,13 +1,14 @@
 {
   "name": "@mueo/koishi-plugin-cocofaith-business",
-  "version": "3.0.0-alpha.2",
+  "version": "3.0.0-alpha.3",
   "description": "CoCoFaith v3 结构化业务与玩法服务",
   "author": "Mueo <mueo@mueoo.com>",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
   "typings": "lib/index.d.ts",
   "files": [
-    "lib"
+    "lib",
+    "docs"
   ],
   "scripts": {
     "build": "tsup",
@@ -16,8 +17,10 @@
     "test": "npm run build && node --test tests/*.test.cjs"
   },
   "peerDependencies": {
-    "@mueo/koishi-plugin-cocofaith-core": "^3.0.0-alpha.2",
     "koishi": "^4.16.0"
+  },
+  "dependencies": {
+    "@mueo/cocofaith-sdk": "^3.0.0-alpha.3"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

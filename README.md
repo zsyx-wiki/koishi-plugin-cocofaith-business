@@ -5,7 +5,7 @@
 
   <p>
     <img alt="Koishi" src="https://img.shields.io/badge/Koishi-4.16%2B-60a5fa?style=flat-square">
-    <img alt="Version" src="https://img.shields.io/badge/version-3.0.0--alpha.2-a78bfa?style=flat-square">
+    <img alt="Version" src="https://img.shields.io/badge/version-3.0.0--alpha.3-a78bfa?style=flat-square">
     <img alt="License" src="https://img.shields.io/badge/license-GPL--3.0-52b788?style=flat-square">
     <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.9-3178c6?style=flat-square&logo=typescript&logoColor=white">
   </p>
@@ -17,7 +17,7 @@ CoCoFaith Business 是 CoCoFaith v3 的玩法插件，负责命令路由、业�
 
 它通过 `faithCore` 使用公共数据与事务能力，不直接处理 OneBot、QQ 官方机器人等平台事件。
 
-插件强依赖 CoCoFaith Core。平台消息需要通过对应 Adapter 接入。
+插件运行时依赖实现 CoCoFaith Core API 3.0 的 `faithCore` 服务，但不依赖某个 Core npm 包。官方 Core 是默认实现，也可以替换成兼容实现。平台消息需要通过对应 Adapter 接入。
 
 ## 内置玩法
 
@@ -47,7 +47,7 @@ CoCoFaith Core
 → CoCoFaith Adapter
 ```
 
-Business 启动时会检查 `faithCore` 服务。未加载 Core 时不会注册玩法。
+Business 启动时会检查 `faithCore` 的 API 版本和关键能力。未加载兼容 Core 时不会注册玩法。自定义实现参见 [Core API](./docs/core-api.md)。
 
 ## 常用命令
 
@@ -180,21 +180,13 @@ OneBot Adapter 默认禁止，仅在正常模式显式开启注册选项后允�
 
 ```text
 src/
-├── framework/    # 生命周期、依赖、命令路由和通用协议
+├── framework/    # 高级模块运行时和命令路由
 ├── modules/      # 内置玩法
-├── shared/       # 无状态的公共工具
-└── index.ts      # 插件入口与公共导出
+├── shared/       # 无状态公共工具
+└── index.ts      # 插件入口和公共导出
 ```
 
-新增普通玩法时优先使用 Core 提供的 `defineGameplay()` 简化 API。
-
-一个小玩法只需要一个文件和一处注册；
-
-框架会自动处理玩家校验、事务状态、奖励加成、幂等和文本响应。
-
-多人房间、自定义生命周期或复杂跨业务协作继续使用完全兼容的 `defineAdvancedGameplay()` / `defineBusinessModule()`。
-
-完整示例和 API 选择说明见 [玩法开发说明](./GAMEPLAY_DEVELOPMENT.md)。玩法不应生成 CQ Code、QQ Markdown 或调用平台发送接口。
+Core 契约和简单玩法 SDK 由 `@mueo/cocofaith-sdk` 统一维护。普通指令玩法使用 `defineGameplay()`；多人房间、自定义生命周期或复杂跨业务协作使用 `defineAdvancedGameplay()`。接口选择和示例见 [玩法开发](./docs/gameplay.md)。
 
 跨业务访问通过公开接口和贡献点完成。业务不能直接查询其他业务的数据表。
 
@@ -218,7 +210,7 @@ await core.transaction.run(uid, async (tx) => {
 })
 ```
 
-游戏房间扩展见 [游戏房间开发说明](./docs/game-rooms.md)，图鉴规则见 [图鉴说明](./docs/collection.md)。
+其他开发文档见 [文档索引](./docs/README.md)。
 
 ```bash
 npm run build

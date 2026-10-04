@@ -1,4 +1,4 @@
-import { CallbackDisposable } from "@mueo/koishi-plugin-cocofaith-core";
+import { CallbackDisposable } from "@mueo/cocofaith-sdk/core";
 import { BusinessError } from "./errors";
 
 interface RegisteredInterface { provider: string; name: string; version: string; value: unknown; }
