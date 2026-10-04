@@ -3,6 +3,14 @@
   "version": "3.0.0-alpha.3",
   "description": "CoCoFaith v3 结构化业务与玩法服务",
   "author": "Mueo <mueo@mueoo.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zsyx-wiki/koishi-plugin-cocofaith-business.git"
+  },
+  "homepage": "https://github.com/zsyx-wiki/koishi-plugin-cocofaith-business#readme",
+  "bugs": {
+    "url": "https://github.com/zsyx-wiki/koishi-plugin-cocofaith-business/issues"
+  },
   "main": "lib/index.js",
   "module": "lib/index.mjs",
   "typings": "lib/index.d.ts",
@@ -28,6 +36,9 @@
     "typescript": "^5.9.2"
   },
   "license": "GPL-3.0-or-later",
+  "publishConfig": {
+    "access": "public"
+  },
   "koishi": {
     "name": "CoCoFaith Business",
     "description": {
