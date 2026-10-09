@@ -16,3 +16,10 @@ export const FAITH_BEFORE_ABANDON = defineGameplayContribution<{
     uid: number;
     targetFaith: string;
 }, string>("faith.before-abandon");
+export const BINDING_API = defineGameplayInterface<Pick<import("../modules/binding/service").BindingService, "userInfo">>("binding");
+export const CLUB_API = defineGameplayInterface<Pick<import("../modules/club/service").ClubService, "status" | "pool">>("club");
+export const DAILY_PRAYER_API = defineGameplayInterface<Pick<import("../modules/daily-prayer/service").DailyPrayerService, "status">>("daily_prayer");
+export const VOID_PRAYER_API = defineGameplayInterface<Pick<import("../modules/void-prayer/service").VoidPrayerService, "status">>("void_prayer");
+export const COLLECTION_API = defineGameplayInterface<import("../modules/collection/module").CollectionApi>("collection");
+export const CONTAINER_API = defineGameplayInterface<import("../modules/container/types").ContainerGameplayApi>("container");
+export const FAITH_REGISTRY_API = defineGameplayInterface<Pick<import("@mueo/cocofaith-sdk/core").FaithBusinessCoreScope["faiths"], "get" | "has" | "all" | "byPath">>("faith", "registry");

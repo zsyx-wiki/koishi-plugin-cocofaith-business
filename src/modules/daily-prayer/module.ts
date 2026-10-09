@@ -1,7 +1,7 @@
-import { useGameplayInterface } from "@mueo/cocofaith-sdk/gameplay";
+import { provideGameplayInterface, useGameplayInterface } from "@mueo/cocofaith-sdk/gameplay";
 import { BusinessError } from "../../framework/errors";
 import { defineAdvancedGameplay, type BusinessResult } from "../../framework/types";
-import { ADMIN_FIELDS_API } from "../../shared/contracts";
+import { ADMIN_FIELDS_API, DAILY_PRAYER_API } from "../../shared/contracts";
 import { MESSAGES } from "../../shared/messages";
 import { DAILY_PRAYER_CONFIG } from "./config";
 import { DailyPrayerService } from "./service";
@@ -27,7 +27,7 @@ export function createDailyPrayerModule() {
                     return MESSAGES.dailyPrayer.adjusted(targetUid, "临时祈祷次数", delta, after);
                 }
             }));
-            context.provide("default", Object.freeze({ status: (uid: number) => service.status(uid) }), { version: "1.0.0" });
+            provideGameplayInterface(context, DAILY_PRAYER_API, Object.freeze({ status: (uid: number) => service.status(uid) }), { version: "1.0.0" });
         },
         reload(context) {
             service = new DailyPrayerService(context.core, context.config);

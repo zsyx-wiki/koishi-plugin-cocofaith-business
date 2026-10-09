@@ -1,5 +1,7 @@
+import { provideGameplayInterface } from "@mueo/cocofaith-sdk/gameplay";
 import { BusinessError } from "../../framework/errors";
 import { defineAdvancedGameplay } from "../../framework/types";
+import { BINDING_API } from "../../shared/contracts";
 import { MESSAGES } from "../../shared/messages";
 import { BINDING_CONFIG, type BindingConfig } from "./config";
 import { BindingService } from "./service";
@@ -10,7 +12,7 @@ export function createBindingModule() {
         config: BINDING_CONFIG,
         init(ctx) {
             service = new BindingService(ctx.core, ctx.config);
-            ctx.provide("default", Object.freeze({ userInfo: service.userInfo.bind(service) }), { version: "1.0.0" });
+            provideGameplayInterface(ctx, BINDING_API, Object.freeze({ userInfo: service.userInfo.bind(service) }), { version: "1.0.0" });
         },
         reload(ctx) {
             service.configure(ctx.config);

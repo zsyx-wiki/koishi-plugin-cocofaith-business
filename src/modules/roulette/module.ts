@@ -1,13 +1,16 @@
-import { useGameplayInterface } from "@mueo/cocofaith-sdk/gameplay";
+import { provideGameplayInterface, useGameplayInterface } from "@mueo/cocofaith-sdk/gameplay";
 import type { BusinessCommandContext } from "../../framework/types";
 import { defineAdvancedGameplay } from "../../framework/types";
-import { ROOMS_API, TITLE_API } from "../../shared/contracts";
+import { ROOMS_API, ROULETTE_API, TITLE_API } from "../../shared/contracts";
 import { MESSAGES } from "../../shared/messages";
 import type { TitleServiceApi } from "../title";
 import { ROULETTE_CONFIG } from "./config";
 import { RouletteService } from "./service";
 import type { RouletteConfig } from "./types";
 export interface RouletteGameplayApi {
+    registerPath: RouletteService["rules"]["registerPath"];
+    registerField: RouletteService["rules"]["registerField"];
+    registerHook: RouletteService["rules"]["registerHook"];
     stats(uid: number): ReturnType<RouletteService["stats"]>;
     changeHonor(uid: number, delta: number, idempotencyKey?: string): ReturnType<RouletteService["changeHonor"]>;
 }
@@ -41,11 +44,7 @@ export function createRouletteModule() {
                     });
             };
             registration = rooms.register(service);
-            ctx.provide<RouletteGameplayApi & {
-                registerPath: RouletteService["rules"]["registerPath"];
-                registerField: RouletteService["rules"]["registerField"];
-                registerHook: RouletteService["rules"]["registerHook"];
-            }>("default", Object.freeze({
+            provideGameplayInterface(ctx, ROULETTE_API, Object.freeze({
                 registerPath: service.rules.registerPath.bind(service.rules), registerField: service.rules.registerField.bind(service.rules),
                 registerHook: service.rules.registerHook.bind(service.rules), stats: service.stats.bind(service), changeHonor: service.changeHonor.bind(service),
             }));
@@ -69,7 +68,7 @@ export function createRouletteModule() {
                     },
                     ...[["join", "加入"], ["leave", "退出"], ["start", "开始"], ["abort", "结束"], ["view", "对局"], ["force_abort", "强制结束"],
                         ["开枪", "开枪"], ["恐惧", "恐惧"], ["无畏", "无畏"], ["退缩", "退缩"]].map(([action, command], i) => ({
-                        id: `action_${i}`, commands: [command], execute: run(action)
+                        id: `action_${i}`, triggers: [command], run: run(action)
                     })),
                     {
                         id: "ability", triggers: ["能力"], run: (ctx) => service.command(ctx.event, ctx.args[0] ?? "", ctx.args.slice(1))

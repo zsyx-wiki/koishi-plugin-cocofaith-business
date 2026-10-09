@@ -1,7 +1,7 @@
-import { collectGameplay } from "@mueo/cocofaith-sdk/gameplay";
+import { collectGameplay, provideGameplayInterface } from "@mueo/cocofaith-sdk/gameplay";
 import { BusinessError } from "../../framework/errors";
 import { defineAdvancedGameplay, type BusinessCommandContext, type BusinessResult } from "../../framework/types";
-import { FAITH_BEFORE_ABANDON, FAITH_INFO } from "../../shared/contracts";
+import { FAITH_BEFORE_ABANDON, FAITH_INFO, FAITH_REGISTRY_API } from "../../shared/contracts";
 import { formatItem } from "../../shared/item-format";
 import { MESSAGES } from "../../shared/messages";
 import { FAITH_CONFIG } from "./config";
@@ -25,7 +25,7 @@ export function createFaithModule() {
             gameplay = new FaithGameplayService(context.core, context.config);
             sale = new FaithSaleService(context.core);
             opener = new FaithOpenItemService(context.core);
-            context.provide("registry", Object.freeze({
+            provideGameplayInterface(context, FAITH_REGISTRY_API, Object.freeze({
                 get: context.core.faiths.get, has: context.core.faiths.has, all: context.core.faiths.all, byPath: context.core.faiths.byPath,
             }), { version: "1.0.0" });
         },

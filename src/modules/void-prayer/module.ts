@@ -1,7 +1,7 @@
-import { useGameplayInterface } from "@mueo/cocofaith-sdk/gameplay";
+import { provideGameplayInterface, useGameplayInterface } from "@mueo/cocofaith-sdk/gameplay";
 import { BusinessError } from "../../framework/errors";
 import { defineAdvancedGameplay, type BusinessResult } from "../../framework/types";
-import { ADMIN_FIELDS_API } from "../../shared/contracts";
+import { ADMIN_FIELDS_API, VOID_PRAYER_API } from "../../shared/contracts";
 import { formatItem } from "../../shared/item-format";
 import { MESSAGES } from "../../shared/messages";
 import type { FaithAdminNumericFieldsApi } from "../faith-admin";
@@ -20,7 +20,7 @@ export function createVoidPrayerModule() {
             registerAdminField(admin, context, service, "奖励祈求", "consumableExtra", "可在每日次数耗尽后使用的额外祈求次数");
             registerAdminField(admin, context, service, "祈求上限", "permanentExtra", "永久增加每日虚空祈求上限");
             registerAdminField(admin, context, service, "额外祈求", "temporaryExtra", "仅当前游戏日有效的额外祈求次数");
-            context.provide("default", Object.freeze({ status: (uid: number) => service.status(uid) }), { version: "1.0.0" });
+            provideGameplayInterface(context, VOID_PRAYER_API, Object.freeze({ status: (uid: number) => service.status(uid) }), { version: "1.0.0" });
         },
         reload(context) {
             service = new VoidPrayerService(context.core, context.config);

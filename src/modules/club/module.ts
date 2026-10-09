@@ -1,7 +1,7 @@
-import { useGameplayInterface } from "@mueo/cocofaith-sdk/gameplay";
+import { provideGameplayInterface, useGameplayInterface } from "@mueo/cocofaith-sdk/gameplay";
 import { BusinessError } from "../../framework/errors";
 import { defineAdvancedGameplay } from "../../framework/types";
-import { ADMIN_COMMANDS_API, ADMIN_FIELDS_API, TITLE_API } from "../../shared/contracts";
+import { ADMIN_COMMANDS_API, ADMIN_FIELDS_API, CLUB_API, TITLE_API } from "../../shared/contracts";
 import { MESSAGES } from "../../shared/messages";
 import { CLUB_CONFIG, type ClubConfig } from "./config";
 import { CLUB_IDENTITY } from "./data";
@@ -18,7 +18,7 @@ export function createClubModule() {
             context.core.lifecycle.track(context.core.statusIdentities.register(CLUB_IDENTITY));
             const titles = useGameplayInterface(context, TITLE_API);
             service = new ClubService(context.core, titles, context.config);
-            context.provide("default", Object.freeze({ status: service.status.bind(service), pool: service.pool.bind(service) }), { version: "1.0.0" });
+            provideGameplayInterface(context, CLUB_API, Object.freeze({ status: service.status.bind(service), pool: service.pool.bind(service) }), { version: "1.0.0" });
             context.core.lifecycle.onGameDay(async (event) => {
                 await service.renewAll(event.date);
             }, {

@@ -1,22 +1,22 @@
 import { createHash } from "node:crypto";
 import { BusinessError } from "../../framework/errors";
-import type { BusinessCommand, BusinessCommandContext, BusinessResult } from "../../framework/types";
+import type { AdvancedGameplayCommand, BusinessCommandContext, BusinessResult } from "../../framework/types";
 import type { ContainerConfig } from "./config";
 import { containerText } from "./messages";
 import type { ContainerService } from "./service";
-export function createContainerCommands(getService: () => ContainerService): readonly BusinessCommand<ContainerConfig>[] {
+export function createContainerCommands(getService: () => ContainerService): readonly AdvancedGameplayCommand<ContainerConfig>[] {
     const view = async (ctx: BusinessCommandContext<ContainerConfig>): Promise<BusinessResult> => ({
         type: "text",
         content: containerText.status(await getService().status(requireUid(ctx.uid)), ctx.config.maxCapacity, ctx.config.passiveMaxDivinity, ctx.config.goldPerDivinity, ctx.config.ascensionPerDivinity, ctx.config.maxConsecrationCharges),
     });
     return [{
-            id: "container", commands: ["容器", "神性容器"], description: "与神性容器互动", execute: view,
+            id: "container", triggers: ["容器", "神性容器"], description: "与神性容器互动", run: view,
             children: [
                 {
-                    id: "view", commands: ["查看", "状态"], execute: view
+                    id: "view", triggers: ["查看", "状态"], run: view
                 },
                 {
-                    id: "infuse", commands: ["投入", "注入"], async execute(ctx) {
+                    id: "infuse", triggers: ["投入", "注入"], async run(ctx) {
                         if (ctx.args.length < 2)
                             throw new BusinessError("INVALID_INPUT", "格式：容器 投入 [轮盘赌荣誉|神性碎片] [数量]");
                         const type = ctx.args[0], amount = Number(ctx.args[1]), uid = requireUid(ctx.uid), operationId = eventOperationId(ctx);
@@ -34,13 +34,13 @@ export function createContainerCommands(getService: () => ContainerService): rea
                     }
                 },
                 {
-                    id: "consecrate", commands: ["觐献"], async execute(ctx) {
+                    id: "consecrate", triggers: ["觐献"], async run(ctx) {
                         const result = await getService().consecrate(requireUid(ctx.uid), ctx.args[0] === undefined ? 1 : Number(ctx.args[0]), eventOperationId(ctx));
                         return { type: "text", content: `觐献 ${result.count} 次，消耗 ${result.spent} 神性，获得 ${result.reward} 觐见分。剩余神性 ${result.divinity.toFixed(2)}，觐献次数 ${result.charges}。` };
                     }
                 },
                 {
-                    id: "subgod", commands: ["从神"], async execute(ctx) {
+                    id: "subgod", triggers: ["从神"], async run(ctx) {
                         if (ctx.args.length !== 1)
                             throw new BusinessError("INVALID_INPUT", "格式：容器 从神 [神名]");
                         const result = await getService().ascendSubgod(requireUid(ctx.uid), ctx.args[0], eventOperationId(ctx));
@@ -51,7 +51,7 @@ export function createContainerCommands(getService: () => ContainerService): rea
                     }
                 },
                 {
-                    id: "truegod", commands: ["真神"], async execute(ctx) {
+                    id: "truegod", triggers: ["真神"], async run(ctx) {
                         if (ctx.args.length < 3)
                             throw new BusinessError("INVALID_INPUT", "格式：容器 真神 [神名] [命途] [SP 道具名]");
                         const result = await getService().ascendTrueGod(requireUid(ctx.uid), ctx.args[0], ctx.args[1], ctx.args.slice(2).join(" "), eventOperationId(ctx));

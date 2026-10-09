@@ -1,8 +1,8 @@
 import type { InventoryMutation } from "@mueo/cocofaith-sdk/core";
-import { useGameplayInterface } from "@mueo/cocofaith-sdk/gameplay";
+import { provideGameplayInterface, useGameplayInterface } from "@mueo/cocofaith-sdk/gameplay";
 import { BusinessError } from "../../framework/errors";
 import { defineAdvancedGameplay, type BusinessCommandContext } from "../../framework/types";
-import { ADMIN_COMMANDS_API, TITLE_API } from "../../shared/contracts";
+import { ADMIN_COMMANDS_API, COLLECTION_API, TITLE_API } from "../../shared/contracts";
 import { MESSAGES } from "../../shared/messages";
 import type { CollectionRule } from "./catalog";
 import { CollectionService } from "./service";
@@ -36,7 +36,7 @@ export function createCollectionModule() {
                 uid: "unsigned", items: "json", updated_at: "timestamp"
             }, { primary: "uid" });
             service = new CollectionService(ctx.core, useGameplayInterface(ctx, TITLE_API));
-            ctx.provide<CollectionApi>("default", Object.freeze({
+            provideGameplayInterface(ctx, COLLECTION_API, Object.freeze({
                 state: service.state.bind(service), has: service.has.bind(service), progress: service.progress.bind(service),
                 details: service.details.bind(service), refresh: service.refresh.bind(service),
                 configure: (itemId: string, rule: CollectionRule) => service.catalog.configure(itemId, rule),

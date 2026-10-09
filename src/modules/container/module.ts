@@ -1,13 +1,12 @@
 import type { FaithCoreError } from "@mueo/cocofaith-sdk/core";
-import { useGameplayInterface } from "@mueo/cocofaith-sdk/gameplay";
+import { provideGameplayInterface, useGameplayInterface } from "@mueo/cocofaith-sdk/gameplay";
 import { defineAdvancedGameplay } from "../../framework/types";
-import { ROULETTE_API, TITLE_API } from "../../shared/contracts";
+import { CONTAINER_API, ROULETTE_API, TITLE_API } from "../../shared/contracts";
 import { registerContainerAdmin } from "./admin";
 import { createContainerCommands } from "./commands";
 import { CONTAINER_CONFIG, type ContainerConfig } from "./config";
 import { CONTAINER_IDENTITY, CONTAINER_ITEMS } from "./data";
 import { ContainerService } from "./service";
-import type { ContainerGameplayApi } from "./types";
 export function createContainerModule() {
     let service: ContainerService;
     return defineAdvancedGameplay<never, never, ContainerConfig>({
@@ -19,7 +18,7 @@ export function createContainerModule() {
                 context.core.items.register(item);
             context.core.lifecycle.track(context.core.statusIdentities.register(CONTAINER_IDENTITY));
             service = new ContainerService(context.core, useGameplayInterface(context, TITLE_API), useGameplayInterface(context, ROULETTE_API), context.config);
-            context.provide<ContainerGameplayApi>("default", Object.freeze({ grant: service.grant.bind(service), status: service.status.bind(service) }), { version: "1.0.0" });
+            provideGameplayInterface(context, CONTAINER_API, Object.freeze({ grant: service.grant.bind(service), status: service.status.bind(service) }), { version: "1.0.0" });
             context.core.lifecycle.track(context.core.bonuses.registerProvider(({ uid, type }) => service.bonusContributions(uid, type), {
                 id: "container-bonuses", types: ["gold", "ascension_score", "void_prayer.daily_limit", "daily_prayer.daily_limit"],
             }));
