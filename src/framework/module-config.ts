@@ -1,3 +1,4 @@
+import { BUILT_IN_CONFIGS } from "../config-catalog";
 import { BusinessError } from "./errors";
 import type { BusinessModuleConfig, Config, FaithBusinessModule } from "./types";
 
@@ -46,14 +47,10 @@ export class BusinessConfigStore {
   private overrides: Config["modules"];
   constructor(config: Config) {
     this.overrides = clone(config.modules ?? {});
-    if (config.faith) this.overrides.faith = clone({ ...(this.overrides.faith ?? {}), ...config.faith });
-    if (config.voidPrayer) this.overrides.void_prayer = clone({ ...(this.overrides.void_prayer ?? {}), ...config.voidPrayer });
-    if (config.dailyPrayer) this.overrides.daily_prayer = clone({ ...(this.overrides.daily_prayer ?? {}), ...config.dailyPrayer });
-    if (config.container) this.overrides.container = clone({ ...(this.overrides.container ?? {}), ...config.container });
-    if (config.junk) this.overrides.junk = clone({ ...(this.overrides.junk ?? {}), ...config.junk });
-    if (config.roulette) this.overrides.roulette = clone({ ...(this.overrides.roulette ?? {}), ...config.roulette });
-    if (config.binding) this.overrides.binding = clone({ ...(this.overrides.binding ?? {}), ...config.binding });
-    if (config.club) this.overrides.club = clone({ ...(this.overrides.club ?? {}), ...config.club });
+    for (const [key, entry] of Object.entries(BUILT_IN_CONFIGS)) {
+      const value = config[key as keyof typeof BUILT_IN_CONFIGS];
+      if (value) this.overrides[entry.module] = clone({ ...(this.overrides[entry.module] ?? {}), ...value });
+    }
   }
   isEnabled(name: string) { return this.overrides[name]?.enabled !== false; }
   resolve<C>(module: FaithBusinessModule<unknown, unknown, C>): Readonly<C> {

@@ -2,16 +2,8 @@ import type { FaithItemDefinition } from "@mueo/cocofaith-sdk/core";
 
 export const VOID_PRAYER_LEVELS = ["SP", "SSS", "SS", "S", "A", "B", "C", "D"] as const;
 export type VoidPrayerLevel = typeof VOID_PRAYER_LEVELS[number];
-export interface VoidPrayerConfig extends Record<string, unknown> {
-  baseCost: number;
-  extraCost: number;
-  baseCostDraws: number;
-  dailyLimit: number;
-  maxDrawsPerCommand: number;
-  easterEggChance: number;
-  probabilities: Readonly<Record<VoidPrayerLevel, number>>;
-  upSpItems: readonly string[];
-}
+export type { VoidPrayerConfig } from "./config";
+import type { VoidPrayerConfig } from "./config";
 export interface VoidPrayerState extends Record<string, unknown> {
   date: string;
   dailyUsed: number;

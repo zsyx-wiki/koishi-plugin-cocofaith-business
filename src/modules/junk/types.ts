@@ -1,2 +1,3 @@
-export interface JunkConfig { itemCount: number; paidGoldCost: number; paidAscensionCost: number; }
+export type { JunkConfig } from "./config";
+import type { JunkConfig } from "./config";
 export interface JunkState { date: string; freeUsed: boolean; paidUsed: boolean; }

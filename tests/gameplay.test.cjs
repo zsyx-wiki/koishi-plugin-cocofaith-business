@@ -175,3 +175,13 @@ test('simple command groups use the same Business router and validate before com
   router.register(module.name, module.commands)
   assert.equal(router.resolve({ content: 'root child', scene: 'group' }).commandId, 'root.child')
 })
+
+test('built-in schemas and runtime parsers share constraints and legacy keys', () => {
+  const defaults = business.Config({})
+  assert.equal(defaults.dailyPrayer.config.baseLimit, 1)
+  assert.equal(defaults.voidPrayer.config.baseCost, 45)
+  assert.throws(() => business.Config({ roulette: { config: { turnSeconds: 1 } } }))
+  assert.throws(() => business.validateRouletteConfig({ turnSeconds: 1 }))
+  const store = new business.BusinessConfigStore({ modules: {}, dailyPrayer: { config: { baseLimit: 2 } } })
+  assert.equal(store.resolve(business.createDailyPrayerModule()).baseLimit, 2)
+})

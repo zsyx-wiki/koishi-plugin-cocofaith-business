@@ -1,10 +1,11 @@
 import {
   defineGameplayConfig,
+  refineGameplayConfig,
   gameplayInteger,
   gameplayNumber,
 } from "@mueo/cocofaith-sdk/gameplay";
 
-export const CONTAINER_CONFIG = defineGameplayConfig({
+const CONTAINER_FIELDS = defineGameplayConfig({
   maxCapacity: gameplayInteger(300, { min: 1, max: 1_000_000, description: "神性容器硬上限。" }),
   manualInfusionMax: gameplayInteger(250, { min: 1, max: 1_000_000, description: "允许手动投入达到的神性上限。" }),
   passiveMaxDivinity: gameplayInteger(150, { min: 0, max: 1_000_000 }),
@@ -32,11 +33,9 @@ export const CONTAINER_CONFIG = defineGameplayConfig({
   truegodVoidPrayerBonus: gameplayInteger(50, { min: 0, max: 1_000_000 }),
 });
 
-export type ContainerConfig = ReturnType<(typeof CONTAINER_CONFIG)["parse"]>;
-
-export function validateContainerConfig(value: unknown): ContainerConfig {
-  const config = CONTAINER_CONFIG.parse(value);
+export const CONTAINER_CONFIG = refineGameplayConfig(CONTAINER_FIELDS, config => {
   if (config.manualInfusionMax > config.maxCapacity) throw new RangeError("manualInfusionMax 不能超过 maxCapacity");
   if (config.subgodDivinityCost > config.maxCapacity || config.truegodDivinityCost > config.maxCapacity) throw new RangeError("登神所需神性不能超过容器上限");
-  return config;
-}
+});
+export type ContainerConfig = ReturnType<typeof CONTAINER_CONFIG.parse>;
+export const validateContainerConfig = CONTAINER_CONFIG.parse;

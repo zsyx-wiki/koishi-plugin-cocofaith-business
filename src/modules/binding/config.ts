@@ -1,24 +1,15 @@
+import { defineGameplayConfig, refineGameplayConfig, gameplayInteger, gameplayNumber, gameplayObject, gameplayArray, gameplayString } from "@mueo/cocofaith-sdk/gameplay";
 import { BusinessError } from "../../framework/errors";
 
-export interface BindingConfig {
-  tokenTtlSeconds: number;
-  maxPending: number;
-}
-
-export const DEFAULT_BINDING_CONFIG: Readonly<BindingConfig> = Object.freeze({
-  tokenTtlSeconds: 300,
-  maxPending: 1000,
+export const BINDING_CONFIG = refineGameplayConfig(defineGameplayConfig({
+  tokenTtlSeconds: gameplayInteger(300, { min: 60, max: 900, description: "绑定令牌有效时间。默认 300 秒，范围 60-900。" }),
+  maxPending: gameplayInteger(1000, { min: 10, max: 5000, description: "同时保留的待确认绑定数量。默认 1000，范围 10-5000。" }),
+}), value => {
+  // Field constraints are generated from the same definition as the Koishi schema.
 });
-
+export type BindingConfig = ReturnType<typeof BINDING_CONFIG.parse>;
+export const DEFAULT_BINDING_CONFIG = BINDING_CONFIG.defaults;
 export function validateBindingConfig(value: unknown): BindingConfig {
-  if (!value || typeof value !== "object" || Array.isArray(value)) throw new BusinessError("CONFIG_INVALID");
-  const config = { ...DEFAULT_BINDING_CONFIG, ...value } as BindingConfig;
-  if (!Number.isSafeInteger(config.tokenTtlSeconds) || config.tokenTtlSeconds < 60 || config.tokenTtlSeconds > 900) {
-    throw new BusinessError("CONFIG_INVALID", "绑定令牌有效时间必须在 60-900 秒之间。");
-  }
-  if (!Number.isSafeInteger(config.maxPending) || config.maxPending < 10 || config.maxPending > 5000) {
-    throw new BusinessError("CONFIG_INVALID", "待确认绑定数量上限必须在 10-5000 之间。");
-  }
-  return Object.freeze(config);
+  try { return BINDING_CONFIG.parse(value); }
+  catch (cause) { throw new BusinessError("CONFIG_INVALID", cause instanceof Error ? cause.message : "配置无效", undefined, { cause }); }
 }
-

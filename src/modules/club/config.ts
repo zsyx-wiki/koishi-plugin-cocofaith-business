@@ -1,19 +1,22 @@
+import { defineGameplayConfig, refineGameplayConfig, gameplayInteger, gameplayNumber, gameplayObject, gameplayArray, gameplayString } from "@mueo/cocofaith-sdk/gameplay";
 import { BusinessError } from "../../framework/errors";
 
-export interface ClubConfig {
-  firstGoldFee: number; firstAscensionFee: number; dailyGoldFee: number; dailyAscensionFee: number;
-  poolRate: number; aidGold: number; aidAscension: number; aidGoldThreshold: number; aidAscensionThreshold: number;
-}
-export const DEFAULT_CLUB_CONFIG: Readonly<ClubConfig> = Object.freeze({
-  firstGoldFee: 2000, firstAscensionFee: 200, dailyGoldFee: 200, dailyAscensionFee: 20,
-  poolRate: 1.1, aidGold: 300, aidAscension: 40, aidGoldThreshold: 2000, aidAscensionThreshold: 600,
+export const CLUB_CONFIG = refineGameplayConfig(defineGameplayConfig({
+  firstGoldFee: gameplayInteger(2000, { min: 0, max: 9007199254740991, description: "首次入会金币会费。默认 2000。" }),
+  firstAscensionFee: gameplayInteger(200, { min: 0, max: 9007199254740991, description: "首次入会登神分会费。默认 200。" }),
+  dailyGoldFee: gameplayInteger(200, { min: 0, max: 9007199254740991, description: "每日金币会费。默认 200。" }),
+  dailyAscensionFee: gameplayInteger(20, { min: 0, max: 9007199254740991, description: "每日登神分会费。默认 20。" }),
+  poolRate: gameplayNumber(1.1, { min: 1, max: 10, description: "poolRate" }),
+  aidGold: gameplayInteger(300, { min: 0, max: 9007199254740991, description: "单次救济金币。默认 300。" }),
+  aidAscension: gameplayInteger(40, { min: 0, max: 9007199254740991, description: "单次救济登神分。默认 40。" }),
+  aidGoldThreshold: gameplayInteger(2000, { min: 0, max: 9007199254740991, description: "领取救济时金币必须低于此值。默认 2000。" }),
+  aidAscensionThreshold: gameplayInteger(600, { min: 0, max: 9007199254740991, description: "领取救济时登神分必须低于此值。默认 600。" }),
+}), value => {
+  // Field constraints are generated from the same definition as the Koishi schema.
 });
+export type ClubConfig = ReturnType<typeof CLUB_CONFIG.parse>;
+export const DEFAULT_CLUB_CONFIG = CLUB_CONFIG.defaults;
 export function validateClubConfig(value: unknown): ClubConfig {
-  if (!value || typeof value !== "object" || Array.isArray(value)) throw new BusinessError("CONFIG_INVALID");
-  const config = { ...DEFAULT_CLUB_CONFIG, ...value } as ClubConfig;
-  for (const key of ["firstGoldFee", "firstAscensionFee", "dailyGoldFee", "dailyAscensionFee", "aidGold", "aidAscension", "aidGoldThreshold", "aidAscensionThreshold"] as const) {
-    if (!Number.isSafeInteger(config[key]) || config[key] < 0) throw new BusinessError("CONFIG_INVALID", `俱乐部配置 ${key} 必须是非负安全整数。`);
-  }
-  if (!Number.isFinite(config.poolRate) || config.poolRate < 1 || config.poolRate > 10) throw new BusinessError("CONFIG_INVALID", "贡献池倍率必须在 1-10 之间。");
-  return Object.freeze(config);
+  try { return CLUB_CONFIG.parse(value); }
+  catch (cause) { throw new BusinessError("CONFIG_INVALID", cause instanceof Error ? cause.message : "配置无效", undefined, { cause }); }
 }

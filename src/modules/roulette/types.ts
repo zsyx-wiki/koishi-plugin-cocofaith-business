@@ -13,7 +13,8 @@ export interface RouletteState {
   rewards: Array<{ uid: number; place: number; base: FaithMoney; applied: FaithMoney }>;
   aborted?: boolean;
 }
-export interface RouletteConfig { turnSeconds: number; normalMin: number; gamblerMin: number; crazyMin: number; entryFee: number; }
+export type { RouletteConfig } from "./config";
+import type { RouletteConfig } from "./config";
 export interface RouletteStats extends Record<string, unknown> {
   level: number; exp: number; honor: number; plays: number;
   normal: { plays: number; wins: number }; gambler: { plays: number; wins: number }; crazy: { plays: number; wins: number };

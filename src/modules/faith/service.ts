@@ -2,13 +2,8 @@ import type { FaithBusinessCoreScope, FaithCoreUserData, FaithProfessionDefiniti
 import { BusinessError } from "../../framework/errors";
 import { MESSAGES } from "../../../messages";
 
-export interface FaithGameplayConfig extends Record<string, unknown> {
-  abandonBaseAscensionCost: number;
-  abandonAscensionCostPerUse: number;
-  abandonMaxAscensionCost: number;
-  changeProfessionGoldCost: number;
-  changeProfessionAscensionCost: number;
-}
+export type { FaithGameplayConfig } from "./config";
+import type { FaithGameplayConfig } from "./config";
 
 export class FaithGameplayService {
   constructor(private core: FaithBusinessCoreScope, private config: Readonly<FaithGameplayConfig>) {}

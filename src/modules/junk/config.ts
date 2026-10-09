@@ -1,16 +1,16 @@
+import { defineGameplayConfig, refineGameplayConfig, gameplayInteger, gameplayNumber, gameplayObject, gameplayArray, gameplayString } from "@mueo/cocofaith-sdk/gameplay";
 import { BusinessError } from "../../framework/errors";
-import type { JunkConfig } from "./types";
 
-export const DEFAULT_JUNK_CONFIG: Readonly<JunkConfig> = Object.freeze({ itemCount: 3, paidGoldCost: 200, paidAscensionCost: 5 });
-
+export const JUNK_CONFIG = refineGameplayConfig(defineGameplayConfig({
+  itemCount: gameplayInteger(3, { min: 1, max: 100, description: "每次捡到的物品数量。默认 3。" }),
+  paidGoldCost: gameplayInteger(200, { min: 0, max: 1000000, description: "每日第二次捡垃圾消耗的金币。默认 200。" }),
+  paidAscensionCost: gameplayInteger(5, { min: 0, max: 1000000, description: "每日第二次捡垃圾消耗的登神分。默认 5。" }),
+}), value => {
+  // Field constraints are generated from the same definition as the Koishi schema.
+});
+export type JunkConfig = ReturnType<typeof JUNK_CONFIG.parse>;
+export const DEFAULT_JUNK_CONFIG = JUNK_CONFIG.defaults;
 export function validateJunkConfig(value: unknown): JunkConfig {
-  if (!value || typeof value !== "object") throw new BusinessError("CONFIG_INVALID", "捡垃圾配置必须是对象。");
-  const input = value as Record<string, unknown>, result = { ...DEFAULT_JUNK_CONFIG };
-  for (const key of Object.keys(result) as (keyof JunkConfig)[]) {
-    const number = input[key];
-    if (!Number.isSafeInteger(number) || (number as number) < 0 || (number as number) > 1_000_000) throw new BusinessError("CONFIG_INVALID", `捡垃圾配置 ${key} 必须是非负安全整数。`);
-    result[key] = number as number;
-  }
-  if (result.itemCount < 1 || result.itemCount > 100) throw new BusinessError("CONFIG_INVALID", "每次捡垃圾的物品数量必须在 1-100 之间。");
-  return result;
+  try { return JUNK_CONFIG.parse(value); }
+  catch (cause) { throw new BusinessError("CONFIG_INVALID", cause instanceof Error ? cause.message : "配置无效", undefined, { cause }); }
 }

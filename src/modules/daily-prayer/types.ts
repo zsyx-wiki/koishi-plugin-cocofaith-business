@@ -1,10 +1,5 @@
-export interface DailyPrayerConfig extends Record<string, unknown> {
-  baseLimit: number;
-  ascensionMin: number;
-  ascensionMax: number;
-  goldMin: number;
-  goldMax: number;
-}
+export type { DailyPrayerConfig } from "./config";
+import type { DailyPrayerConfig } from "./config";
 
 export interface DailyPrayerState {
   date: string;

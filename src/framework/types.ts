@@ -74,17 +74,9 @@ export interface FaithBusinessModule<I = unknown, O = unknown, C = Record<string
   execute?(context: BusinessExecutionContext<C>, input: I): Promise<LegacyModuleResult<O>>;
 }
 export interface BusinessModuleConfig { enabled?: boolean; config?: Record<string, unknown>; }
-export interface Config {
-  modules: Record<string, BusinessModuleConfig>;
-  faith?: BusinessModuleConfig;
-  voidPrayer?: BusinessModuleConfig;
-  dailyPrayer?: BusinessModuleConfig;
-  junk?: BusinessModuleConfig;
-  roulette?: BusinessModuleConfig;
-  binding?: BusinessModuleConfig;
-  club?: BusinessModuleConfig;
-  container?: BusinessModuleConfig;
-}
+export type Config = { modules: Record<string, BusinessModuleConfig> } & {
+  [K in keyof typeof import("../config-catalog").BUILT_IN_CONFIGS]?: BusinessModuleConfig;
+};
 export interface BusinessModuleStatus { name: string; state: BusinessModuleState; enabled: boolean; dependencies: readonly string[]; error?: string; }
 export function defineBusinessModule<I = never, O = never, C = Record<string, unknown>>(module: FaithBusinessModule<I, O, C>) { return module; }
 
