@@ -108,7 +108,7 @@ test("simple gameplay is registered-only by default and guest is explicit", () =
 
   assert.equal(registered.commands[0].allowUnregistered, false)
   assert.equal(guest.commands[0].allowUnregistered, true)
-  assert.equal(business.defineAdvancedGameplay, business.defineBusinessModule)
+  assert.equal(business.defineAdvancedGameplay({ name: "compat", commands: registered.commands }).commands[0], registered.commands[0])
 })
 
 test("simple gameplay fail helper becomes a normal Business error", async () => {
@@ -184,4 +184,15 @@ test('built-in schemas and runtime parsers share constraints and legacy keys', (
   assert.throws(() => business.validateRouletteConfig({ turnSeconds: 1 }))
   const store = new business.BusinessConfigStore({ modules: {}, dailyPrayer: { config: { baseLimit: 2 } } })
   assert.equal(store.resolve(business.createDailyPrayerModule()).baseLimit, 2)
+})
+
+test('advanced gameplay accepts the same command vocabulary and retains legacy modules', async () => {
+  const module = business.defineAdvancedGameplay({ name: 'advanced_probe', commands: [{ id: 'root', triggers: ['probe'], guest: true,
+    children: [{ id: 'read', triggers: ['read'], run: () => 'ok' }],
+  }] })
+  const router = new business.BusinessCommandRouter()
+  router.register(module.name, module.commands)
+  const match = router.resolve({ content: 'probe read', scene: 'group' })
+  assert.deepEqual(await match.command.execute({}), { type: 'text', content: 'ok' })
+  assert.equal(module.commands[0].allowUnregistered, true)
 })

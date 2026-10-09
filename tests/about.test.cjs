@@ -4,10 +4,10 @@ const business = require('../lib/index.js')
 const businessVersion = require('../package.json').version
 const coreVersion = require('../../koishi-plugin-cocofaith-core/package.json').version
 
-test('about command reports runtime component versions and permits unregistered users', () => {
+test('about command reports runtime component versions and permits unregistered users', async () => {
   const command = business.createAboutModule().commands[0]
   assert.equal(command.allowUnregistered, true)
-  const result = command.execute({ core: { runtime: { apiVersion: '3.0', version: coreVersion, capabilities: [] } }, event: { uid: null, scene: 'group', content: '关于椰子水', adapter: { name: 'CoCoFaith Adapter Test', version: '1.2.3' } } })
+  const result = await command.execute({ core: { runtime: { apiVersion: '3.0', version: coreVersion, capabilities: [] } }, event: { uid: null, scene: 'group', content: '关于椰子水', adapter: { name: 'CoCoFaith Adapter Test', version: '1.2.3' } } })
   assert.equal(result.type, 'text')
   assert.match(result.content, /^关于椰子水/m)
   assert.match(result.content, /架构：Koishi \d+/)

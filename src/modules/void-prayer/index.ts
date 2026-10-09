@@ -1,5 +1,5 @@
-export * from "./types";
 export * from "./config";
+export * from "./module";
 export * from "./pool";
 export * from "./service";
-export * from "./module";
+export * from "./types";
