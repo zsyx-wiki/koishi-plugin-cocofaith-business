@@ -34,20 +34,7 @@ export * from "./framework/router";
 export * from "./framework/protocol";
 export * from "./framework/gameplay-adapter";
 export * from "./version";
-export {
-  defineGameplay,
-  defineGameplayConfig,
-  fail,
-  gameplayBoolean,
-  gameplayInteger,
-  gameplayNumber,
-  gameplayString,
-  image,
-  mixed,
-  silent,
-  text,
-} from "@mueo/cocofaith-sdk/gameplay";
-export type * from "@mueo/cocofaith-sdk/gameplay";
+export * from "@mueo/cocofaith-sdk/gameplay";
 export * from "@mueo/cocofaith-sdk/core";
 export { MESSAGES } from "../messages";
 export type { FaithMessages } from "../messages";

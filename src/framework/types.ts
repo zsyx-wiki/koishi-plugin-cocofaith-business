@@ -16,17 +16,14 @@ export interface BusinessEvent {
   displayName?: string;
   reply?: (result: BusinessResult) => Promise<unknown>;
 }
-export interface MessageTextNode { type: "text"; content: string; }
-export interface MessageImageNode { type: "image"; url: string; fallback?: string; }
-export interface MessageSilentNode { type: "silent"; }
-export type MessageNode = MessageTextNode | MessageImageNode;
-export interface BusinessDeliveryOptions {
-  /** 默认 passive；proactive-required 表示业务结果过期后仍有主动发送价值。最终是否发送由 Adapter 决定。 */
-  delivery?: "passive" | "proactive-required";
-  /** 可选全服公告；正文必须包含本群需要的信息，不支持广播的平台可忽略此字段。 */
-  broadcast?: { id: string; content: string };
-}
-export type BusinessResult = (MessageTextNode | MessageImageNode | MessageSilentNode | { type: "mixed"; content: MessageNode[] }) & BusinessDeliveryOptions;
+export type {
+  GameplayTextNode as MessageTextNode,
+  GameplayImageNode as MessageImageNode,
+  GameplaySilentResult as MessageSilentNode,
+  GameplayDeliveryOptions as BusinessDeliveryOptions,
+} from "@mueo/cocofaith-sdk/gameplay";
+export type MessageNode = import("@mueo/cocofaith-sdk/gameplay").GameplayTextNode | import("@mueo/cocofaith-sdk/gameplay").GameplayImageNode;
+export type BusinessResult = import("@mueo/cocofaith-sdk/gameplay").GameplayResult;
 export type BusinessDispatchResult =
   | { matched: true; business: string; command: string; result: BusinessResult }
   | { matched: false; reason: "empty" | "not-found" }

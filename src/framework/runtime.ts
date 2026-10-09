@@ -54,16 +54,17 @@ export class BusinessModuleRuntime {
     const previousConfig = this.config;
     const previousContext = this.contextCache;
     const nextConfig = this.configs.resolve(this.module);
+    this.state = "reloading";
+    await this.drain();
     this.config = nextConfig;
     this.contextCache = this.createContext();
-    this.state = "reloading";
     try {
       await this.module.reload?.(this.contextCache, previousConfig);
       this.state = "ready";
     } catch (error) {
       this.config = previousConfig;
       this.contextCache = previousContext;
-      this.state = "ready";
+      this.state = error instanceof BusinessError && error.details?.rollbackFailed ? "failed" : "ready";
       this.error = error instanceof Error ? error : new Error(String(error));
       throw new BusinessError("LIFECYCLE_FAILED", `业务 ${this.module.name} reload 失败。`, undefined, { cause: error });
     }

@@ -44,7 +44,7 @@ test("simple atomic gameplay receives uid, state and reward helpers and may retu
   const module = business.adaptGameplayDefinition(definition)
   const moduleContext = {
     name: definition.name,
-    core: {},
+    core: { lifecycle: { defer(callback) { return { disposed: false, dispose: callback } } } },
     config: module.validateConfig(module.defaultConfig),
     provide() {}, use() {}, contribute() {}, collect() {},
   }
@@ -129,9 +129,49 @@ test("simple gameplay fail helper becomes a normal Business error", async () => 
       event: { uid: 10000000, scene: "group", content: "失败检查" },
       args: [],
       path: ["probe"],
-      core: {},
+      core: { lifecycle: { defer(callback) { return { disposed: false, dispose: callback } } } },
       config: {},
     }),
     (error) => error.code === "LIMIT_REACHED" && error.message === "今天没有次数了。",
   )
+})
+
+test('setup registrations and service are released on reload, failure and dispose', async () => {
+  const registry = new business.BusinessInterfaceRegistry()
+  let disposed = 0, deferred = 0
+  const core = { lifecycle: { defer(callback) { return new business.CallbackDisposable(callback) } } }
+  const makeContext = reward => ({ name: 'reload_test', core, config: { reward },
+    provide: (name, value) => registry.provide('reload_test', name, value),
+    use: (provider, name) => registry.use('reload_test', provider, name, new Set()),
+    contribute() {}, collect() {},
+  })
+  const module = business.adaptGameplayDefinition(business.defineGameplay({ name: 'reload_test',
+    setup(context) {
+      context.provide('default', { reward: context.config.reward })
+      context.defer(() => deferred++)
+      if (context.config.reward < 0) throw new Error('bad reward')
+      return { reward: context.config.reward }
+    },
+    dispose() { disposed++ },
+    commands: [{ id: 'read', triggers: ['read'], run: ({ service }) => String(service.reward) }],
+  }))
+  await module.init(makeContext(1))
+  await module.reload(makeContext(2), { reward: 1 })
+  assert.equal(registry.list().length, 1)
+  assert.equal(registry.use('reload_test', 'reload_test', 'default', new Set()).reward, 2)
+  await assert.rejects(module.reload(makeContext(-1), { reward: 2 }), /bad reward/)
+  assert.equal(registry.use('reload_test', 'reload_test', 'default', new Set()).reward, 2)
+  await module.dispose()
+  assert.equal(registry.list().length, 0)
+  assert.equal(disposed, 3)
+  assert.equal(deferred, 4)
+})
+
+test('simple command groups use the same Business router and validate before commit', async () => {
+  const module = business.adaptGameplayDefinition(business.defineGameplay({ name: 'tree_test', commands: [{
+    id: 'root', triggers: ['root'], children: [{ id: 'child', triggers: ['child'], run: () => 'ok' }],
+  }] }))
+  const router = new business.BusinessCommandRouter()
+  router.register(module.name, module.commands)
+  assert.equal(router.resolve({ content: 'root child', scene: 'group' }).commandId, 'root.child')
 })
