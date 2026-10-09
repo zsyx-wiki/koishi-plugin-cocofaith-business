@@ -2,7 +2,7 @@ const test = require("node:test")
 const assert = require("node:assert/strict")
 const business = require("../lib/index.js")
 const { App } = require("koishi")
-const corePlugin = require("../../koishi-plugin-cocofaith-core/lib/index.js")
+const corePlugin = require("@mueo/koishi-plugin-cocofaith-core")
 
 const key = (identity) => JSON.stringify([
   identity.adapter, identity.type, identity.value, identity.scope, identity.scopeValue || "",

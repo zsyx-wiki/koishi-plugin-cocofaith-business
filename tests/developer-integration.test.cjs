@@ -1,7 +1,7 @@
 const test = require('node:test')
 const assert = require('node:assert/strict')
 const { App } = require('koishi')
-const core = require('../../koishi-plugin-cocofaith-core/lib/index.js')
+const core = require('@mueo/koishi-plugin-cocofaith-core')
 const business = require('../lib/index.js')
 
 test('SDK junk gameplay keeps daily limits, deduplicates events and survives reload', async () => {

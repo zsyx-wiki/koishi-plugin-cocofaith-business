@@ -5,218 +5,61 @@
 
   <p>
     <img alt="Koishi" src="https://img.shields.io/badge/Koishi-4.16%2B-60a5fa?style=flat-square">
-    <img alt="Version" src="https://img.shields.io/badge/version-3.0.0--alpha.3-a78bfa?style=flat-square">
-    <img alt="License" src="https://img.shields.io/badge/license-GPL--3.0-52b788?style=flat-square">
+    <img alt="Version" src="https://img.shields.io/badge/version-3.0.0--alpha.4-a78bfa?style=flat-square">
+    <img alt="License" src="https://img.shields.io/badge/License-GPL--3.0-52b788?style=flat-square">
     <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.9-3178c6?style=flat-square&logo=typescript&logoColor=white">
   </p>
 </div>
 
 ---
 
-CoCoFaith Business 是 CoCoFaith v3 的玩法插件，负责命令路由、业务规则和结构化响应。
-
-它通过 `faithCore` 使用公共数据与事务能力，不直接处理 OneBot、QQ 官方机器人等平台事件。
-
-插件运行时依赖实现 CoCoFaith Core API 3.0 的 `faithCore` 服务，但不依赖某个 Core npm 包。官方 Core 是默认实现，也可以替换成兼容实现。平台消息需要通过对应 Adapter 接入。
-
-## 内置玩法
-
-- 信仰注册、信息、弃誓和职业管理
-- 每日祈祷、虚空祈求、捡垃圾与物品开启
-- 背包物品出售
-- 称号、称号加成与收藏图鉴
-- 椰汁俱乐部、会员等级、贡献池、救济与分成
-- 普通、赌徒和疯狂模式恶魔轮盘
-- 神性容器、神性投入、觐献、从神与真神晋升
-- 创造者数值、称号和图鉴管理
-
-图鉴记录玩家曾经获得的物品。物品出售或消耗后不会从图鉴中移除，常规收藏与限定收藏分别统计。
+CoCoFaith v3 的玩法插件，包含信仰、祈祷、背包、称号、图鉴、俱乐部、恶魔轮盘和神性容器。
 
 ## 安装
 
-```bash
-npm install @mueo/koishi-plugin-cocofaith-core
-npm install @mueo/koishi-plugin-cocofaith-business
+在 Koishi 项目目录执行：
+
+```sh
+npm install @mueo/koishi-plugin-cocofaith-core@alpha @mueo/koishi-plugin-cocofaith-business@alpha
 ```
 
-插件加载顺序：
-
-```text
-CoCoFaith Core
-→ CoCoFaith Business
-→ CoCoFaith Adapter
-```
-
-Business 启动时会检查 `faithCore` 的 API 版本和关键能力。未加载兼容 Core 时不会注册玩法。自定义实现参见 [Core API](./docs/core-api.md)。
+启用数据库后添加 `@mueo/cocofaith-core` 和 `@mueo/cocofaith-business`，
+再添加对应平台的 CoCoFaith Adapter。Business 依赖 `faithCore` 服务，也支持兼容
+Core API 3.0 的自定义实现。
 
 ## 常用命令
 
-```text
-信仰 信息
-信仰 注册 [信仰名]
-信仰 弃誓 [目标信仰]
-信仰 职业 [职业名]
-信仰 变更职业 [职业名]
+| 玩法 | 命令示例 |
+| --- | --- |
+| 信仰 | `信仰 信息`、`信仰 注册 [信仰名]`、`信仰 弃誓 [信仰名]` |
+| 职业 | `信仰 职业 [职业名]`、`信仰 变更职业 [职业名]` |
+| 背包 | `信仰 打开 [物品名]`、`信仰 卖出 [物品名] [数量/全部]`、`信仰 卖出等级 [等级]` |
+| 祈求 | `虚空祈求 [次数]`、`虚空祈求 次数`、`捡垃圾`；每日祈祷使用所属信仰的祷词 |
+| 称号 | `称号 列表`、`称号 详情 [称号名]`、`称号 使用 [称号名]` |
+| 图鉴 | `图鉴 查看`、`图鉴 详情 [页码]`、`图鉴 限定详情 [页码]` |
+| 俱乐部 | `俱乐部 加入`、`俱乐部 救济`、`俱乐部 贡献 [金币/登神分] [数值]`、`俱乐部 信息` |
+| 轮盘 | `恶魔轮盘 发起`、`恶魔轮盘 发起赌徒`、`恶魔轮盘 发起疯狂`、`恶魔轮盘 加入`、`恶魔轮盘 开始` |
+| 容器 | `容器 查看`、`容器 投入 [轮盘赌荣誉/神性碎片] [数量]`、`容器 觐献 [次数]` |
+| 晋升 | `容器 从神 [神名]`、`容器 真神 [神名] [命途] [SP 道具名]` |
+| 身份 | `椰子水 用户信息`，跨平台绑定步骤见 OneBot Adapter README |
+| 版本 | `关于椰子水` |
 
-信仰 打开 [物品名]
-信仰 卖出 [物品名] [数量/全部]
-信仰 卖出等级 [等级]
-信仰 强制卖出等级 [等级]
-
-虚空祈求 [次数]
-虚空祈求 次数
-捡垃圾
-
-称号
-称号 列表
-称号 详情 [称号名]
-称号 使用 [称号名]
-
-图鉴 查看
-图鉴 详情 [页码]
-图鉴 限定详情 [页码]
-
-俱乐部 加入
-俱乐部 退出
-俱乐部 救济
-俱乐部 贡献 [金币|登神分] [数值]
-俱乐部 信息
-
-容器 查看
-容器 投入 [轮盘赌荣誉|神性碎片] [数量]
-容器 觐献 [次数]
-容器 从神 [神名]
-容器 真神 [神名] [命途] [SP 道具名]
-
-椰子水 申请绑定
-椰子水 申请绑定 [TokenA]
-椰子水 确认绑定 [TokenB]
-椰子水 用户信息
-
-关于椰子水
-```
-
-### 平台身份绑定
-
-新 UID 只能由明确声明允许注册的 Adapter 创建。
-
-QQ 官方 Adapter 默认允许；
-
-OneBot Adapter 默认禁止，仅在正常模式显式开启注册选项后允许。
-
-绑定流程只会把 OneBot QQ 添加到已有 UID，不迁移旧数据，也不会合并两个已有 UID。
-
-1. OneBot 私聊发送 `椰子水 申请绑定`，取得 Token A。
-2. 已注册用户在 QQ 官方机器人群聊发送 `椰子水 申请绑定 [TokenA]`。
-3. Token B 会发往第一步的 OneBot 私聊。
-4. 创建 Token A 的同一 OneBot QQ 私聊发送 `椰子水 确认绑定 [TokenB]`。
-
-令牌默认有效 300 秒。领取 Token A 的 QQ 官方群身份必须已有 UID，最终确认必须来自创建 Token A 的同一 OneBot QQ。
-
-### 恶魔轮盘
-
-```text
-恶魔轮盘 发起
-恶魔轮盘 发起赌徒
-恶魔轮盘 发起疯狂
-恶魔轮盘 加入 / 退出
-恶魔轮盘 开始 / 结束
-恶魔轮盘 开枪 / 恐惧 / 无畏 / 退缩
-恶魔轮盘 对局 / 状态
-恶魔轮盘 强制结束
-```
-
-同一群聊同时只能存在一个游戏房间。房主负责开始和解散等待中的房间，进行中的房间只能由创造者强制结束。
-
-房间、门票、资产和战绩通过 Core 原子事务提交。平台发送失败不会暂停或回滚已经完成的游戏行动。
-
-## 创造者命令
-
-`信仰管理` 下的命令默认仅创造者可用。非创造者调用时不会回复。
-
-```text
-信仰管理 数值 [数值名] [qq|uid] [目标] [变化值]
-信仰管理 数值 全体 [数值名] [变化值]
-
-信仰管理 称号 [uid] 给予 [称号名]
-信仰管理 称号 [uid] 收回 [称号名]
-
-信仰管理 图鉴 刷新 [uid]
-信仰管理 图鉴 全量刷新
-
-信仰管理 俱乐部 分成
-信仰管理 俱乐部 总贡献 [+/-数值]
-信仰管理 俱乐部 总贡献 [金币|登神分] [+/-数值]
-```
+管理命令位于 `信仰管理` 下，仅创造者可用。创造者身份在 Adapter 中配置。
 
 ## 配置
 
-配置定义位于根目录 [`config.ts`](./config.ts)。
-
-| 配置 | 默认值 | 说明 |
-| --- | ---: | --- |
-| `faith.enabled` | `true` | 启用信仰基础业务 |
-| `voidPrayer.enabled` | `true` | 启用虚空祈求 |
-| `dailyPrayer.enabled` | `true` | 启用每日祈祷 |
-| `junk.enabled` | `true` | 启用捡垃圾 |
-| `roulette.enabled` | `true` | 启用恶魔轮盘 |
-| `binding.enabled` | `true` | 启用 OneBot QQ 身份绑定 |
-| `club.enabled` | `true` | 启用椰汁俱乐部 |
-| `club.config.firstGoldFee` | `2000` | 首次入会金币会费 |
-| `club.config.firstAscensionFee` | `200` | 首次入会登神分会费 |
-| `club.config.dailyGoldFee` | `200` | 每日金币会费 |
-| `club.config.dailyAscensionFee` | `20` | 每日登神分会费 |
-| `binding.config.tokenTtlSeconds` | `300` | 绑定令牌有效时间 |
-| `binding.config.maxPending` | `1000` | 内存中待确认申请数量上限 |
-| `roulette.config.turnSeconds` | `45` | 每名玩家的操作时限 |
-| `roulette.config.entryFee` | `100` | 疯狂模式基础门票 |
-| `modules` | `{}` | 额外业务模块的启停和配置 |
-
-各玩法的数值范围和默认值会显示在 Koishi 配置界面中。
+Koishi 配置界面提供各玩法的启停、数值和取值范围。
+常用配置包括 `faith`、`voidPrayer`、`dailyPrayer`、`junk`、`binding`、`club` 和 `roulette`；
+额外模块通过 `modules` 配置。
 
 ## 开发
 
-源码按框架和玩法分开：
+普通玩法使用 SDK 的 `defineGameplay()`，需要独立业务表、多玩家事务或房间时使用
+`defineAdvancedGameplay()`。玩法通过公开接口和贡献点协作。
 
-```text
-src/
-├── framework/    # 高级模块运行时和命令路由
-├── modules/      # 内置玩法
-├── shared/       # 无状态公共工具
-└── index.ts      # 插件入口和公共导出
-```
+- [玩法开发](./docs/gameplay.md)
+- [Core API](./docs/core-api.md)
+- [游戏房间](./docs/game-rooms.md)
+- [图鉴](./docs/collection.md)
 
-Core 契约和简单玩法 SDK 由 `@mueo/cocofaith-sdk` 统一维护。普通指令玩法使用 `defineGameplay()`；多人房间、自定义生命周期或复杂跨业务协作使用 `defineAdvancedGameplay()`。接口选择和示例见 [玩法开发](./docs/gameplay.md)。
-
-跨业务访问通过公开接口和贡献点完成。业务不能直接查询其他业务的数据表。
-
-需要同时修改数值、背包或业务数据时，应使用 Business Scope 提供的原子事务：
-
-```ts
-await core.transaction.run(uid, async (tx) => {
-  await tx.economy.pay({ gold: 100 })
-  await tx.items.give('reward_item', 1)
-
-  const data = await tx.data.get()
-  await tx.data.set({
-    private: {
-      ...data.private,
-      purchaseCount: Number(data.private.purchaseCount ?? 0) + 1,
-    },
-  })
-}, {
-  source: 'shop.purchase',
-  idempotencyKey: `shop:${eventId}`,
-})
-```
-
-其他开发文档见 [文档索引](./docs/README.md)。
-
-```bash
-npm run build
-npm test
-```
-
-数据结构和公共接口仍可能在正式版前调整，生产环境升级前请先备份数据库。
-
-版本记录见 [CHANGELOG.md](./CHANGELOG.md)。项目采用 GPL-3.0-or-later 许可证。
+版本记录见 [CHANGELOG.md](./CHANGELOG.md)。许可证：GPL-3.0-or-later。

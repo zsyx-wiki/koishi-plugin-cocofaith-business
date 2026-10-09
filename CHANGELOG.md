@@ -1,6 +1,18 @@
 # Changelog
 
-## Unreleased
+## 3.0.0-alpha.4
+
+- 简单玩法使用 `defineGameplay()`，高级玩法使用 `defineAdvancedGameplay()`；统一 `triggers`、`run`、`guest` 语法，旧 `commands`、`execute`、`allowUnregistered` 继续兼容。
+- about 和 junk 使用 Gameplay SDK；junk 的费用、掉落与每日状态在同一事务保存，重复事件不重复扣费或发放物品。
+- 内置配置由共同定义生成默认值、类型、Schema 和运行时校验，根配置映射集中管理。
+- 统一复杂玩法的模块目录职责，将玩法文案移入所属模块并保留根文案兼容导出。
+- 内置公开接口和贡献点改用共享类型化 token，统一 SDK、Business 与 Adapter 的事件/响应协议。
+- 每次 setup 独立管理 service、接口、贡献点与生命周期资源；初始化失败清理资源，卸载汇总清理错误。
+- 重载暂停新命令并等待已有执行完成；失败尝试恢复旧配置，无法安全恢复时标记 failed 并阻止继续执行。
+- 未知错误向玩家返回通用信息，日志保留模块、命令、事件及原始原因。
+- 补充作者类型用例、真实 SQLite 玩法/幂等/重载测试，以及目录、状态、参数和生命周期开发指南。
+- 测试通过包名加载 Core，显式声明 Core、Koishi 与 SQLite 测试依赖；关于命令测试使用独立的版本样例。
+- CI 显式构建对应版本的 SDK/Core 测试实现，不要求存在同级源码目录；分支/PR 检查和发布流程复用依赖准备步骤。
 
 ## 3.0.0-alpha.3
 

@@ -1,6 +1,6 @@
 {
   "name": "@mueo/koishi-plugin-cocofaith-business",
-  "version": "3.0.0-alpha.3",
+  "version": "3.0.0-alpha.4",
   "description": "CoCoFaith v3 结构化业务与玩法服务",
   "author": "Mueo <mueo@mueoo.com>",
   "repository": {
@@ -29,12 +29,15 @@
     "koishi": "^4.16.0"
   },
   "dependencies": {
-    "@mueo/cocofaith-sdk": "^3.0.0-alpha.3"
+    "@mueo/cocofaith-sdk": "^3.0.0-alpha.4"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "tsup": "^8.5.0",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "koishi": "^4.16.0",
+    "@minatojs/driver-sqlite": "^4.7.0",
+    "@mueo/koishi-plugin-cocofaith-core": "^3.0.0-alpha.4"
   },
   "license": "GPL-3.0-or-later",
   "publishConfig": {

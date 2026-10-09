@@ -137,3 +137,6 @@ dist
 /lib
 src/.DS_Store
 .DS_Store
+
+# Isolated CI test implementations
+.test-deps/

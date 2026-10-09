@@ -2,7 +2,7 @@ const test = require('node:test')
 const assert = require('node:assert/strict')
 const business = require('../lib/index.js')
 const businessVersion = require('../package.json').version
-const coreVersion = require('../../koishi-plugin-cocofaith-core/package.json').version
+const coreVersion = '3.0.0-alpha.test'
 
 test('about command reports runtime component versions and permits unregistered users', async () => {
   const command = business.createAboutModule().commands[0]
