@@ -1,0 +1,1 @@
+export const ABOUT_MESSAGES = (koishi: string, core: string, business: string, adapter: string) => ["关于椰子水", `架构：Koishi ${koishi}`, `Core：CoCoFaith Core ${core}`, `Business：CoCoFaith Business ${business}`, `Adapter：${adapter}`].join("\n");
