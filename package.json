@@ -1,7 +1,7 @@
 {
   "name": "@mueo/koishi-plugin-cocofaith-business",
   "version": "3.0.0-alpha.3",
-  "description": "CoCoFaith v3 \u7ed3\u6784\u5316\u4e1a\u52a1\u4e0e\u73a9\u6cd5\u670d\u52a1",
+  "description": "CoCoFaith v3 结构化业务与玩法服务",
   "author": "Mueo <mueo@mueoo.com>",
   "repository": {
     "type": "git",
@@ -43,7 +43,7 @@
   "koishi": {
     "name": "CoCoFaith Business",
     "description": {
-      "zh-CN": "CoCoFaith v3 \u73a9\u6cd5\u5c42\uff0c\u53ea\u8c03\u7528 CoCoFaith Core \u5e76\u8fd4\u56de\u7ed3\u6784\u5316\u7ed3\u679c\u3002"
+      "zh-CN": "CoCoFaith v3 玩法层，只调用 CoCoFaith Core 并返回结构化结果。"
     },
     "services": {
       "required": [
