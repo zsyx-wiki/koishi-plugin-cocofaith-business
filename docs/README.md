@@ -1,5 +1,6 @@
 # 开发文档
 
+- [优化验收清单](./development-improvements.md)：已完成的结构、SDK 和验证改动。
 - [玩法开发](./gameplay.md)：简单玩法与高级模块的开发入口。
 - [Core API](./core-api.md)：`faithCore` 服务协议和第三方实现要求。
 - [游戏房间](./game-rooms.md)：多人房间、事务和规则扩展。
